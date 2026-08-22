@@ -6,7 +6,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log; // <-- ADDED: Needed to log the fake SMS
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http; // <-- Added to send HTTP requests to Semaphore
 
 class AuthController extends Controller
 {
@@ -31,10 +32,21 @@ class AuthController extends Controller
             'name' => $request->name,
             'contact' => $request->contact,
             'password' => Hash::make($request->password),
-            'verification_code' => $verificationCode, // <-- ADDED: Save code to database
+            'verification_code' => $verificationCode,
         ]);
 
-        // 3. "SEND" THE SMS (Log it to a file so we can see it locally)
+        // 3. SEND REAL SMS VIA SEMAPHORE
+        try {
+            Http::post('https://api.semaphore.co/api/v4/messages', [
+                'apikey'  => env('SEMAPHORE_API_KEY'),
+                'number'  => $user->contact,
+                'message' => "Your Court Reserve verification code is: {$verificationCode}",
+            ]);
+        } catch (\Exception $e) {
+            Log::error("Failed to send SMS to {$user->contact}: " . $e->getMessage());
+        }
+
+        // Backup Log (so you can still see the code in logs if needed)
         Log::info("SMS SENT TO {$user->contact}: Your Court Reserve verification code is: {$verificationCode}");
 
         Auth::login($user);
@@ -43,7 +55,6 @@ class AuthController extends Controller
         return redirect()->route('verify.index'); 
     }
 
-    // Handle the login logic
     // Handle the login logic
     public function login(Request $request) {
         // 1. Validate the incoming data 
@@ -78,8 +89,19 @@ class AuthController extends Controller
                 $user->verification_code = $newCode;
                 $user->save();
 
+                // Send fresh SMS via Semaphore API
+                try {
+                    Http::post('https://api.semaphore.co/api/v4/messages', [
+                        'apikey'  => env('SEMAPHORE_API_KEY'),
+                        'number'  => $user->contact,
+                        'message' => "Your fresh Court Reserve verification code is: {$newCode}",
+                    ]);
+                } catch (\Exception $e) {
+                    Log::error("Failed to send SMS to {$user->contact}: " . $e->getMessage());
+                }
+
                 // Log the new code
-                \Illuminate\Support\Facades\Log::info("NEW SMS SENT TO {$user->contact}: Your fresh verification code is: {$newCode}");
+                Log::info("NEW SMS SENT TO {$user->contact}: Your fresh verification code is: {$newCode}");
 
                 return redirect()->route('verify.index');
             }
@@ -93,6 +115,7 @@ class AuthController extends Controller
             'login_id' => 'The provided credentials do not match our records.',
         ])->onlyInput('login_id');
     }
+
     public function logout(Request $request)
     {
         // 1. Log the user out of the system
