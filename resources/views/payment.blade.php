@@ -157,76 +157,91 @@
             <i class="fa-regular fa-bell" style="font-size: 24px; color: var(--primary-blue);"></i>
         </header>
 
-        <div class="payment-grid">
+        <!-- 1. ADDED THE FORM WRAPPER -->
+        <form action="{{ url('/reserve/process-payment') }}" method="POST" enctype="multipart/form-data">
+            @csrf
             
-            <div class="panel">
-                <div class="sport-title">
-                    <img src="{{ asset('images/shuttlecock.png') }}" width="35" alt="Badminton">
-                    Badminton
-                </div>
+            <!-- Hidden inputs to carry the reservation data from the previous page -->
+            <input type="hidden" name="court_id" value="1"> <!-- Replace with dynamic data -->
+            <input type="hidden" name="start_time" value="2026-06-01 16:00:00">
+            <input type="hidden" name="total_amount" value="250.00">
+
+            <div class="payment-grid">
                 
-                <div style="border: 1px solid #eee; border-radius: 12px; padding: 20px;">
-                    <div class="amount-row">
-                        <span>Total Amount</span>
-                        <span>₱ 250.00</span>
+                <div class="panel">
+                    <div class="sport-title">
+                        <img src="{{ asset('images/shuttlecock.png') }}" width="35" alt="Badminton">
+                        Badminton
                     </div>
                     
-                    <div class="gcash-details">
-                        <div class="gcash-info">
-                            <span style="color: #999; font-size: 12px;">Payment Method</span>
-                            <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
-                                <div style="background: #007bff; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 20px;">G</div>
-                                <div>
-                                    <h3>Gcash</h3>
-                                    <p>09123456789</p>
+                    <div style="border: 1px solid #eee; border-radius: 12px; padding: 20px;">
+                        <div class="amount-row">
+                            <span>Total Amount</span>
+                            <span>₱ 250.00</span>
+                        </div>
+                        
+                        <div class="gcash-details">
+                            <div class="gcash-info">
+                                <span style="color: #999; font-size: 12px;">Payment Method</span>
+                                <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
+                                    <div style="background: #007bff; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 20px;">G</div>
+                                    <div>
+                                        <h3>Gcash</h3>
+                                        <p>09123456789</p>
+                                    </div>
                                 </div>
                             </div>
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=GcashPayment" alt="GCash QR" style="border-radius: 8px;">
                         </div>
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=GcashPayment" alt="GCash QR" style="border-radius: 8px;">
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h3>Payment Option</h3>
+                    <p class="sub">50% Down Payment Required to Confirm Reservation</p>
+                    
+                    <div class="radio-option">
+                        <label class="radio-label">
+                            <input type="radio" name="payment_type" value="full" checked>
+                            Full Payment
+                        </label>
+                        <span class="price-text">₱ 250.00</span>
+                    </div>
+                    
+                    <div class="radio-option" style="align-items: flex-start;">
+                        <label class="radio-label">
+                            <input type="radio" name="payment_type" value="half">
+                            <div style="display: flex; flex-direction: column;">
+                                50% Down Payment
+                                <span style="color: var(--text-gray); font-size: 12px; font-weight: normal; margin-top: 3px;">Please pay the remaining balance<br>before your playing time.</span>
+                            </div>
+                        </label>
+                        <span class="price-text">₱ 125.00</span>
                     </div>
                 </div>
             </div>
 
             <div class="panel">
-                <h3>Payment Option</h3>
-                <p class="sub">50% Down Payment Required to Confirm Reservation</p>
+                <h3>Upload Receipt <span style="color: var(--text-gray); font-size: 13px; font-weight: normal;">(Required)</span></h3>
+                <p class="sub">Please upload the Gcash receipt</p>
                 
-                <div class="radio-option">
-                    <label class="radio-label">
-                        <input type="radio" name="payment_type" value="full" checked>
-                        Full Payment
-                    </label>
-                    <span class="price-text">₱ 250.00</span>
+                <!-- 2. UPGRADED TO ACTUALLY UPLOAD A FILE -->
+                <div class="upload-area" onclick="document.getElementById('receipt-upload').click()">
+                    <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+                    <div class="upload-text" id="file-name-display">Drag and drop your file here</div>
+                    <div style="color: var(--text-gray); font-size: 14px; margin-bottom: 10px;">or</div>
+                    <button type="button" class="btn-outline">Choose File</button>
+                    
+                    <!-- The actual hidden file input -->
+                    <input type="file" id="receipt-upload" name="receipt" accept="image/png, image/jpeg" style="display: none;" required onchange="document.getElementById('file-name-display').innerText = this.files[0].name">
                 </div>
-                
-                <div class="radio-option" style="align-items: flex-start;">
-                    <label class="radio-label">
-                        <input type="radio" name="payment_type" value="down">
-                        <div style="display: flex; flex-direction: column;">
-                            50% Down Payment
-                            <span style="color: var(--text-gray); font-size: 12px; font-weight: normal; margin-top: 3px;">Please pay the remaining balance<br>before your playing time.</span>
-                        </div>
-                    </label>
-                    <span class="price-text">₱ 125.00</span>
-                </div>
+                <div style="text-align: center; color: #999; font-size: 12px; margin-top: 15px;">Accepted file: JPG, PNG (Max.5MB)</div>
             </div>
-        </div>
 
-        <div class="panel">
-            <h3>Upload Receipt <span style="color: var(--text-gray); font-size: 13px; font-weight: normal;">(Required)</span></h3>
-            <p class="sub">Please upload the Gcash receipt</p>
-            
-            <div class="upload-area">
-                <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
-                <div class="upload-text">Drag and drop your file here</div>
-                <div style="color: var(--text-gray); font-size: 14px; margin-bottom: 10px;">or</div>
-                <button class="btn-outline">Choose File</button>
-            </div>
-            <div style="text-align: center; color: #999; font-size: 12px; margin-top: 15px;">Accepted file: JPG, PNG (Max.5MB)</div>
-        </div>
+            <!-- 3. CHANGED TO A REAL SUBMIT BUTTON -->
+            <button type="submit" class="btn-submit">Complete Payment</button>
 
-        <button class="btn-submit" onclick="showModal()">Complete Payment</button>
-
+        </form>
     </main>
 
     <div id="successModal" class="modal-overlay">
@@ -265,7 +280,16 @@
         }
         function closeModal() {
             document.getElementById('successModal').style.display = 'none';
+            // Redirect them back to history or dashboard after closing
+            window.location.href = "{{ route('history.index') }}"; 
         }
+
+        // Automatically show modal if Laravel flashes a 'success' message
+        @if(session('success'))
+            window.onload = function() {
+                showModal();
+            };
+        @endif
     </script>
 </body>
 </html>
