@@ -280,5 +280,29 @@
             document.getElementById('table-' + tabName).style.display = 'table';
         }
     </script>
+    <script>
+    // Set an interval to run this code every 5 seconds (5000 milliseconds)
+    setInterval(function() {
+        
+        // 1. Silently fetch the current page URL in the background
+        fetch(window.location.href)
+            .then(response => response.text())
+            .then(html => {
+                
+                // 2. Parse the newly downloaded HTML
+                let parser = new DOMParser();
+                let doc = parser.parseFromString(html, 'text/html');
+                
+                // 3. Extract the newest table body (<tbody>) from the hidden download
+                let newTableBody = doc.querySelector('tbody').innerHTML;
+                
+                // 4. Smoothly replace the visible table body on the screen
+                document.querySelector('tbody').innerHTML = newTableBody;
+                
+            })
+            .catch(error => console.log('Polling error, waiting for next cycle...'));
+            
+    }, 5000);
+</script>
 </body>
 </html>
