@@ -74,66 +74,14 @@
     
         /* Mobile App Navigation Override */
         @media (max-width: 768px) {
-            body { 
-                flex-direction: column; 
-            }
-            
-            /* Transforms sidebar into a bottom navbar */
-            .sidebar {
-                position: fixed; 
-                bottom: 0; 
-                left: 0; 
-                width: 100%; 
-                height: 70px;
-                flex-direction: row; 
-                border-right: none; 
-                border-top: 1px solid #ddd;
-                z-index: 1000; 
-                padding: 0;
-                box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
-            }
-            
-            /* Hide the big logo on mobile */
-            .logo-container { 
-                display: none; 
-            }
-            
-            /* Arrange the icons horizontally */
-            .nav-menu { 
-                display: flex; 
-                flex-direction: row; 
-                margin: 0; 
-                width: 100%; 
-                justify-content: space-around; 
-                align-items: center; 
-            }
-            
-            .nav-menu a { 
-                padding: 10px; 
-                flex-direction: column; /* Stacks icon above text */
-                font-size: 11px; 
-                border-left: none; 
-                color: #777;
-            }
-            
-            .nav-menu a i { 
-                margin-right: 0; 
-                margin-bottom: 4px; 
-                font-size: 20px; 
-            }
-            
-            /* Mobile active state (underline instead of left border) */
-            .nav-menu a:hover, .nav-menu a.active { 
-                border-left: none; 
-                background: transparent; 
-                color: var(--primary-blue); 
-            }
-
-            /* Push main content up so it isn't hidden behind the new bottom bar */
-            .main-content { 
-                padding: 20px;
-                padding-bottom: 90px; 
-            }
+            body { flex-direction: column; }
+            .sidebar { position: fixed; bottom: 0; left: 0; width: 100%; height: 70px; flex-direction: row; border-right: none; border-top: 1px solid #ddd; z-index: 1000; padding: 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+            .logo-container { display: none; }
+            .nav-menu { display: flex; flex-direction: row; margin: 0; width: 100%; justify-content: space-around; align-items: center; }
+            .nav-menu a { padding: 10px; flex-direction: column; font-size: 11px; border-left: none; color: #777; }
+            .nav-menu a i { margin-right: 0; margin-bottom: 4px; font-size: 20px; }
+            .nav-menu a:hover, .nav-menu a.active { border-left: none; background: transparent; color: var(--primary-blue); }
+            .main-content { padding: 20px; padding-bottom: 90px; }
         }
     </style>
 </head>
@@ -157,14 +105,15 @@
             <i class="fa-regular fa-bell" style="font-size: 24px; color: var(--primary-blue);"></i>
         </header>
 
-        <!-- 1. ADDED THE FORM WRAPPER -->
+        <!-- 1. DYNAMIC FORM WRAPPER -->
         <form action="{{ url('/reserve/process-payment') }}" method="POST" enctype="multipart/form-data">
             @csrf
             
-            <!-- Hidden inputs to carry the reservation data from the previous page -->
-            <input type="hidden" name="court_id" value="1"> <!-- Replace with dynamic data -->
-            <input type="hidden" name="start_time" value="2026-06-01 16:00:00">
-            <input type="hidden" name="total_amount" value="250.00">
+            <!-- Hidden inputs seamlessly catching data from the reservation page -->
+            <input type="hidden" name="court_id" value="{{ session('court_id') }}">
+            <input type="hidden" name="start_time" value="{{ session('start_time') }}">
+            <input type="hidden" name="end_time" value="{{ session('end_time') }}">
+            <input type="hidden" name="total_amount" value="{{ session('total_price', 230) }}">
 
             <div class="payment-grid">
                 
@@ -177,7 +126,8 @@
                     <div style="border: 1px solid #eee; border-radius: 12px; padding: 20px;">
                         <div class="amount-row">
                             <span>Total Amount</span>
-                            <span>₱ 250.00</span>
+                            <!-- Dynamic Total Price -->
+                            <span>₱ {{ number_format(session('total_price', 230), 2) }}</span>
                         </div>
                         
                         <div class="gcash-details">
@@ -205,7 +155,8 @@
                             <input type="radio" name="payment_type" value="full" checked>
                             Full Payment
                         </label>
-                        <span class="price-text">₱ 250.00</span>
+                        <!-- Dynamic Full Price -->
+                        <span class="price-text">₱ {{ number_format(session('total_price', 230), 2) }}</span>
                     </div>
                     
                     <div class="radio-option" style="align-items: flex-start;">
@@ -216,7 +167,8 @@
                                 <span style="color: var(--text-gray); font-size: 12px; font-weight: normal; margin-top: 3px;">Please pay the remaining balance<br>before your playing time.</span>
                             </div>
                         </label>
-                        <span class="price-text">₱ 125.00</span>
+                        <!-- Dynamic Half Price -->
+                        <span class="price-text">₱ {{ number_format(session('total_price', 230) / 2, 2) }}</span>
                     </div>
                 </div>
             </div>
@@ -225,7 +177,6 @@
                 <h3>Upload Receipt <span style="color: var(--text-gray); font-size: 13px; font-weight: normal;">(Required)</span></h3>
                 <p class="sub">Please upload the Gcash receipt</p>
                 
-                <!-- 2. UPGRADED TO ACTUALLY UPLOAD A FILE -->
                 <div class="upload-area" onclick="document.getElementById('receipt-upload').click()">
                     <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
                     <div class="upload-text" id="file-name-display">Drag and drop your file here</div>
@@ -238,7 +189,6 @@
                 <div style="text-align: center; color: #999; font-size: 12px; margin-top: 15px;">Accepted file: JPG, PNG (Max.5MB)</div>
             </div>
 
-            <!-- 3. CHANGED TO A REAL SUBMIT BUTTON -->
             <button type="submit" class="btn-submit">Complete Payment</button>
 
         </form>
@@ -255,22 +205,22 @@
             <h2 class="modal-title">Reservation Confirmed!</h2>
             <p class="modal-text">
                 Your reservation for<br>
-                <strong style="color: var(--primary-blue);">Badminton Court 1</strong><br>
-                on <strong style="color: var(--primary-blue);">June 1, 2026</strong> at <strong style="color: var(--primary-blue);">4:00 PM</strong><br>
-                has been confirmed
+                <strong style="color: var(--primary-blue);">Badminton Court {{ session('court_id', 1) }}</strong><br>
+                has been submitted and is pending verification.
             </p>
             
             <div style="color: var(--text-gray); font-size: 15px; margin-bottom: 10px;">
-                Reservation ID: <strong style="color: var(--primary-blue);">BC26-01</strong>
+                Reservation ID: <strong style="color: var(--primary-blue);">{{ session('reservation_id', 'Pending') }}</strong>
             </div>
             
             <div class="qr-box">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=BC26-01" alt="Reservation QR">
+                <!-- Dynamically generates the QR code based on their specific Reservation ID -->
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ session('reservation_id', 'Pending') }}" alt="Reservation QR">
             </div>
             
             <p style="color: #999; font-size: 11px; margin-top: 0; margin-bottom: 20px;">Please arrive 3-5 minutes before your schedule time.</p>
             
-            <button class="btn-download">Download QR</button>
+            <button class="btn-download" onclick="window.print()">Download QR</button>
         </div>
     </div>
 

@@ -7,12 +7,12 @@ use App\Models\Reservation;
 use App\Models\Court;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
-use Illuminate\Support\Str; // <-- ADDED: Allows us to generate random codes
+use Illuminate\Support\Str;
 
 class ReservationController extends Controller
 {
     /**
-     * Handle checking availability and creating a reservation.
+     * Handle checking availability and redirecting to the payment screen.
      */
     public function store(Request $request)
     {
@@ -25,11 +25,10 @@ class ReservationController extends Controller
         ]);
 
         // 2. Parse exact dates and times into clean standardized timestamps
-        // FIX: Changed $request->date to $request->reservation_date to match your form
         $start = Carbon::parse($request->reservation_date . ' ' . $request->start_time);
         $end = Carbon::parse($request->reservation_date . ' ' . $request->end_time);
 
-        // Fail Safe: Ensure the meeting doesn't end before it starts or have zero duration
+        // Fail Safe: Ensure the meeting doesn't end before it starts
         if ($end->lessThanOrEqualTo($start)) {
             return back()->withErrors(['end_time' => 'The end time must be after the start time.']);
         }
@@ -37,7 +36,6 @@ class ReservationController extends Controller
         $courtId = $request->court_id;
 
         // 3. The Anti-Double-Booking Guard Clause
-        // Checks if there are any existing confirmed/pending records overlapping the requested window
         $isDoubleBooked = Reservation::where('court_id', $courtId)
             ->whereIn('status', ['pending', 'confirmed'])
             ->where(function ($query) use ($start, $end) {
@@ -54,31 +52,17 @@ class ReservationController extends Controller
         // 4. Automated Financial Calculations
         $court = Court::find($courtId);
         $durationInHours = $start->diffInMinutes($end) / 60;
-        
-        // ADDED FALLBACK: Just in case your courts table doesn't have a price_per_hour column yet, it defaults to 230
         $totalPrice = $durationInHours * ($court->price_per_hour ?? 230); 
-        
-        // Compute 50% down payment required by system policy
-        $requiredDownPayment = $totalPrice * 0.50; 
 
-        // Generate a unique 6-character reservation code (e.g., RES-X9A2B4)
-        $reservationCode = 'RES-' . strtoupper(Str::random(6));
-
-        // 5. Database Insertion
-        Reservation::create([
-            'user_id' => Auth::id(),
+        // 5. BRIDGE: Forward everything to the Payment page instead of saving!
+        return redirect()->route('payment.index')->with([
             'court_id' => $courtId,
-            'start_time' => $start,
-            'end_time' => $end,
-            'total_price' => $totalPrice,
-            'amount_paid' => 0.00, // Starts at zero until they complete checkout
-            'status' => 'pending',
-            'reservation_code' => $reservationCode, // <-- ADDED: Saves the unique code
+            'start_time' => $start->format('Y-m-d H:i:s'),
+            'end_time' => $end->format('Y-m-d H:i:s'),
+            'total_price' => $totalPrice
         ]);
-
-        // UPDATED: Your custom success message
-        return redirect('/home')->with('success', 'The request is sent. Please wait for confirmation.');
     }
+
     /**
      * Fetch booked time slots for the frontend AJAX check.
      */
@@ -109,12 +93,20 @@ class ReservationController extends Controller
         // Send the list of booked hours back to the browser
         return response()->json(['booked_slots' => $bookedSlots]);
     }
+
+    /**
+     * Handle final payment submission and save to the database.
+     */
     public function processPayment(Request $request)
     {
-        // 1. Validate the form and image
+        // 1. Validate the form, image, AND the hidden fields passed from the previous page
         $request->validate([
             'payment_type' => 'required|in:full,half',
             'receipt'      => 'required|image|mimes:jpeg,png,jpg|max:5120',
+            'court_id'     => 'required',
+            'start_time'   => 'required',
+            'end_time'     => 'required',
+            'total_amount' => 'required',
         ]);
 
         // 2. Save the uploaded GCash receipt securely
@@ -124,20 +116,23 @@ class ReservationController extends Controller
             $imagePath = $request->file('receipt')->store('receipts', 'public');
         }
 
-        // 3. Save to database
-        $reservation = new \App\Models\Reservation();
-        $reservation->user_id = auth()->id();
+        // Generate a unique 6-character reservation code (e.g., RES-X9A2B4)
+        $reservationCode = 'RES-' . strtoupper(Str::random(6));
+
+        // 3. Save EVERYTHING to the database
+        $reservation = new Reservation();
+        $reservation->user_id = Auth::id();
         $reservation->court_id = $request->court_id;
         $reservation->start_time = $request->start_time;
-        // ... (add your end time calculation here)
+        $reservation->end_time = $request->end_time;
+        $reservation->total_price = $request->total_amount;
         $reservation->payment_type = $request->payment_type;
         $reservation->receipt_path = $imagePath;
         $reservation->status = 'pending';
+        $reservation->reservation_code = $reservationCode;
         $reservation->save();
 
         // 4. Send back to the page and trigger the Success Modal!
-        return back()->with('success', true)->with('reservation_id', $reservation->id);
+        return back()->with('success', true)->with('reservation_id', $reservation->reservation_code);
     }
-
-} // <-- The file ends right here! No second store method!
-    
+}
