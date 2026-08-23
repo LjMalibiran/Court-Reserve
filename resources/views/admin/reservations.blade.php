@@ -280,7 +280,7 @@
             document.getElementById('table-' + tabName).style.display = 'table';
         }
     </script>
-    <script>
+<script>
     // Set an interval to run this code every 5 seconds (5000 milliseconds)
     setInterval(function() {
         
@@ -293,11 +293,30 @@
                 let parser = new DOMParser();
                 let doc = parser.parseFromString(html, 'text/html');
                 
-                // 3. Extract the newest table body (<tbody>) from the hidden download
-                let newTableBody = doc.querySelector('tbody').innerHTML;
+                // 3. UPDATE ALL TABLES
+                // We loop through the exact IDs of your tables to update each one's <tbody>
+                const tableIds = ['table-all', 'table-pending', 'table-confirmed', 'table-completed', 'table-cancelled'];
                 
-                // 4. Smoothly replace the visible table body on the screen
-                document.querySelector('tbody').innerHTML = newTableBody;
+                tableIds.forEach(id => {
+                    let newTbody = doc.querySelector(`#${id} tbody`);
+                    let currentTbody = document.querySelector(`#${id} tbody`);
+                    
+                    if (newTbody && currentTbody) {
+                        currentTbody.innerHTML = newTbody.innerHTML;
+                    }
+                });
+
+                // 4. UPDATE THE NUMBER COUNTERS ON THE TABS
+                // Grab all the <span> tags inside your tab buttons from both the new data and current screen
+                let newSpans = doc.querySelectorAll('.tab-btn span');
+                let currentSpans = document.querySelectorAll('.tab-btn span');
+                
+                // Loop through and match them up so the numbers change seamlessly
+                for(let i = 0; i < currentSpans.length; i++) {
+                    if(newSpans[i]) {
+                        currentSpans[i].innerHTML = newSpans[i].innerHTML;
+                    }
+                }
                 
             })
             .catch(error => console.log('Polling error, waiting for next cycle...'));
