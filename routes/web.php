@@ -125,6 +125,8 @@ Route::middleware(['auth', 'verified.phone'])->group(function () {
         return view('payment');
     })->name('payment.index');
 
+    Route::post('/reserve/process-payment', [ReservationController::class, 'processPayment']);
+
     // Live Availability Check
     Route::get('/api/check-availability', [ReservationController::class, 'checkAvailability']);
 });

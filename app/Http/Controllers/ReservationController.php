@@ -124,8 +124,8 @@ class ReservationController extends Controller
             $imagePath = $request->file('receipt')->store('receipts', 'public');
         }
 
-        // 3. Save to database (Make sure your courts table migration has payment_type and receipt_path columns!)
-        $reservation = new App\Models\Reservation();
+        // 3. Save to database
+        $reservation = new \App\Models\Reservation();
         $reservation->user_id = auth()->id();
         $reservation->court_id = $request->court_id;
         $reservation->start_time = $request->start_time;
@@ -138,29 +138,6 @@ class ReservationController extends Controller
         // 4. Send back to the page and trigger the Success Modal!
         return back()->with('success', true)->with('reservation_id', $reservation->id);
     }
-    public function store(Request $request) {
-    // 1. Validate the form, including the image!
-    $request->validate([
-        // ... your other validation rules (court_id, time, etc.)
-        'payment_type' => 'required|in:full,half',
-        'receipt'      => 'required|image|mimes:jpeg,png,jpg|max:5120', // Max 5MB
-    ]);
 
-    // 2. Save the uploaded image to the server
-    $imagePath = null;
-    if ($request->hasFile('receipt')) {
-        // This saves the file into storage/app/public/receipts
-        $imagePath = $request->file('receipt')->store('receipts', 'public');
-    }
-
-    // 3. Save the reservation to the database
-    $reservation = new Reservation();
-    // ... assign your other fields ($reservation->court_id = $request->court_id, etc.)
-    $reservation->payment_type = $request->payment_type;
-    $reservation->receipt_path = $imagePath; // Save the image path!
-    $reservation->save();
-
-    // 4. Send them to a success page to see the modal from 9.png
-    return redirect()->route('reservation.success', $reservation->id);
-}
-}
+} // <-- The file ends right here! No second store method!
+    
