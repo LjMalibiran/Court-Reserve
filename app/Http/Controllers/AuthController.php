@@ -116,7 +116,7 @@ class AuthController extends Controller
         ])->onlyInput('login_id');
     }
 
-    public function logout(Request $request)
+   public function logout(Request $request)
     {
         // 1. Log the user out of the system
         Auth::logout();
@@ -127,7 +127,7 @@ class AuthController extends Controller
         // 3. Regenerate the CSRF token to prevent hijacking
         $request->session()->regenerateToken();
         
-        // 4. Send them back to the login screen!
-        return redirect('admin/login'); 
+        // 4. Send them back to the main login screen!
+        return redirect('/login'); // <-- Change this to '/' if your login is on the homepage
     }
 }
