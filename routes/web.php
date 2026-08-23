@@ -29,6 +29,10 @@ Route::get('/register', [AuthController::class, 'showRegister'])->name('register
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 
+Route::get('/terms', function () {
+    return view('terms');
+})->name('terms');
+
 // ==========================================
 // 2. STAFF GATEWAY & LOGINS (Must be public!)
 // ==========================================

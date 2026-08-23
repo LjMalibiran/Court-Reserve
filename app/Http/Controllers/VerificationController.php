@@ -29,7 +29,7 @@ class VerificationController extends Controller
             $user->verification_code = null;
             $user->save();
 
-            return redirect()->route('home')->with('success', 'Phone verified successfully!');
+            return redirect()->route('terms')->with('success', 'Phone verified successfully!');
         }
 
         // 4. If it fails, send them back with an error
