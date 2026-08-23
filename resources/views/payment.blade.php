@@ -230,8 +230,8 @@
         }
         function closeModal() {
             document.getElementById('successModal').style.display = 'none';
-            // Redirect them back to history or dashboard after closing
-            window.location.href = "{{ route('history.index') }}"; 
+            // Redirect them back to the homepage!
+            window.location.href = "{{ url('/home') }}"; 
         }
 
         // Automatically show modal if Laravel flashes a 'success' message
