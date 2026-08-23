@@ -284,16 +284,20 @@
     // Set an interval to run this code every 5 seconds (5000 milliseconds)
     setInterval(function() {
         
-        // 1. Silently fetch the current page URL in the background
-        fetch(window.location.href)
+        // 1. Create a dynamic URL with a timestamp to bust the browser cache!
+        let currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('t', new Date().getTime());
+        
+        // 2. Silently fetch the un-cached page in the background
+        fetch(currentUrl.toString())
             .then(response => response.text())
             .then(html => {
                 
-                // 2. Parse the newly downloaded HTML
+                // 3. Parse the newly downloaded HTML
                 let parser = new DOMParser();
                 let doc = parser.parseFromString(html, 'text/html');
                 
-                // 3. UPDATE ALL TABLES
+                // 4. UPDATE ALL TABLES
                 const tableIds = ['table-all', 'table-pending', 'table-confirmed', 'table-completed', 'table-cancelled'];
                 
                 tableIds.forEach(id => {
@@ -305,7 +309,7 @@
                     }
                 });
 
-                // 4. UPDATE THE NUMBER COUNTERS ON THE TABS
+                // 5. UPDATE THE NUMBER COUNTERS ON THE TABS
                 let newSpans = doc.querySelectorAll('.tab-btn span');
                 let currentSpans = document.querySelectorAll('.tab-btn span');
                 
@@ -319,6 +323,6 @@
             .catch(error => console.log('Polling error, waiting for next cycle...'));
             
     }, 5000);
-</script>
+    </script>
 </body>
 </html>
