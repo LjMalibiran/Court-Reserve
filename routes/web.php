@@ -261,4 +261,22 @@ Route::middleware([\App\Http\Middleware\CashierMiddleware::class])->group(functi
     return 'Database successfully populated! You can now log in.';
 });
 
+Route::get('/check-admin', function () {
+    try {
+        $admin = \App\Models\User::where('role', 'admin')->first();
+        
+        if (!$admin) {
+            return "ERROR: No admin account exists in the database! The generator failed.";
+        }
+        
+        return "SUCCESS! Admin found. <br> 
+                <strong>Login ID / Name:</strong> " . $admin->name . "<br>
+                <strong>Email:</strong> " . $admin->email . "<br>
+                <strong>Role:</strong> " . $admin->role;
+                
+    } catch (\Exception $e) {
+        return "CRITICAL ERROR: " . $e->getMessage();
+    }
+});
+
 });
