@@ -73,6 +73,28 @@
         .alert { padding: 15px; margin-bottom: 20px; border-radius: 6px; font-weight: bold; }
         .alert-success { background-color: #d1fae5; color: #059669; border: 1px solid #34d399; }
         .alert-error { background-color: #fee2e2; color: #dc2626; border: 1px solid #f87171; }
+    
+        /* 3-Dot Action Dropdown */
+        .dropdown { position: relative; display: inline-block; }
+        .action-dots { cursor: pointer; color: #4b5563; font-size: 20px; padding: 5px 10px; font-weight: bold; background: none; border: none; }
+        .dropdown-content { display: none; position: absolute; right: 0; background-color: #ffffff; min-width: 140px; box-shadow: 0px 4px 12px rgba(0,0,0,0.15); z-index: 10; border-radius: 8px; border: 1px solid #eee; overflow: hidden; }
+        .dropdown-content button, .dropdown-content a { color: #333; padding: 10px 16px; text-decoration: none; display: block; font-size: 13px; text-align: left; width: 100%; border: none; background: none; cursor: pointer; }
+        .dropdown-content a:hover, .dropdown-content button:hover { background-color: #f8fafc; color: var(--primary-blue); }
+        .dropdown:hover .dropdown-content { display: block; }
+        .dropdown-content i { margin-right: 8px; width: 16px; text-align: center; }
+        
+        .text-danger { color: #dc2626 !important; }
+        .text-danger:hover { background-color: #fef2f2 !important; }
+
+        /* Receipt Button */
+        .btn-receipt { display: inline-flex; align-items: center; justify-content: center; border: 1px solid #cbd5e1; background: #fff; padding: 6px 10px; border-radius: 6px; color: #475569; cursor: pointer; text-decoration: none; transition: 0.2s; }
+        .btn-receipt:hover { background: #f1f5f9; color: var(--dark-blue); }
+
+        /* Outline Buttons for Pending */
+        .btn-outline-confirm { border: 1px solid #10b981; color: #10b981; background: transparent; padding: 6px 16px; border-radius: 6px; font-weight: 500; font-size: 13px; transition: 0.2s; cursor: pointer; }
+        .btn-outline-confirm:hover { background: #10b981; color: white; }
+        .btn-outline-cancel { border: 1px solid #ef4444; color: #ef4444; background: transparent; padding: 6px 16px; border-radius: 6px; font-weight: 500; font-size: 13px; transition: 0.2s; cursor: pointer; }
+        .btn-outline-cancel:hover { background: #ef4444; color: white; }
     </style>
 </head>
 <body>
@@ -119,27 +141,46 @@
             <table id="table-all" class="data-table">
                 <thead>
                     <tr>
-                        <th>Code</th><th>Name</th><th>Court</th><th>Date</th><th>Time</th><th>Amount</th><th style="text-align: center;">Status</th>
+                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Amount</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th><th style="text-align: center;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($reservations as $res)
                         <tr>
-                            <td><strong>{{ $res->reservation_code }}</strong></td>
+                            <td style="color: var(--primary-blue); font-weight: 600;">{{ $res->reservation_code }}</td>
                             <td>{{ $res->user->name ?? 'User '.$res->user_id }}</td>
-                            <td>Court {{ $res->court_id }}</td>
-                            <td>{{ \Carbon\Carbon::parse($res->start_time)->format('M d, Y') }}</td>
+                            <td>Badminton - Court {{ $res->court_id }}</td>
                             <td>
-                                {{ \Carbon\Carbon::parse($res->start_time)->format('h:i A') }} - 
-                                {{ \Carbon\Carbon::parse($res->end_time)->format('h:i A') }}
+                                <div>{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}</div>
+                                <div style="font-size: 12px; color: #777;">{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}</div>
                             </td>
                             <td>₱{{ number_format($res->total_price, 2) }}</td>
                             <td style="text-align: center;">
+                                @if($res->receipt_path)
+                                    <a href="{{ asset('storage/' . $res->receipt_path) }}" target="_blank" class="btn-receipt"><i class="fa-regular fa-image"></i></a>
+                                @else
+                                    <span style="color: #999; font-size: 12px;">N/A</span>
+                                @endif
+                            </td>
+                            <td style="text-align: center;">
                                 <span class="badge badge-{{ strtolower($res->status) }}">{{ ucfirst($res->status) }}</span>
+                            </td>
+                            <td style="text-align: center;">
+                                <div class="dropdown">
+                                    <button class="action-dots">⋮</button>
+                                    <div class="dropdown-content">
+                                        <a href="#"><i class="fa-regular fa-eye"></i> View Details</a>
+                                        <a href="#"><i class="fa-solid fa-pen"></i> Edit</a>
+                                        <form action="{{ url(Request::segment(1).'/reservations/'.$res->id.'/cancel') }}" method="POST" style="margin:0;">
+                                            @csrf
+                                            <button type="submit" class="text-danger" onclick="return confirm('Are you sure you want to delete this reservation?');"><i class="fa-regular fa-trash-can"></i> Delete</button>
+                                        </form>
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="7" class="empty-state">No records found.</td></tr>
+                        <tr><td colspan="8" class="empty-state">No records found.</td></tr>
                     @endforelse
                 </tbody>
             </table>
@@ -148,32 +189,36 @@
             <table id="table-pending" class="data-table" style="display: none;">
                 <thead>
                     <tr>
-                        <th>Code</th><th>Name</th><th>Court</th><th>Date & Time</th><th>Amount</th><th style="text-align: center;">Status</th><th style="text-align: center;">Action</th>
+                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Amount</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($reservations->where('status', 'pending') as $res)
                         <tr>
-                            <td><strong>{{ $res->reservation_code }}</strong></td>
+                            <td style="color: var(--primary-blue); font-weight: 600;">{{ $res->reservation_code }}</td>
                             <td>{{ $res->user->name ?? 'User '.$res->user_id }}</td>
-                            <td>Court {{ $res->court_id }}</td>
+                            <td>Badminton - Court {{ $res->court_id }}</td>
                             <td>
-                                <div>{{ \Carbon\Carbon::parse($res->start_time)->format('M d, Y') }}</div>
-                                <div style="font-size: 12px; color: #777;">{{ \Carbon\Carbon::parse($res->start_time)->format('h:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('h:i A') }}</div>
+                                <div>{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}</div>
+                                <div style="font-size: 12px; color: #777;">{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}</div>
                             </td>
                             <td>₱{{ number_format($res->total_price, 2) }}</td>
                             <td style="text-align: center;">
-                                <span class="badge badge-pending">Pending</span>
+                                @if($res->receipt_path)
+                                    <a href="{{ asset('storage/' . $res->receipt_path) }}" target="_blank" class="btn-receipt"><i class="fa-regular fa-image"></i></a>
+                                @else
+                                    <span style="color: #999; font-size: 12px;">N/A</span>
+                                @endif
                             </td>
-                            <td>
+                            <td style="text-align: center;">
                                 <div class="action-btns">
-                                    <form action="{{ url('/cashier/reservations/'.$res->id.'/confirm') }}" method="POST" style="margin:0;">
+                                    <form action="{{ url(Request::segment(1).'/reservations/'.$res->id.'/confirm') }}" method="POST" style="margin:0;">
                                         @csrf
-                                        <button type="submit" class="btn-action btn-confirm"><i class="fa-solid fa-check"></i></button>
+                                        <button type="submit" class="btn-outline-confirm">Confirm</button>
                                     </form>
-                                    <form action="{{ url('/cashier/reservations/'.$res->id.'/cancel') }}" method="POST" style="margin:0;">
+                                    <form action="{{ url(Request::segment(1).'/reservations/'.$res->id.'/cancel') }}" method="POST" style="margin:0;">
                                         @csrf
-                                        <button type="submit" class="btn-action btn-cancel" onclick="return confirm('Are you sure you want to cancel this reservation?');"><i class="fa-solid fa-xmark"></i></button>
+                                        <button type="submit" class="btn-outline-cancel" onclick="return confirm('Are you sure you want to cancel this reservation?');">Cancel</button>
                                     </form>
                                 </div>
                             </td>
@@ -188,22 +233,44 @@
             <table id="table-confirmed" class="data-table" style="display: none;">
                 <thead>
                     <tr>
-                        <th>Code</th><th>Name</th><th>Court</th><th>Date</th><th>Time</th><th>Amount</th><th style="text-align: center;">Status</th>
+                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Amount</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th><th style="text-align: center;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($reservations->where('status', 'confirmed') as $res)
                         <tr>
-                            <td><strong>{{ $res->reservation_code }}</strong></td>
+                            <td style="color: var(--primary-blue); font-weight: 600;">{{ $res->reservation_code }}</td>
                             <td>{{ $res->user->name ?? 'User '.$res->user_id }}</td>
-                            <td>Court {{ $res->court_id }}</td>
-                            <td>{{ \Carbon\Carbon::parse($res->start_time)->format('M d, Y') }}</td>
-                            <td>{{ \Carbon\Carbon::parse($res->start_time)->format('h:i A') }}</td>
+                            <td>Badminton - Court {{ $res->court_id }}</td>
+                            <td>
+                                <div>{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}</div>
+                                <div style="font-size: 12px; color: #777;">{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}</div>
+                            </td>
                             <td>₱{{ number_format($res->total_price, 2) }}</td>
+                            <td style="text-align: center;">
+                                @if($res->receipt_path)
+                                    <a href="{{ asset('storage/' . $res->receipt_path) }}" target="_blank" class="btn-receipt"><i class="fa-regular fa-image"></i></a>
+                                @else
+                                    <span style="color: #999; font-size: 12px;">N/A</span>
+                                @endif
+                            </td>
                             <td style="text-align: center;"><span class="badge badge-confirmed">Confirmed</span></td>
+                            <td style="text-align: center;">
+                                <div class="dropdown">
+                                    <button class="action-dots">⋮</button>
+                                    <div class="dropdown-content">
+                                        <a href="#"><i class="fa-regular fa-eye"></i> View Details</a>
+                                        <a href="#"><i class="fa-solid fa-pen"></i> Edit</a>
+                                        <form action="{{ url(Request::segment(1).'/reservations/'.$res->id.'/cancel') }}" method="POST" style="margin:0;">
+                                            @csrf
+                                            <button type="submit" class="text-danger" onclick="return confirm('Are you sure you want to delete this reservation?');"><i class="fa-regular fa-trash-can"></i> Delete</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </td>
                         </tr>
                     @empty
-                        <tr><td colspan="7" class="empty-state">No confirmed reservations.</td></tr>
+                        <tr><td colspan="8" class="empty-state">No confirmed reservations.</td></tr>
                     @endforelse
                 </tbody>
             </table>
@@ -212,22 +279,44 @@
             <table id="table-completed" class="data-table" style="display: none;">
                 <thead>
                     <tr>
-                        <th>Code</th><th>Name</th><th>Court</th><th>Date</th><th>Time</th><th>Amount</th><th style="text-align: center;">Status</th>
+                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Amount</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th><th style="text-align: center;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($reservations->where('status', 'completed') as $res)
                         <tr>
-                            <td><strong>{{ $res->reservation_code }}</strong></td>
+                            <td style="color: var(--primary-blue); font-weight: 600;">{{ $res->reservation_code }}</td>
                             <td>{{ $res->user->name ?? 'User '.$res->user_id }}</td>
-                            <td>Court {{ $res->court_id }}</td>
-                            <td>{{ \Carbon\Carbon::parse($res->start_time)->format('M d, Y') }}</td>
-                            <td>{{ \Carbon\Carbon::parse($res->start_time)->format('h:i A') }}</td>
+                            <td>Badminton - Court {{ $res->court_id }}</td>
+                            <td>
+                                <div>{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}</div>
+                                <div style="font-size: 12px; color: #777;">{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}</div>
+                            </td>
                             <td>₱{{ number_format($res->total_price, 2) }}</td>
+                            <td style="text-align: center;">
+                                @if($res->receipt_path)
+                                    <a href="{{ asset('storage/' . $res->receipt_path) }}" target="_blank" class="btn-receipt"><i class="fa-regular fa-image"></i></a>
+                                @else
+                                    <span style="color: #999; font-size: 12px;">N/A</span>
+                                @endif
+                            </td>
                             <td style="text-align: center;"><span class="badge badge-completed">Completed</span></td>
+                            <td style="text-align: center;">
+                                <div class="dropdown">
+                                    <button class="action-dots">⋮</button>
+                                    <div class="dropdown-content">
+                                        <a href="#"><i class="fa-regular fa-eye"></i> View Details</a>
+                                        <a href="#"><i class="fa-solid fa-pen"></i> Edit</a>
+                                        <form action="{{ url(Request::segment(1).'/reservations/'.$res->id.'/cancel') }}" method="POST" style="margin:0;">
+                                            @csrf
+                                            <button type="submit" class="text-danger" onclick="return confirm('Are you sure you want to delete this reservation?');"><i class="fa-regular fa-trash-can"></i> Delete</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </td>
                         </tr>
                     @empty
-                        <tr><td colspan="7" class="empty-state">No completed reservations.</td></tr>
+                        <tr><td colspan="8" class="empty-state">No completed reservations.</td></tr>
                     @endforelse
                 </tbody>
             </table>
@@ -236,22 +325,44 @@
             <table id="table-cancelled" class="data-table" style="display: none;">
                 <thead>
                     <tr>
-                        <th>Code</th><th>Name</th><th>Court</th><th>Date</th><th>Time</th><th>Amount</th><th style="text-align: center;">Status</th>
+                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Amount</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th><th style="text-align: center;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($reservations->where('status', 'cancelled') as $res)
                         <tr>
-                            <td><strong>{{ $res->reservation_code }}</strong></td>
+                            <td style="color: var(--primary-blue); font-weight: 600;">{{ $res->reservation_code }}</td>
                             <td>{{ $res->user->name ?? 'User '.$res->user_id }}</td>
-                            <td>Court {{ $res->court_id }}</td>
-                            <td>{{ \Carbon\Carbon::parse($res->start_time)->format('M d, Y') }}</td>
-                            <td>{{ \Carbon\Carbon::parse($res->start_time)->format('h:i A') }}</td>
+                            <td>Badminton - Court {{ $res->court_id }}</td>
+                            <td>
+                                <div>{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}</div>
+                                <div style="font-size: 12px; color: #777;">{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}</div>
+                            </td>
                             <td>₱{{ number_format($res->total_price, 2) }}</td>
+                            <td style="text-align: center;">
+                                @if($res->receipt_path)
+                                    <a href="{{ asset('storage/' . $res->receipt_path) }}" target="_blank" class="btn-receipt"><i class="fa-regular fa-image"></i></a>
+                                @else
+                                    <span style="color: #999; font-size: 12px;">N/A</span>
+                                @endif
+                            </td>
                             <td style="text-align: center;"><span class="badge badge-cancelled">Cancelled</span></td>
+                            <td style="text-align: center;">
+                                <div class="dropdown">
+                                    <button class="action-dots">⋮</button>
+                                    <div class="dropdown-content">
+                                        <a href="#"><i class="fa-regular fa-eye"></i> View Details</a>
+                                        <a href="#"><i class="fa-solid fa-pen"></i> Edit</a>
+                                        <form action="{{ url(Request::segment(1).'/reservations/'.$res->id.'/cancel') }}" method="POST" style="margin:0;">
+                                            @csrf
+                                            <button type="submit" class="text-danger" onclick="return confirm('Are you sure you want to delete this reservation?');"><i class="fa-regular fa-trash-can"></i> Delete</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </td>
                         </tr>
                     @empty
-                        <tr><td colspan="7" class="empty-state">No cancelled reservations.</td></tr>
+                        <tr><td colspan="8" class="empty-state">No cancelled reservations.</td></tr>
                     @endforelse
                 </tbody>
             </table>
