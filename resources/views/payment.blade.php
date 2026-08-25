@@ -109,11 +109,12 @@
         <form action="{{ url('/reserve/process-payment') }}" method="POST" enctype="multipart/form-data">
             @csrf
             
-            <!-- Hidden inputs seamlessly catching data from the reservation page -->
+            <!-- Hidden inputs seamlessly catching data from the persistent session -->
             <input type="hidden" name="court_id" value="{{ session('court_id') }}">
+            <input type="hidden" name="sport" value="{{ session('sport') }}">
             <input type="hidden" name="start_time" value="{{ session('start_time') }}">
             <input type="hidden" name="end_time" value="{{ session('end_time') }}">
-            <input type="hidden" name="total_amount" value="{{ session('total_price', 230) }}">
+            <input type="hidden" name="total_amount" value="{{ session('total_price') }}">
 
             <div class="payment-grid">
                 

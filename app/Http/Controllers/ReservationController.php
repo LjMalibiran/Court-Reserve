@@ -16,56 +16,52 @@ class ReservationController extends Controller
      */
     public function store(Request $request)
     {
-        // 1. Validate the basic incoming format
         $request->validate([
             'court_id' => 'required|exists:courts,id',
             'reservation_date' => 'required|date|after_or_equal:today',
-            'start_time' => 'required', // e.g., "14:00"
-            'end_time' => 'required',   // e.g., "16:00"
+            'start_time' => 'required',
+            'end_time' => 'required',
+            'sport' => 'nullable|string' // Catch the sport from the frontend!
         ]);
 
-        // 2. Parse exact dates and times into clean standardized timestamps
         $start = Carbon::parse($request->reservation_date . ' ' . $request->start_time);
         $end = Carbon::parse($request->reservation_date . ' ' . $request->end_time);
 
-        // Fail Safe: Ensure the meeting doesn't end before it starts
         if ($end->lessThanOrEqualTo($start)) {
             return back()->withErrors(['end_time' => 'The end time must be after the start time.']);
         }
 
         $courtId = $request->court_id;
 
-        // 3. The Anti-Double-Booking Guard Clause
         $isDoubleBooked = Reservation::where('court_id', $courtId)
             ->whereIn('status', ['pending', 'confirmed'])
             ->where(function ($query) use ($start, $end) {
                 $query->where(function ($q) use ($start, $end) {
-                    $q->where('start_time', '<', $end)
-                      ->where('end_time', '>', $start);
+                    $q->where('start_time', '<', $end)->where('end_time', '>', $start);
                 });
             })->exists();
 
         if ($isDoubleBooked) {
-            return back()->withErrors(['availability' => 'This court is already reserved during your selected hours.']);
+            return back()->withErrors(['availability' => 'This court is already reserved.']);
         }
 
-        // 4. Automated Financial Calculations
-        // ... (inside your store function)
         $court = Court::find($courtId);
         $durationInHours = $start->diffInMinutes($end) / 60;
         $totalPrice = $durationInHours * ($court->price_per_hour ?? 230); 
 
-        // ADDED: Fetch the specific sport from your database (Defaults to Badminton if not found)
-        $sport = $court->sport ?? 'Badminton'; 
+        // 1. Grab the sport from the request (defaults to Badminton if empty)
+        $sport = $request->sport ?? 'Badminton';
 
-        // BRIDGE: Forward everything to the Payment page!
-        return redirect()->route('payment.index')->with([
+        // 2. Use PUT to lock the data into the session so it survives page refreshes!
+        session()->put([
             'court_id' => $courtId,
-            'sport' => $sport, // Pass the sport to the payment page
+            'sport' => $sport,
             'start_time' => $start->format('Y-m-d H:i:s'),
             'end_time' => $end->format('Y-m-d H:i:s'),
             'total_price' => $totalPrice
         ]);
+
+        return redirect()->route('payment.index');
     }
 
     /**
@@ -104,30 +100,29 @@ class ReservationController extends Controller
      */
     public function processPayment(Request $request)
     {
-        // 1. Validate the form, image, AND the hidden fields passed from the previous page
         $request->validate([
             'payment_type' => 'required|in:full,half',
             'receipt'      => 'required|image|mimes:jpeg,png,jpg|max:5120',
             'court_id'     => 'required',
+            'sport'        => 'required', // Validate the sport
             'start_time'   => 'required',
             'end_time'     => 'required',
             'total_amount' => 'required',
         ]);
 
-        // 2. Save the uploaded GCash receipt securely
         $imagePath = null;
         if ($request->hasFile('receipt')) {
-            // Saves to storage/app/public/receipts
             $imagePath = $request->file('receipt')->store('receipts', 'public');
         }
 
-        // Generate a unique 6-character reservation code (e.g., RES-X9A2B4)
-        $reservationCode = 'RES-' . strtoupper(Str::random(6));
+        // 3. Dynamically build the prefix: PC for Pickleball, BC for Badminton!
+        $prefix = ($request->sport == 'Pickleball') ? 'PC' : 'BC';
+        $reservationCode = $prefix . date('y') . '-' . strtoupper(Str::random(4));
 
-        // 3. Save EVERYTHING to the database
         $reservation = new Reservation();
         $reservation->user_id = Auth::id();
         $reservation->court_id = $request->court_id;
+        $reservation->sport = $request->sport; // Save the sport to the DB
         $reservation->start_time = $request->start_time;
         $reservation->end_time = $request->end_time;
         $reservation->total_price = $request->total_amount;
@@ -137,7 +132,9 @@ class ReservationController extends Controller
         $reservation->reservation_code = $reservationCode;
         $reservation->save();
 
-        // 4. Send back to the page and trigger the Success Modal!
+        // 4. Clear the temporary session data safely
+        session()->forget(['court_id', 'sport', 'start_time', 'end_time', 'total_price']);
+
         return back()->with('success', true)->with('reservation_id', $reservation->reservation_code);
     }
 }

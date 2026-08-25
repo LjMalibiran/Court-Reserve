@@ -145,7 +145,7 @@
                         <tr>
                             <td style="color: var(--primary-blue); font-weight: 600;">{{ $res->reservation_code }}</td>
                             <td>{{ $res->user->name ?? 'User '.$res->user_id }}</td>
-                            <td>{{ $res->court->sport ?? 'Badminton' }} - Court {{ $res->court_id }}</td>
+                            <td>{{ $res->sport ?? 'Badminton' }} - Court {{ $res->court_id }}</td>
                             <td>
                                 <div>{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}</div>
                                 <div style="font-size: 12px; color: #777;">{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}</div>
@@ -193,7 +193,7 @@
                         <tr>
                             <td style="color: var(--primary-blue); font-weight: 600;">{{ $res->reservation_code }}</td>
                             <td>{{ $res->user->name ?? 'User '.$res->user_id }}</td>
-                            <td>{{ $res->court->sport ?? 'Badminton' }} - Court {{ $res->court_id }}</td>
+                            <td>{{ $res->sport ?? 'Badminton' }} - Court {{ $res->court_id }}</td>
                             <td>
                                 <div>{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}</div>
                                 <div style="font-size: 12px; color: #777;">{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}</div>
@@ -237,7 +237,7 @@
                         <tr>
                             <td style="color: var(--primary-blue); font-weight: 600;">{{ $res->reservation_code }}</td>
                             <td>{{ $res->user->name ?? 'User '.$res->user_id }}</td>
-                            <td>{{ $res->court->sport ?? 'Badminton' }} - Court {{ $res->court_id }}</td>
+                           <td>{{ $res->sport ?? 'Badminton' }} - Court {{ $res->court_id }}</td>
                             <td>
                                 <div>{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}</div>
                                 <div style="font-size: 12px; color: #777;">{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}</div>
@@ -283,7 +283,7 @@
                         <tr>
                             <td style="color: var(--primary-blue); font-weight: 600;">{{ $res->reservation_code }}</td>
                             <td>{{ $res->user->name ?? 'User '.$res->user_id }}</td>
-                            <td>{{ $res->court->sport ?? 'Badminton' }} - Court {{ $res->court_id }}</td>
+                            <td>{{ $res->sport ?? 'Badminton' }} - Court {{ $res->court_id }}</td>
                             <td>
                                 <div>{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}</div>
                                 <div style="font-size: 12px; color: #777;">{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}</div>
@@ -329,7 +329,7 @@
                         <tr>
                             <td style="color: var(--primary-blue); font-weight: 600;">{{ $res->reservation_code }}</td>
                             <td>{{ $res->user->name ?? 'User '.$res->user_id }}</td>
-                            <td>{{ $res->court->sport ?? 'Badminton' }} - Court {{ $res->court_id }}</td>
+                            <td>{{ $res->sport ?? 'Badminton' }} - Court {{ $res->court_id }}</td>
                             <td>
                                 <div>{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}</div>
                                 <div style="font-size: 12px; color: #777;">{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}</div>
