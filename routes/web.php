@@ -20,6 +20,40 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// --- PASTE THESE RIGHT HERE ---
+Route::get('/setup-database', function () {
+    \App\Models\User::updateOrCreate(
+        ['email' => 'admin@batangas.com'],
+        ['name' => 'Lj', 'password' => \Illuminate\Support\Facades\Hash::make('admin123'), 'role' => 'admin']
+    );
+    \App\Models\User::updateOrCreate(
+        ['email' => 'cashier@batangas.com'],
+        ['name' => 'Main Cashier', 'password' => \Illuminate\Support\Facades\Hash::make('cashier123'), 'role' => 'cashier']
+    );
+    \App\Models\Court::updateOrCreate(['id' => 1], ['sport' => 'Badminton', 'price_per_hour' => 230]);
+    \App\Models\Court::updateOrCreate(['id' => 2], ['sport' => 'Pickleball', 'price_per_hour' => 230]);
+    return 'Database successfully populated! You can now log in.';
+});
+
+Route::get('/check-admin', function () {
+    try {
+        $admin = \App\Models\User::where('role', 'admin')->first();
+        if (!$admin) return "ERROR: No admin account exists!";
+        return "SUCCESS! Admin found. <br> <strong>Login ID / Name:</strong> " . $admin->name . "<br><strong>Role:</strong> " . $admin->role;
+    } catch (\Exception $e) {
+        return "CRITICAL ERROR: " . $e->getMessage();
+    }
+});
+// ------------------------------
+
+// ==========================================
+// 1. PUBLIC ROUTES (Anyone can see these)
+// ==========================================
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
 // Normal User Login & Register
 Route::get('/login', function () {
     return view('login');
