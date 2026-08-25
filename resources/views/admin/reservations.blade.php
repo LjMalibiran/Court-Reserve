@@ -53,14 +53,6 @@
         .badge-cancelled { background-color: #fee2e2; color: #dc2626; }
         .badge-completed { background-color: #e0e7ff; color: #4338ca; }
 
-        /* Action Buttons */
-        .action-btns { display: flex; gap: 8px; justify-content: center; }
-        .btn-action { border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; color: white; transition: 0.2s; }
-        .btn-confirm { background-color: var(--success); }
-        .btn-confirm:hover { background-color: #059669; }
-        .btn-cancel { background-color: var(--danger); }
-        .btn-cancel:hover { background-color: #dc2626; }
-        
         /* Empty State */
         .empty-state { text-align: center !important; padding: 40px !important; color: var(--text-muted) !important; font-style: italic; }
 
@@ -77,8 +69,8 @@
         /* 3-Dot Action Dropdown */
         .dropdown { position: relative; display: inline-block; }
         .action-dots { cursor: pointer; color: #4b5563; font-size: 20px; padding: 5px 10px; font-weight: bold; background: none; border: none; }
-        .dropdown-content { display: none; position: absolute; right: 0; background-color: #ffffff; min-width: 140px; box-shadow: 0px 4px 12px rgba(0,0,0,0.15); z-index: 10; border-radius: 8px; border: 1px solid #eee; overflow: hidden; }
-        .dropdown-content button, .dropdown-content a { color: #333; padding: 10px 16px; text-decoration: none; display: block; font-size: 13px; text-align: left; width: 100%; border: none; background: none; cursor: pointer; }
+        .dropdown-content { display: none; position: absolute; right: 0; background-color: #ffffff; min-width: 140px; box-shadow: 0px 4px 12px rgba(0,0,0,0.15); z-index: 50; border-radius: 8px; border: 1px solid #eee; overflow: hidden; }
+        .dropdown-content button, .dropdown-content a { color: #333; padding: 10px 16px; text-decoration: none; display: block; font-size: 13px; text-align: left; width: 100%; border: none; background: none; cursor: pointer; font-family: inherit; }
         .dropdown-content a:hover, .dropdown-content button:hover { background-color: #f8fafc; color: var(--primary-blue); }
         .dropdown:hover .dropdown-content { display: block; }
         .dropdown-content i { margin-right: 8px; width: 16px; text-align: center; }
@@ -91,10 +83,14 @@
         .btn-receipt:hover { background: #f1f5f9; color: var(--dark-blue); }
 
         /* Outline Buttons for Pending */
+        .action-btns { display: flex; gap: 8px; justify-content: center; }
         .btn-outline-confirm { border: 1px solid #10b981; color: #10b981; background: transparent; padding: 6px 16px; border-radius: 6px; font-weight: 500; font-size: 13px; transition: 0.2s; cursor: pointer; }
         .btn-outline-confirm:hover { background: #10b981; color: white; }
         .btn-outline-cancel { border: 1px solid #ef4444; color: #ef4444; background: transparent; padding: 6px 16px; border-radius: 6px; font-weight: 500; font-size: 13px; transition: 0.2s; cursor: pointer; }
         .btn-outline-cancel:hover { background: #ef4444; color: white; }
+
+        /* Receipt Lightbox Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); display: none; justify-content: center; align-items: center; z-index: 2000; backdrop-filter: blur(3px); }
     </style>
 </head>
 <body>
@@ -105,7 +101,7 @@
         <header class="top-header">
             <h1>Reservations</h1>
             <div class="header-right">
-                <span>{{ now()->format('l, F j, Y') }}</span>
+                <span>{{ now()->timezone('Asia/Manila')->format('l, F j, Y') }}</span>
                 <i class="fa-regular fa-bell"></i>
             </div>
         </header>
@@ -141,7 +137,7 @@
             <table id="table-all" class="data-table">
                 <thead>
                     <tr>
-                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Amount</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th><th style="text-align: center;">Actions</th>
+                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Amount</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th><th style="text-align: center;">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -149,7 +145,7 @@
                         <tr>
                             <td style="color: var(--primary-blue); font-weight: 600;">{{ $res->reservation_code }}</td>
                             <td>{{ $res->user->name ?? 'User '.$res->user_id }}</td>
-                            <td>Badminton - Court {{ $res->court_id }}</td>
+                            <td>{{ $res->court->sport ?? 'Badminton' }} - Court {{ $res->court_id }}</td>
                             <td>
                                 <div>{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}</div>
                                 <div style="font-size: 12px; color: #777;">{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}</div>
@@ -157,7 +153,7 @@
                             <td>₱{{ number_format($res->total_price, 2) }}</td>
                             <td style="text-align: center;">
                                 @if($res->receipt_path)
-                                    <a href="{{ asset('storage/' . $res->receipt_path) }}" target="_blank" class="btn-receipt"><i class="fa-regular fa-image"></i></a>
+                                    <button type="button" class="btn-receipt" onclick="viewReceipt('{{ asset('storage/' . $res->receipt_path) }}')"><i class="fa-regular fa-image"></i></button>
                                 @else
                                     <span style="color: #999; font-size: 12px;">N/A</span>
                                 @endif
@@ -197,7 +193,7 @@
                         <tr>
                             <td style="color: var(--primary-blue); font-weight: 600;">{{ $res->reservation_code }}</td>
                             <td>{{ $res->user->name ?? 'User '.$res->user_id }}</td>
-                            <td>Badminton - Court {{ $res->court_id }}</td>
+                            <td>{{ $res->court->sport ?? 'Badminton' }} - Court {{ $res->court_id }}</td>
                             <td>
                                 <div>{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}</div>
                                 <div style="font-size: 12px; color: #777;">{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}</div>
@@ -205,7 +201,7 @@
                             <td>₱{{ number_format($res->total_price, 2) }}</td>
                             <td style="text-align: center;">
                                 @if($res->receipt_path)
-                                    <a href="{{ asset('storage/' . $res->receipt_path) }}" target="_blank" class="btn-receipt"><i class="fa-regular fa-image"></i></a>
+                                    <button type="button" class="btn-receipt" onclick="viewReceipt('{{ asset('storage/' . $res->receipt_path) }}')"><i class="fa-regular fa-image"></i></button>
                                 @else
                                     <span style="color: #999; font-size: 12px;">N/A</span>
                                 @endif
@@ -233,7 +229,7 @@
             <table id="table-confirmed" class="data-table" style="display: none;">
                 <thead>
                     <tr>
-                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Amount</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th><th style="text-align: center;">Actions</th>
+                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Amount</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th><th style="text-align: center;">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -241,7 +237,7 @@
                         <tr>
                             <td style="color: var(--primary-blue); font-weight: 600;">{{ $res->reservation_code }}</td>
                             <td>{{ $res->user->name ?? 'User '.$res->user_id }}</td>
-                            <td>Badminton - Court {{ $res->court_id }}</td>
+                            <td>{{ $res->court->sport ?? 'Badminton' }} - Court {{ $res->court_id }}</td>
                             <td>
                                 <div>{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}</div>
                                 <div style="font-size: 12px; color: #777;">{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}</div>
@@ -249,7 +245,7 @@
                             <td>₱{{ number_format($res->total_price, 2) }}</td>
                             <td style="text-align: center;">
                                 @if($res->receipt_path)
-                                    <a href="{{ asset('storage/' . $res->receipt_path) }}" target="_blank" class="btn-receipt"><i class="fa-regular fa-image"></i></a>
+                                    <button type="button" class="btn-receipt" onclick="viewReceipt('{{ asset('storage/' . $res->receipt_path) }}')"><i class="fa-regular fa-image"></i></button>
                                 @else
                                     <span style="color: #999; font-size: 12px;">N/A</span>
                                 @endif
@@ -279,7 +275,7 @@
             <table id="table-completed" class="data-table" style="display: none;">
                 <thead>
                     <tr>
-                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Amount</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th><th style="text-align: center;">Actions</th>
+                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Amount</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th><th style="text-align: center;">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -287,7 +283,7 @@
                         <tr>
                             <td style="color: var(--primary-blue); font-weight: 600;">{{ $res->reservation_code }}</td>
                             <td>{{ $res->user->name ?? 'User '.$res->user_id }}</td>
-                            <td>Badminton - Court {{ $res->court_id }}</td>
+                            <td>{{ $res->court->sport ?? 'Badminton' }} - Court {{ $res->court_id }}</td>
                             <td>
                                 <div>{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}</div>
                                 <div style="font-size: 12px; color: #777;">{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}</div>
@@ -295,7 +291,7 @@
                             <td>₱{{ number_format($res->total_price, 2) }}</td>
                             <td style="text-align: center;">
                                 @if($res->receipt_path)
-                                    <a href="{{ asset('storage/' . $res->receipt_path) }}" target="_blank" class="btn-receipt"><i class="fa-regular fa-image"></i></a>
+                                    <button type="button" class="btn-receipt" onclick="viewReceipt('{{ asset('storage/' . $res->receipt_path) }}')"><i class="fa-regular fa-image"></i></button>
                                 @else
                                     <span style="color: #999; font-size: 12px;">N/A</span>
                                 @endif
@@ -325,7 +321,7 @@
             <table id="table-cancelled" class="data-table" style="display: none;">
                 <thead>
                     <tr>
-                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Amount</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th><th style="text-align: center;">Actions</th>
+                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Amount</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th><th style="text-align: center;">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -333,7 +329,7 @@
                         <tr>
                             <td style="color: var(--primary-blue); font-weight: 600;">{{ $res->reservation_code }}</td>
                             <td>{{ $res->user->name ?? 'User '.$res->user_id }}</td>
-                            <td>Badminton - Court {{ $res->court_id }}</td>
+                            <td>{{ $res->court->sport ?? 'Badminton' }} - Court {{ $res->court_id }}</td>
                             <td>
                                 <div>{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}</div>
                                 <div style="font-size: 12px; color: #777;">{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}</div>
@@ -341,7 +337,7 @@
                             <td>₱{{ number_format($res->total_price, 2) }}</td>
                             <td style="text-align: center;">
                                 @if($res->receipt_path)
-                                    <a href="{{ asset('storage/' . $res->receipt_path) }}" target="_blank" class="btn-receipt"><i class="fa-regular fa-image"></i></a>
+                                    <button type="button" class="btn-receipt" onclick="viewReceipt('{{ asset('storage/' . $res->receipt_path) }}')"><i class="fa-regular fa-image"></i></button>
                                 @else
                                     <span style="color: #999; font-size: 12px;">N/A</span>
                                 @endif
@@ -376,53 +372,61 @@
         </div>
     </main>
 
+    <!-- Invisible Lightbox Modal for Receipts -->
+    <div id="receiptModal" class="modal-overlay">
+        <div style="position: relative; background: transparent; padding: 0; box-shadow: none; max-width: 80%; text-align: center;">
+            <button onclick="closeReceipt()" style="position: absolute; top: -40px; right: -40px; font-size: 35px; color: white; background: none; border: none; cursor: pointer; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">&times;</button>
+            <img id="receiptImage" src="" style="max-width: 100%; max-height: 85vh; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+        </div>
+    </div>
+
     <script>
         function switchTab(tabName, btnElement) {
-            // Update active styling
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             btnElement.classList.add('active');
 
-            // Hide all tables, show target table
-            document.querySelectorAll('.data-table').forEach(table => {
-                table.style.display = 'none';
-            });
+            document.querySelectorAll('.data-table').forEach(table => table.style.display = 'none');
             document.getElementById('table-' + tabName).style.display = 'table';
         }
+
+        // Functions for the Receipt Lightbox
+        function viewReceipt(imageUrl) {
+            document.getElementById('receiptImage').src = imageUrl;
+            document.getElementById('receiptModal').style.display = 'flex';
+        }
+
+        function closeReceipt() {
+            document.getElementById('receiptModal').style.display = 'none';
+            document.getElementById('receiptImage').src = '';
+        }
     </script>
-<script>
-    // Set an interval to run this code every 5 seconds (5000 milliseconds)
+    
+    <script>
+    // Real-Time Polling with Cache Buster
     setInterval(function() {
         
-        // 1. Silently fetch the current page URL in the background
-        fetch(window.location.href)
+        let currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('t', new Date().getTime()); // <-- Cache Buster
+        
+        fetch(currentUrl.toString())
             .then(response => response.text())
             .then(html => {
-                
-                // 2. Parse the newly downloaded HTML
                 let parser = new DOMParser();
                 let doc = parser.parseFromString(html, 'text/html');
                 
-                // 3. UPDATE ALL TABLES
-                // We loop through the exact IDs of your tables to update each one's <tbody>
                 const tableIds = ['table-all', 'table-pending', 'table-confirmed', 'table-completed', 'table-cancelled'];
                 
                 tableIds.forEach(id => {
                     let newTbody = doc.querySelector(`#${id} tbody`);
                     let currentTbody = document.querySelector(`#${id} tbody`);
-                    
                     if (newTbody && currentTbody) {
                         currentTbody.innerHTML = newTbody.innerHTML;
                     }
                 });
 
-                // 4. UPDATE THE NUMBER COUNTERS ON THE TABS
-                // Grab all the <span> tags inside your tab buttons from both the new data and current screen
                 let newSpans = doc.querySelectorAll('.tab-btn span');
                 let currentSpans = document.querySelectorAll('.tab-btn span');
                 
-                // Loop through and match them up so the numbers change seamlessly
                 for(let i = 0; i < currentSpans.length; i++) {
                     if(newSpans[i]) {
                         currentSpans[i].innerHTML = newSpans[i].innerHTML;
@@ -433,6 +437,6 @@
             .catch(error => console.log('Polling error, waiting for next cycle...'));
             
     }, 5000);
-</script>
+    </script>
 </body>
 </html>

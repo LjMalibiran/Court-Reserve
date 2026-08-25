@@ -50,13 +50,18 @@ class ReservationController extends Controller
         }
 
         // 4. Automated Financial Calculations
+        // ... (inside your store function)
         $court = Court::find($courtId);
         $durationInHours = $start->diffInMinutes($end) / 60;
         $totalPrice = $durationInHours * ($court->price_per_hour ?? 230); 
 
-        // 5. BRIDGE: Forward everything to the Payment page instead of saving!
+        // ADDED: Fetch the specific sport from your database (Defaults to Badminton if not found)
+        $sport = $court->sport ?? 'Badminton'; 
+
+        // BRIDGE: Forward everything to the Payment page!
         return redirect()->route('payment.index')->with([
             'court_id' => $courtId,
+            'sport' => $sport, // Pass the sport to the payment page
             'start_time' => $start->format('Y-m-d H:i:s'),
             'end_time' => $end->format('Y-m-d H:i:s'),
             'total_price' => $totalPrice

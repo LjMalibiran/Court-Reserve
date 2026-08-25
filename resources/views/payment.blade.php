@@ -119,8 +119,13 @@
                 
                 <div class="panel">
                     <div class="sport-title">
-                        <img src="{{ asset('images/shuttlecock.png') }}" width="35" alt="Badminton">
-                        Badminton
+                        <!-- Dynamically show correct icon and text -->
+                        @if(session('sport') == 'Pickleball')
+                            <i class="fa-solid fa-table-tennis-paddle-ball" style="font-size: 24px;"></i>
+                        @else
+                            <img src="{{ asset('images/shuttlecock.png') }}" width="35" alt="Badminton">
+                        @endif
+                        {{ session('sport', 'Badminton') }}
                     </div>
                     
                     <div style="border: 1px solid #eee; border-radius: 12px; padding: 20px;">
@@ -194,35 +199,11 @@
         </form>
     </main>
 
-    <div id="successModal" class="modal-overlay">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeModal()">&times;</button>
-            
-            <div class="success-circle">
-                <i class="fa-solid fa-check"></i>
-            </div>
-            
-            <h2 class="modal-title">Reservation Confirmed!</h2>
-            <p class="modal-text">
+    <p class="modal-text">
                 Your reservation for<br>
-                <strong style="color: var(--primary-blue);">Badminton Court {{ session('court_id', 1) }}</strong><br>
+                <strong style="color: var(--primary-blue);">{{ session('sport', 'Badminton') }} - Court {{ session('court_id', 1) }}</strong><br>
                 has been submitted and is pending verification.
             </p>
-            
-            <div style="color: var(--text-gray); font-size: 15px; margin-bottom: 10px;">
-                Reservation ID: <strong style="color: var(--primary-blue);">{{ session('reservation_id', 'Pending') }}</strong>
-            </div>
-            
-            <div class="qr-box">
-                <!-- Dynamically generates the QR code based on their specific Reservation ID -->
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ session('reservation_id', 'Pending') }}" alt="Reservation QR">
-            </div>
-            
-            <p style="color: #999; font-size: 11px; margin-top: 0; margin-bottom: 20px;">Please arrive 3-5 minutes before your schedule time.</p>
-            
-            <button class="btn-download" onclick="window.print()">Download QR</button>
-        </div>
-    </div>
 
     <script>
         function showModal() {
