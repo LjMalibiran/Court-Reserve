@@ -226,4 +226,39 @@ Route::middleware([\App\Http\Middleware\CashierMiddleware::class])->group(functi
         return view('cashier.profile'); 
     })->name('cashier.profile');
 
+    Route::get('/setup-database', function () {
+    // 1. Generate the Admin Account (Lj)
+    \App\Models\User::updateOrCreate(
+        ['email' => 'CourtReserve@batangas.com'],
+        [
+            'name' => 'CourtReserve', 
+            'password' => \Illuminate\Support\Facades\Hash::make('123Court'),
+            'role' => 'admin' // Make sure this matches your actual role column setup!
+        ]
+    );
+
+    // 2. Generate the Cashier Account
+    \App\Models\User::updateOrCreate(
+        ['email' => 'cashier@batangas.com'],
+        [
+            'name' => 'Lj Malibiran',
+            'password' => \Illuminate\Support\Facades\Hash::make('123Lj'),
+            'role' => 'cashier'
+        ]
+    );
+
+    // 3. Re-create the Courts (Otherwise reservations will crash!)
+    \App\Models\Court::updateOrCreate(
+        ['id' => 1],
+        ['sport' => 'Badminton', 'price_per_hour' => 230]
+    );
+    
+    \App\Models\Court::updateOrCreate(
+        ['id' => 2],
+        ['sport' => 'Pickleball', 'price_per_hour' => 230]
+    );
+
+    return 'Database successfully populated! You can now log in.';
+});
+
 });
