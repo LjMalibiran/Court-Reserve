@@ -143,6 +143,10 @@ class ReservationController extends Controller
         // 4. Clear the temporary session data safely
         session()->forget(['court_id', 'sport', 'start_time', 'end_time', 'total_price']);
 
-        return back()->with('success', true)->with('reservation_id', $reservation->reservation_code);
+        return back()->with('success', true)
+                     ->with('reservation_id', $reservation->reservation_code)
+                     ->with('sport', $reservation->sport)
+                     ->with('court_id', $reservation->court_id)
+                     ->with('start_time', $reservation->start_time);
     }
 }
