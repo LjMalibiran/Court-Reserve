@@ -151,7 +151,8 @@
                             <h2 class="step-title">Select Date & Time</h2>
                         </div>
                         
-                        <input type="date" name="reservation_date" class="form-control" id="resDate" min="{{ date('Y-m-d') }}" value="{{ date('Y-m-d') }}" required>
+                        <!-- Add the min attribute so the HTML calendar disables past dates -->
+                        <input type="date" name="reservation_date" class="form-control" id="resDate" min="{{ \Carbon\Carbon::now('Asia/Manila')->format('Y-m-d') }}" value="{{ \Carbon\Carbon::now('Asia/Manila')->format('Y-m-d') }}" required>
                         
                         <p style="font-size: 12px; color: var(--text-gray); margin-bottom: 10px;">Available Time Slot</p>
                         

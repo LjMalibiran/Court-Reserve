@@ -27,6 +27,14 @@ class ReservationController extends Controller
         $start = Carbon::parse($request->reservation_date . ' ' . $request->start_time);
         $end = Carbon::parse($request->reservation_date . ' ' . $request->end_time);
 
+        if ($start->isPast()) {
+            return back()->withErrors(['start_time' => 'You cannot book a time slot that has already passed.']);
+        }
+
+        if ($end->lessThanOrEqualTo($start)) {
+            return back()->withErrors(['end_time' => 'The end time must be after the start time.']);
+        }
+        
         if ($end->lessThanOrEqualTo($start)) {
             return back()->withErrors(['end_time' => 'The end time must be after the start time.']);
         }
