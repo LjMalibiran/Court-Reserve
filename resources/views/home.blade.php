@@ -210,11 +210,11 @@
                     <p>What sport are you playing today?</p>
                 </div>
                 <div class="sport-buttons">
-                    <a href="{{ route('reservation.index') }}" class="sport-btn badminton">
+                    <a href="{{ route('reservation.index') }}?sport=Badminton" class="sport-btn badminton">
                         <img src="{{ asset('images/shuttlecock.png') }}" alt="Badminton Icon" width="60" style="margin-bottom: 5px;">
                         Badminton
                     </a>
-                    <a href="{{ route('reservation.index') }}" class="sport-btn pickleball">
+                    <a href="{{ route('reservation.index') }}?sport=Pickleball" class="sport-btn pickleball">
                         <i class="fa-solid fa-table-tennis-paddle-ball" style="font-size: 45px; margin-bottom: 5px;"></i>
                         Pickleball
                     </a>

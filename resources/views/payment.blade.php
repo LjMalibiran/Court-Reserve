@@ -165,9 +165,9 @@
                         <span class="price-text">₱ {{ number_format(session('total_price', 230), 2) }}</span>
                     </div>
                     
-                    <div class="radio-option" style="align-items: flex-start;">
-                        <label class="radio-label">
-                            <input type="radio" name="payment_type" value="half">
+                    <div class="radio-option">
+                        <label class="radio-label" style="align-items: flex-start;">
+                            <input type="radio" name="payment_type" value="half" style="margin-top: 3px;">
                             <div style="display: flex; flex-direction: column;">
                                 50% Down Payment
                                 <span style="color: var(--text-gray); font-size: 12px; font-weight: normal; margin-top: 3px;">Please pay the remaining balance<br>before your playing time.</span>
@@ -200,11 +200,26 @@
         </form>
     </main>
 
-    <p class="modal-text">
+    <!-- Success / Receipt Modal -->
+    <div class="modal-overlay" id="successModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <div class="success-circle">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <h2 class="modal-title">Reservation Submitted!</h2>
+            <p class="modal-text">
                 Your reservation for<br>
                 <strong style="color: var(--primary-blue);">{{ session('sport', 'Badminton') }} - Court {{ session('court_id', 1) }}</strong><br>
                 has been submitted and is pending verification.
             </p>
+            <div style="background: var(--light-blue); border-radius: 10px; padding: 15px; margin-bottom: 20px;">
+                <span style="color: var(--text-gray); font-size: 12px;">Reservation Code</span>
+                <h3 style="color: var(--primary-blue); margin: 5px 0 0 0; font-size: 22px; letter-spacing: 2px;">{{ session('reservation_id', '') }}</h3>
+            </div>
+            <button class="btn-submit" onclick="closeModal()">Go to Dashboard</button>
+        </div>
+    </div>
 
     <script>
         function showModal() {

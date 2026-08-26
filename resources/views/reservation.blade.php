@@ -130,6 +130,7 @@
 
             <!-- Hidden Inputs -->
             <input type="hidden" name="court_id" id="hidden_court_id" value="1">
+            <input type="hidden" name="sport" id="hidden_sport" value="Badminton">
             <input type="hidden" name="start_time" id="hidden_start_time" value="">
             <input type="hidden" name="end_time" id="hidden_end_time" value="">
             
@@ -206,7 +207,7 @@
                 </div>
 
                 <div>
-                    <div class="step-panel">
+                    <div class="step-panel" id="rentalSection">
                         <div class="step-header">
                             <div class="step-circle">4</div>
                             <h2 class="step-title">Rental Items <span style="color: var(--text-gray); font-size: 13px; font-weight: normal;">(Optional)</span></h2>
@@ -295,6 +296,7 @@
 
         function selectSport(sport) {
             currentSport = sport;
+            document.getElementById('hidden_sport').value = sport;
             
             document.getElementById('btn-badminton').classList.remove('active');
             document.getElementById('btn-pickleball').classList.remove('active');
@@ -304,11 +306,19 @@
             
             if(sport === 'Badminton') {
                 document.getElementById('summarySportIcon').innerHTML = `<img src="{{ asset('images/shuttlecock.png') }}" alt="Badminton Icon" width="30">`;
+                // Show rental section for Badminton
+                document.getElementById('rentalSection').style.display = 'block';
             } else {
                 document.getElementById('summarySportIcon').innerHTML = `<i class="fa-solid fa-table-tennis-paddle-ball" style="font-size: 30px; color: #f39c12;"></i>`;
+                // Hide rental section for Pickleball (no rental items available)
+                document.getElementById('rentalSection').style.display = 'none';
+                // Reset rental counts to 0
+                document.getElementById('racketCount').value = 0;
+                document.getElementById('shuttlecockCount').value = 0;
             }
 
             updateCourtDisplay();
+            calculateTotal();
         }
 
         function updateCourtDisplay() {
@@ -349,7 +359,8 @@
         function updateRental(item, change) {
             let input = document.getElementById(item + 'Count');
             let newValue = parseInt(input.value) + change;
-            if (newValue >= 0) {
+            let maxLimit = 5; // Facility limit: max 5 per rental item
+            if (newValue >= 0 && newValue <= maxLimit) {
                 input.value = newValue;
                 calculateTotal();
             }
@@ -432,15 +443,67 @@
                             }
                         }
                     });
+                    // Also mark past time slots as unavailable
+                    markPastSlots();
                 });
         }
 
         document.getElementById('durationSelect').addEventListener('change', calculateTotal);
+
+        // Mark past time slots as unavailable (line-through) if viewing today's date
+        function markPastSlots() {
+            let selectedDate = document.getElementById('resDate').value;
+            let now = new Date();
+            // Get current Manila time
+            let manilaTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
+            let todayStr = manilaTime.getFullYear() + '-' + 
+                           String(manilaTime.getMonth() + 1).padStart(2, '0') + '-' + 
+                           String(manilaTime.getDate()).padStart(2, '0');
+            
+            if (selectedDate !== todayStr) return; // Only apply for today
+            
+            let currentHour = manilaTime.getHours();
+            
+            document.querySelectorAll('.time-slot').forEach(slot => {
+                let timeText = slot.innerText.trim();
+                // Parse the slot hour (e.g., "8:00 AM" -> 8, "1:00 PM" -> 13)
+                let parts = timeText.match(/^(\d+):(\d+)\s*(AM|PM)$/i);
+                if (!parts) return;
+                let slotHour = parseInt(parts[1]);
+                let modifier = parts[3].toUpperCase();
+                if (modifier === 'PM' && slotHour !== 12) slotHour += 12;
+                if (modifier === 'AM' && slotHour === 12) slotHour = 0;
+                
+                // Mark slots that have already passed
+                if (slotHour <= currentHour) {
+                    slot.classList.add('booked');
+                    slot.classList.remove('active');
+                    
+                    if (selectedTimeString === timeText) {
+                        selectedTimeString = null;
+                        document.getElementById('summaryTime').innerText = "Not selected";
+                        document.getElementById('summaryTime').style.color = "var(--danger-red)";
+                        document.getElementById('hidden_start_time').value = "";
+                        document.getElementById('hidden_end_time').value = "";
+                    }
+                }
+            });
+        }
         
         // Initialize everything on load
         updateCourtDisplay(); // THIS forces the Summary box to show Court 1 immediately
         calculateTotal();
         checkAvailability();
+        markPastSlots();
+
+        // Auto-select sport from URL query parameter (e.g., ?sport=Pickleball)
+        (function() {
+            let params = new URLSearchParams(window.location.search);
+            let sport = params.get('sport');
+            if (sport === 'Pickleball' || sport === 'Badminton') {
+                selectSport(sport);
+            }
+        })();
     </script>
 </body>
 </html>
