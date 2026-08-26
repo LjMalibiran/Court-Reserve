@@ -55,9 +55,17 @@ class AdminController extends Controller
         $reservation = \App\Models\Reservation::find($id);
         
         if($reservation) {
-            // Changed to lowercase 'confirmed' so the user dashboard recognizes it!
             $reservation->status = 'confirmed'; 
             $reservation->save();
+
+            if ($reservation->user_id) {
+                \App\Models\Notification::create([
+                    'user_id' => $reservation->user_id,
+                    'title' => 'Reservation Confirmed',
+                    'message' => 'Your reservation for Court ' . $reservation->court_id . ' has been confirmed.'
+                ]);
+            }
+
             return back()->with('success', 'Reservation confirmed successfully! The user will now see this on their dashboard.');
         }
         
@@ -69,9 +77,17 @@ class AdminController extends Controller
         $reservation = \App\Models\Reservation::find($id);
         
         if($reservation) {
-            // Changed to lowercase 'cancelled'
             $reservation->status = 'cancelled';
             $reservation->save();
+
+            if ($reservation->user_id) {
+                \App\Models\Notification::create([
+                    'user_id' => $reservation->user_id,
+                    'title' => 'Reservation Cancelled',
+                    'message' => 'Your reservation for Court ' . $reservation->court_id . ' has been cancelled by the admin.'
+                ]);
+            }
+
             return back()->with('success', 'Reservation cancelled.');
         }
 

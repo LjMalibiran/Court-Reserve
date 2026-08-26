@@ -163,6 +163,13 @@ Route::middleware(['auth', 'verified.phone'])->group(function () {
 
     // Live Availability Check
     Route::get('/api/check-availability', [ReservationController::class, 'checkAvailability']);
+
+    // User Reservation Management
+    Route::post('/reservations/{id}/edit-user', [ReservationController::class, 'updateUserReservation']);
+    Route::post('/reservations/{id}/cancel-user', [ReservationController::class, 'cancelUserReservation']);
+    
+    // Notifications
+    Route::post('/notifications/mark-read', [ReservationController::class, 'markNotificationsRead']);
 });
 
 

@@ -56,4 +56,10 @@ class User extends Authenticatable
         return $this->hasMany(Reservation::class);
     }
 
+    // A user can have multiple notifications
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
 }

@@ -25,6 +25,15 @@ class CashierController extends Controller
         if($reservation) {
             $reservation->status = 'confirmed';
             $reservation->save();
+
+            if ($reservation->user_id) {
+                \App\Models\Notification::create([
+                    'user_id' => $reservation->user_id,
+                    'title' => 'Reservation Confirmed',
+                    'message' => 'Your reservation for Court ' . $reservation->court_id . ' has been confirmed.'
+                ]);
+            }
+
             return back()->with('success', 'Reservation confirmed successfully!');
         }
         
@@ -38,6 +47,15 @@ class CashierController extends Controller
         if($reservation) {
             $reservation->status = 'cancelled';
             $reservation->save();
+
+            if ($reservation->user_id) {
+                \App\Models\Notification::create([
+                    'user_id' => $reservation->user_id,
+                    'title' => 'Reservation Cancelled',
+                    'message' => 'Your reservation for Court ' . $reservation->court_id . ' has been cancelled by the cashier.'
+                ]);
+            }
+
             return back()->with('success', 'Reservation cancelled.');
         }
 
