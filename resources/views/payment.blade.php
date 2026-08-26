@@ -64,13 +64,27 @@
 
         /* Modal Styles */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: white; padding: 40px; border-radius: 20px; width: 90%; max-width: 450px; text-align: center; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-        .modal-close { position: absolute; top: 15px; right: 20px; font-size: 24px; color: #555; cursor: pointer; border: none; background: none; }
-        .success-circle { background: #28a745; color: white; width: 70px; height: 70px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 35px; margin: 0 auto 20px auto; }
-        .modal-title { color: var(--primary-blue); margin: 0 0 10px 0; font-size: 24px; }
-        .modal-text { color: var(--text-gray); font-size: 14px; line-height: 1.5; margin-bottom: 25px; }
-        .qr-box { border: 1px solid #0033cc; border-radius: 12px; padding: 20px; display: inline-block; margin-bottom: 15px; }
-        .btn-download { border: 1px solid var(--primary-blue); color: var(--primary-blue); background: white; padding: 12px 30px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 15px; width: 100%; }
+        .modal-content { background: white; padding: 40px 30px 30px; border-radius: 20px; width: 90%; max-width: 420px; text-align: center; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.2); overflow: hidden; }
+        .modal-close { position: absolute; top: 15px; right: 20px; font-size: 24px; color: #555; cursor: pointer; border: none; background: none; z-index: 2; }
+        .success-circle { background: #28a745; color: white; width: 80px; height: 80px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 40px; margin: 0 auto 20px auto; border: 5px solid #d4edda; }
+        .modal-title { color: #222; margin: 0 0 10px 0; font-size: 22px; font-weight: 700; }
+        .modal-text { color: var(--text-gray); font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
+        .modal-text strong { color: var(--primary-blue); }
+        .reservation-id { color: var(--primary-blue); font-size: 16px; font-weight: 600; margin-bottom: 15px; }
+        .qr-box { border: 2px solid var(--primary-blue); border-radius: 12px; padding: 15px; display: inline-block; margin-bottom: 10px; }
+        .qr-hint { color: var(--primary-blue); font-size: 11px; margin-bottom: 20px; }
+        .btn-download { border: 2px solid var(--primary-blue); color: var(--primary-blue); background: white; padding: 12px 30px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; width: 100%; box-sizing: border-box; transition: 0.2s; }
+        .btn-download:hover { background: var(--primary-blue); color: white; }
+        /* Confetti dots */
+        .confetti { position: absolute; width: 8px; height: 8px; border-radius: 50%; }
+        .confetti-1 { top: 15px; left: 20px; background: #f39c12; }
+        .confetti-2 { top: 30px; right: 40px; background: #e74c3c; }
+        .confetti-3 { top: 10px; right: 80px; background: #3498db; }
+        .confetti-4 { top: 50px; left: 50px; background: #2ecc71; }
+        .confetti-5 { top: 25px; left: 100px; background: #9b59b6; }
+        .confetti-6 { top: 45px; right: 25px; background: #f1c40f; }
+        .confetti-7 { top: 8px; left: 60%; background: #e67e22; }
+        .confetti-8 { top: 55px; left: 30%; background: #1abc9c; }
     
         /* Mobile App Navigation Override */
         @media (max-width: 768px) {
@@ -82,6 +96,7 @@
             .nav-menu a i { margin-right: 0; margin-bottom: 4px; font-size: 20px; }
             .nav-menu a:hover, .nav-menu a.active { border-left: none; background: transparent; color: var(--primary-blue); }
             .main-content { padding: 20px; padding-bottom: 90px; }
+            .payment-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -203,21 +218,45 @@
     <!-- Success / Receipt Modal -->
     <div class="modal-overlay" id="successModal">
         <div class="modal-content">
+            <!-- Confetti dots -->
+            <div class="confetti confetti-1"></div>
+            <div class="confetti confetti-2"></div>
+            <div class="confetti confetti-3"></div>
+            <div class="confetti confetti-4"></div>
+            <div class="confetti confetti-5"></div>
+            <div class="confetti confetti-6"></div>
+            <div class="confetti confetti-7"></div>
+            <div class="confetti confetti-8"></div>
+
             <button class="modal-close" onclick="closeModal()">&times;</button>
+            
             <div class="success-circle">
                 <i class="fa-solid fa-check"></i>
             </div>
-            <h2 class="modal-title">Reservation Submitted!</h2>
+            
+            <h2 class="modal-title">Reservation Confirmed!</h2>
+            
             <p class="modal-text">
                 Your reservation for<br>
-                <strong style="color: var(--primary-blue);">{{ session('sport', 'Badminton') }} - Court {{ session('court_id', 1) }}</strong><br>
-                has been submitted and is pending verification.
+                <strong>{{ session('sport', 'Badminton') }} Court {{ session('court_id', 1) }}</strong><br>
+                @if(session('start_time'))
+                    on <strong>{{ \Carbon\Carbon::parse(session('start_time'))->format('F j, Y') }}</strong> 
+                    at <strong>{{ \Carbon\Carbon::parse(session('start_time'))->format('g:i A') }}</strong><br>
+                @endif
+                has been confirmed
             </p>
-            <div style="background: var(--light-blue); border-radius: 10px; padding: 15px; margin-bottom: 20px;">
-                <span style="color: var(--text-gray); font-size: 12px;">Reservation Code</span>
-                <h3 style="color: var(--primary-blue); margin: 5px 0 0 0; font-size: 22px; letter-spacing: 2px;">{{ session('reservation_id', '') }}</h3>
+
+            <div class="reservation-id">
+                Reservation ID: <span style="color: var(--primary-blue);">{{ session('reservation_id', '') }}</span>
             </div>
-            <button class="btn-submit" onclick="closeModal()">Go to Dashboard</button>
+
+            <div class="qr-box" id="qrCodeBox">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data={{ urlencode(session('reservation_id', 'COURT-RESERVE')) }}" alt="Reservation QR Code" width="180" height="180">
+            </div>
+
+            <p class="qr-hint">Please arrive 3-5 minutes before your schedule time.</p>
+
+            <button class="btn-download" onclick="downloadQR()">Download QR</button>
         </div>
     </div>
 
@@ -229,6 +268,21 @@
             document.getElementById('successModal').style.display = 'none';
             // Redirect them back to the homepage!
             window.location.href = "{{ url('/home') }}"; 
+        }
+        function downloadQR() {
+            let qrImg = document.querySelector('#qrCodeBox img');
+            if (!qrImg) return;
+            // Fetch the QR image and trigger download
+            fetch(qrImg.src)
+                .then(res => res.blob())
+                .then(blob => {
+                    let link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = 'reservation-{{ session("reservation_id", "QR") }}.png';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                });
         }
 
         // Automatically show modal if Laravel flashes a 'success' message
