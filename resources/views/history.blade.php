@@ -1,196 +1,98 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>History | Court Reserve</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root { --primary-blue: #0033cc; --bg-gray: #f8f9fa; --text-gray: #777; --success-bg: #d4edda; --success-text: #155724; --danger-bg: #f8d7da; --danger-text: #721c24; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: var(--bg-gray); display: flex; height: 100vh; overflow: hidden; }
+@extends('layouts.app')
 
-        /* Sidebar (Reusable) */
-        .sidebar { width: 250px; background-color: white; border-right: 1px solid #ddd; display: flex; flex-direction: column; }
-        .logo-container { padding: 20px; text-align: center; border-bottom: 1px solid #ddd; }
-        .nav-menu { list-style: none; padding: 0; margin: 20px 0; flex-grow: 1; }
-        .nav-menu a { display: flex; align-items: center; padding: 15px 30px; color: var(--primary-blue); text-decoration: none; font-size: 16px; font-weight: 500; }
-        .nav-menu a i { margin-right: 15px; width: 20px; text-align: center; }
-        .nav-menu a.active { background-color: #e6edff; border-left: 4px solid var(--primary-blue); }
+@section('title', 'History | Court Reserve')
+@section('header_title', 'History')
 
-        /* Main Content */
-        .main-content { flex-grow: 1; padding: 40px; overflow-y: auto; }
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        
-        /* Tabs */
-        .tabs { display: flex; gap: 30px; margin-bottom: 25px; border-bottom: 1px solid #ddd; padding-bottom: 10px; }
-        .tab-link { color: var(--text-gray); font-weight: 600; text-decoration: none; cursor: pointer; }
-        .tab-link.active { color: var(--primary-blue); border-bottom: 2px solid var(--primary-blue); padding-bottom: 10px; }
+@section('styles')
+<style>
+    /* Tabs */
+    .tabs { display: flex; gap: 30px; margin-bottom: 25px; border-bottom: 1px solid #ddd; padding-bottom: 10px; }
+    .tab-link { color: var(--text-gray); font-weight: 600; text-decoration: none; cursor: pointer; }
+    .tab-link.active { color: var(--primary-blue); border-bottom: 2px solid var(--primary-blue); padding-bottom: 10px; }
 
-        /* Search Bar */
-        .search-container { display: flex; gap: 10px; margin-bottom: 30px; }
-        .search-bar { flex-grow: 1; padding: 12px 20px; border: 1px solid #ddd; border-radius: 8px; }
-        .filter-btn { padding: 12px 20px; border: 1px solid #ddd; border-radius: 8px; background: white; cursor: pointer; }
+    /* Search Bar */
+    .search-container { display: flex; gap: 10px; margin-bottom: 30px; }
+    .search-bar { flex-grow: 1; padding: 12px 20px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; outline: none; }
+    .filter-btn { padding: 12px 20px; border: 1px solid #ddd; border-radius: 8px; background: white; cursor: pointer; color: var(--text-gray); }
 
-        /* History Items */
-        .history-card { background: white; border: 1px solid #eee; border-radius: 12px; padding: 20px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
-        .res-info { display: flex; align-items: center; gap: 15px; }
-        .badge { padding: 6px 15px; border-radius: 20px; font-size: 13px; font-weight: 600; }
-        .badge-completed { background: var(--success-bg); color: var(--success-text); }
-        .badge-cancelled { background: var(--danger-bg); color: var(--danger-text); }
+    /* History Items */
+    .history-card { background: white; border: 1px solid #eee; border-radius: 12px; padding: 20px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.02); cursor: pointer; transition: 0.2s; }
+    .history-card:hover { border-color: #ccc; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+    .res-info { display: flex; align-items: center; gap: 15px; }
+    
+    .crc-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 24px; }
+    .crc-icon.pickleball { color: #f39c12; }
+    .crc-icon.badminton { color: var(--primary-blue); }
 
-        /* Mobile App Navigation Override */
-        @media (max-width: 768px) {
-            body { 
-                flex-direction: column; 
-            }
-            
-            /* Transforms sidebar into a bottom navbar */
-            .sidebar {
-                position: fixed; 
-                bottom: 0; 
-                left: 0; 
-                width: 100%; 
-                height: 70px;
-                flex-direction: row; 
-                border-right: none; 
-                border-top: 1px solid #ddd;
-                z-index: 1000; 
-                padding: 0;
-                box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
-            }
-            
-            /* Hide the big logo on mobile */
-            .logo-container { 
-                display: none; 
-            }
-            
-            /* Arrange the icons horizontally */
-            .nav-menu { 
-                display: flex; 
-                flex-direction: row; 
-                margin: 0; 
-                width: 100%; 
-                justify-content: space-around; 
-                align-items: center; 
-            }
-            
-            .nav-menu a { 
-                padding: 10px; 
-                flex-direction: column; /* Stacks icon above text */
-                font-size: 11px; 
-                border-left: none; 
-                color: #777;
-            }
-            
-            .nav-menu a i { 
-                margin-right: 0; 
-                margin-bottom: 4px; 
-                font-size: 20px; 
-            }
-            
-            /* Mobile active state (underline instead of left border) */
-            .nav-menu a:hover, .nav-menu a.active { 
-                border-left: none; 
-                background: transparent; 
-                color: var(--primary-blue); 
-            }
+    .badge { padding: 6px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+    .badge-completed { background: #d1fae5; color: #059669; }
+    .badge-cancelled { background: #fee2e2; color: #dc2626; }
+    
+    .empty-state { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 40px 20px; }
+    .empty-state i { font-size: 50px; color: #e0e0e0; margin-bottom: 15px; }
+    .empty-state h4 { color: var(--text-dark); margin: 0 0 8px 0; font-size: 18px; }
+    .empty-state p { color: var(--text-gray); margin: 0; font-size: 14px; }
+</style>
+@endsection
 
-            /* Push main content up so it isn't hidden behind the new bottom bar */
-            .main-content { 
-                padding: 20px;
-                padding-bottom: 90px; 
-            }
-        }
-    </style>
-</head>
-<body>
+@section('content')
+<div class="tabs">
+    <a class="tab-link active">All</a>
+    <a class="tab-link">Completed</a>
+    <a class="tab-link">Cancelled</a>
+</div>
 
-    <aside class="sidebar">
-        <div class="logo-container">
-            <img src="{{ asset('images/logo.png') }}" alt="Logo" style="max-width: 150px;">
-        </div>
-        <ul class="nav-menu">
-            <li><a href="{{ url('/home') }}"><i class="fa-solid fa-house"></i> Home</a></li>
-            <li><a href="{{ route('reservation.index') }}"><i class="fa-regular fa-calendar-plus"></i> Reservation</a></li>
-            <li><a href="{{ route('history.index') }}" class="active"><i class="fa-solid fa-clock-rotate-left"></i> History</a></li>
-            <li><a href="{{ route('profile.index') }}"><i class="fa-regular fa-user"></i> Profile</a></li>
-        </ul>
-    </aside>
+<div class="search-container">
+    <input type="text" class="search-bar" id="searchBar" placeholder="Search reservations...">
+    <button class="filter-btn"><i class="fa-solid fa-filter"></i></button>
+</div>
 
-    <main class="main-content">
-        <header class="top-header">
-            <h1>History</h1>
-            <i class="fa-regular fa-bell" style="font-size: 24px; color: var(--primary-blue);"></i>
-        </header>
-
-        <div class="tabs">
-            <a class="tab-link active">All</a>
-            <a class="tab-link">Completed</a>
-            <a class="tab-link">Cancelled</a>
-        </div>
-
-        <div class="search-container">
-            <input type="text" class="search-bar" placeholder="Search...">
-            <button class="filter-btn"><i class="fa-solid fa-filter"></i></button>
-        </div>
-
-        <div class="history-list">
-            
-            <div class="history-card">
-                <div class="res-info">
-                    <div style="font-size: 24px; color: var(--primary-blue);"><i class="fa-solid fa-shuttlecock"></i></div>
-                    <div>
-                        <div style="font-size: 12px; color: var(--text-gray);">PC26-02</div>
-                        <div style="font-weight: bold; color: var(--primary-blue);">Badminton Court 1</div>
-                        <div style="font-size: 13px; color: var(--text-gray);">June 3, 2026 | 4:00 PM</div>
-                    </div>
+<div class="history-list">
+    @forelse($historyReservations ?? collect() as $res)
+        <div class="history-card" data-search="{{ strtolower($res->sport . ' ' . $res->court_id . ' ' . $res->reservation_code) }}" onclick="openNotificationDetails({{ $res->id }}, '{{ $res->sport ?? 'Badminton' }} Court {{ $res->court_id }}', '{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}', '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}', '{{ $res->reservation_code }}', '{{ ucfirst($res->status) }}')">
+            <div class="res-info">
+                <div class="crc-icon {{ strtolower($res->sport ?? 'badminton') }}">
+                    @if(($res->sport ?? 'Badminton') == 'Pickleball')
+                        <i class="fa-solid fa-table-tennis-paddle-ball"></i>
+                    @else
+                        <img src="{{ asset('images/shuttlecock.png') }}" width="30">
+                    @endif
                 </div>
                 <div>
-                    <span class="badge badge-completed">Completed</span>
-                    <i class="fa-solid fa-chevron-right" style="margin-left: 15px; color: #ccc;"></i>
+                    <div style="font-size: 12px; color: var(--text-gray);">{{ $res->reservation_code }}</div>
+                    <div style="font-weight: bold; color: var(--primary-blue);">{{ $res->sport ?? 'Badminton' }} Court {{ $res->court_id }}</div>
+                    <div style="font-size: 13px; color: var(--text-gray);">{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y | g:i A') }}</div>
                 </div>
             </div>
-
-            <div class="history-card">
-                <div class="res-info">
-                    <div style="font-size: 24px; color: var(--primary-blue);"><i class="fa-solid fa-shuttlecock"></i></div>
-                    <div>
-                        <div style="font-size: 12px; color: var(--text-gray);">BC26-02</div>
-                        <div style="font-weight: bold; color: var(--primary-blue);">Badminton Court 1</div>
-                        <div style="font-size: 13px; color: var(--text-gray);">June 3, 2026 | 4:00 PM</div>
-                    </div>
-                </div>
-                <div>
-                    <span class="badge badge-cancelled">Cancelled</span>
-                    <i class="fa-solid fa-chevron-right" style="margin-left: 15px; color: #ccc;"></i>
-                </div>
+            <div>
+                <span class="badge {{ $res->status == 'completed' ? 'badge-completed' : 'badge-cancelled' }}">
+                    {{ ucfirst($res->status) }}
+                </span>
+                <i class="fa-solid fa-chevron-right" style="margin-left: 15px; color: #ccc;"></i>
             </div>
-
         </div>
-    </main>
-    <script>
+    @empty
+        <div class="empty-state">
+            <i class="fa-solid fa-inbox"></i>
+            <h4>No history found</h4>
+            <p>You don't have any completed or cancelled reservations yet.</p>
+        </div>
+    @endforelse
+</div>
+@endsection
+
+@section('scripts')
+<script>
     document.querySelectorAll('.tab-link').forEach(tab => {
         tab.addEventListener('click', function() {
-            // 1. Reset visual styles for all tabs
-            document.querySelectorAll('.tab-link').forEach(t => {
-                t.classList.remove('active');
-                t.style.color = '#777'; 
-                t.style.borderBottom = 'none';
-            });
-            
-            // 2. Apply active styles to the clicked tab
+            document.querySelectorAll('.tab-link').forEach(t => t.classList.remove('active'));
             this.classList.add('active');
-            this.style.color = '#0033cc'; 
-            this.style.borderBottom = '2px solid #0033cc';
             
-            // 3. Filtering Logic
             const filter = this.innerText.toLowerCase().trim();
             const cards = document.querySelectorAll('.history-card');
             
             cards.forEach(card => {
-                // Look for the element with the class "badge"
                 const badge = card.querySelector('.badge');
-                
                 if (badge) {
                     const status = badge.innerText.toLowerCase().trim();
                     if (filter === 'all' || status === filter) {
@@ -202,7 +104,25 @@
             });
         });
     });
-</script>
 
-</body>
-</html>
+    document.getElementById('searchBar').addEventListener('input', function() {
+        const term = this.value.toLowerCase();
+        const cards = document.querySelectorAll('.history-card');
+        const activeTab = document.querySelector('.tab-link.active').innerText.toLowerCase().trim();
+
+        cards.forEach(card => {
+            const badge = card.querySelector('.badge').innerText.toLowerCase().trim();
+            const text = card.getAttribute('data-search');
+            
+            const matchesTab = (activeTab === 'all' || badge === activeTab);
+            const matchesSearch = text.includes(term);
+
+            if (matchesTab && matchesSearch) {
+                card.style.display = 'flex';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+</script>
+@endsection

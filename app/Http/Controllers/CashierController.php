@@ -29,6 +29,7 @@ class CashierController extends Controller
             if ($reservation->user_id) {
                 \App\Models\Notification::create([
                     'user_id' => $reservation->user_id,
+                    'reservation_id' => $reservation->id,
                     'title' => 'Reservation Confirmed',
                     'message' => 'Your reservation for Court ' . $reservation->court_id . ' has been confirmed.'
                 ]);
@@ -51,6 +52,7 @@ class CashierController extends Controller
             if ($reservation->user_id) {
                 \App\Models\Notification::create([
                     'user_id' => $reservation->user_id,
+                    'reservation_id' => $reservation->id,
                     'title' => 'Reservation Cancelled',
                     'message' => 'Your reservation for Court ' . $reservation->court_id . ' has been cancelled by the cashier.'
                 ]);

@@ -146,13 +146,18 @@ Route::middleware(['auth', 'verified.phone'])->group(function () {
 
     // History Route
     Route::get('/history', function () {
-        return view('history'); 
+        $historyReservations = \App\Models\Reservation::where('user_id', Auth::id())
+            ->whereIn('status', ['completed', 'cancelled'])
+            ->orderBy('start_time', 'desc')
+            ->get();
+        return view('history', compact('historyReservations')); 
     })->name('history.index');
 
     // Profile Route
-    Route::get('/profile', function () {
-        return view('profile'); 
-    })->name('profile.index');
+    Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'index'])->name('profile.index');
+    Route::post('/profile/update', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/password', [\App\Http\Controllers\ProfileController::class, 'changePassword'])->name('profile.password');
+    Route::post('/profile/toggle-2fa', [\App\Http\Controllers\ProfileController::class, 'toggle2FA'])->name('profile.toggle-2fa');
 
     // Payment
     Route::get('/payment', function () {
@@ -161,15 +166,13 @@ Route::middleware(['auth', 'verified.phone'])->group(function () {
 
     Route::post('/reserve/process-payment', [ReservationController::class, 'processPayment']);
 
-    // Live Availability Check
-    Route::get('/api/check-availability', [ReservationController::class, 'checkAvailability']);
-
     // User Reservation Management
     Route::post('/reservations/{id}/edit-user', [ReservationController::class, 'updateUserReservation']);
     Route::post('/reservations/{id}/cancel-user', [ReservationController::class, 'cancelUserReservation']);
-    
-    // Notifications
     Route::post('/notifications/mark-read', [ReservationController::class, 'markNotificationsRead']);
+
+    // Live Availability Check
+    Route::get('/api/check-availability', [ReservationController::class, 'checkAvailability']);
 });
 
 

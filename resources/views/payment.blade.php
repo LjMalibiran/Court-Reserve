@@ -1,296 +1,240 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment | Court Reserve</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary-blue: #0033cc;
-            --light-blue: #e6edff;
-            --text-dark: #333;
-            --text-gray: #777;
-            --bg-gray: #f8f9fa;
-        }
+@extends('layouts.app')
 
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: var(--bg-gray); display: flex; height: 100vh; overflow: hidden; }
+@section('title', 'Payment | Court Reserve')
+@section('header_title', 'Payment')
 
-        /* Sidebar */
-        .sidebar { width: 250px; background-color: white; border-right: 1px solid #ddd; display: flex; flex-direction: column; }
-        .logo-container { padding: 20px; text-align: center; border-bottom: 1px solid #ddd; }
-        .nav-menu { list-style: none; padding: 0; margin: 20px 0; flex-grow: 1; }
-        .nav-menu li { margin-bottom: 5px; }
-        .nav-menu a { display: flex; align-items: center; padding: 15px 30px; color: var(--primary-blue); text-decoration: none; font-size: 16px; font-weight: 500; transition: 0.2s; }
-        .nav-menu a i { margin-right: 15px; font-size: 20px; width: 20px; text-align: center; }
-        .nav-menu a:hover, .nav-menu a.active { background-color: var(--light-blue); border-left: 4px solid var(--primary-blue); }
-
-        /* Main Content */
-        .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow-y: auto; padding: 0 40px 40px 40px; box-sizing: border-box; }
-        .top-header { padding: 20px 0; display: flex; justify-content: space-between; align-items: center; }
-        .top-header h1 { color: var(--primary-blue); margin: 0; font-size: 32px; }
-
-        /* Payment Layout Grid */
-        .payment-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 25px; margin-top: 10px; }
-        
-        .panel { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #eaeaea; }
-        
-        /* Left Panel: Details */
-        .sport-title { display: flex; align-items: center; gap: 15px; color: var(--primary-blue); font-size: 20px; font-weight: bold; margin-bottom: 20px; }
-        .amount-row { display: flex; justify-content: space-between; font-weight: bold; font-size: 16px; color: var(--primary-blue); margin-bottom: 20px; }
-        .gcash-details { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #eee; padding-top: 20px; }
-        .gcash-info h3 { margin: 0; color: var(--primary-blue); font-size: 18px; }
-        .gcash-info p { margin: 5px 0 0 0; color: var(--text-gray); font-size: 18px; }
-        
-        /* Right Panel: Options */
-        .panel h3 { margin-top: 0; color: var(--primary-blue); font-size: 18px; margin-bottom: 5px; }
-        .panel p.sub { color: var(--text-gray); font-size: 13px; margin-top: 0; margin-bottom: 20px; }
-        
-        .radio-option { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-        .radio-label { display: flex; align-items: center; cursor: pointer; color: var(--primary-blue); font-weight: 600; font-size: 16px; }
-        .radio-label input { appearance: none; width: 20px; height: 20px; border: 2px solid var(--primary-blue); border-radius: 50%; margin-right: 12px; outline: none; position: relative; cursor: pointer; }
-        .radio-label input:checked::after { content: ''; position: absolute; top: 3px; left: 3px; width: 10px; height: 10px; background: var(--primary-blue); border-radius: 50%; }
-        .price-text { color: var(--primary-blue); font-weight: 600; font-size: 16px; }
-        
-        /* Upload Area */
-        .upload-area { border: 2px dashed #ccc; border-radius: 12px; padding: 40px; text-align: center; background: #fafafa; cursor: pointer; transition: 0.2s; }
-        .upload-area:hover { border-color: var(--primary-blue); background: var(--light-blue); }
-        .upload-icon { font-size: 40px; color: var(--primary-blue); margin-bottom: 15px; }
-        .upload-text { color: var(--primary-blue); font-size: 16px; font-weight: 600; margin-bottom: 10px; }
-        .btn-outline { border: 1px solid var(--primary-blue); color: var(--primary-blue); background: white; padding: 10px 25px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; margin-top: 10px; }
-        
-        .btn-submit { background: var(--primary-blue); color: white; border: none; padding: 16px; border-radius: 8px; width: 100%; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 25px; }
-        .btn-submit:hover { background: #002299; }
-
-        /* Modal Styles */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: white; padding: 40px 30px 30px; border-radius: 20px; width: 90%; max-width: 420px; text-align: center; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.2); overflow: hidden; }
-        .modal-close { position: absolute; top: 15px; right: 20px; font-size: 24px; color: #555; cursor: pointer; border: none; background: none; z-index: 2; }
-        .success-circle { background: #28a745; color: white; width: 80px; height: 80px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 40px; margin: 0 auto 20px auto; border: 5px solid #d4edda; }
-        .modal-title { color: #222; margin: 0 0 10px 0; font-size: 22px; font-weight: 700; }
-        .modal-text { color: var(--text-gray); font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
-        .modal-text strong { color: var(--primary-blue); }
-        .reservation-id { color: var(--primary-blue); font-size: 16px; font-weight: 600; margin-bottom: 15px; }
-        .qr-box { border: 2px solid var(--primary-blue); border-radius: 12px; padding: 15px; display: inline-block; margin-bottom: 10px; }
-        .qr-hint { color: var(--primary-blue); font-size: 11px; margin-bottom: 20px; }
-        .btn-download { border: 2px solid var(--primary-blue); color: var(--primary-blue); background: white; padding: 12px 30px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; width: 100%; box-sizing: border-box; transition: 0.2s; }
-        .btn-download:hover { background: var(--primary-blue); color: white; }
-        /* Confetti dots */
-        .confetti { position: absolute; width: 8px; height: 8px; border-radius: 50%; }
-        .confetti-1 { top: 15px; left: 20px; background: #f39c12; }
-        .confetti-2 { top: 30px; right: 40px; background: #e74c3c; }
-        .confetti-3 { top: 10px; right: 80px; background: #3498db; }
-        .confetti-4 { top: 50px; left: 50px; background: #2ecc71; }
-        .confetti-5 { top: 25px; left: 100px; background: #9b59b6; }
-        .confetti-6 { top: 45px; right: 25px; background: #f1c40f; }
-        .confetti-7 { top: 8px; left: 60%; background: #e67e22; }
-        .confetti-8 { top: 55px; left: 30%; background: #1abc9c; }
+@section('styles')
+<style>
+    /* Payment Layout Grid */
+    .payment-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 25px; margin-top: 10px; }
     
-        /* Mobile App Navigation Override */
-        @media (max-width: 768px) {
-            body { flex-direction: column; }
-            .sidebar { position: fixed; bottom: 0; left: 0; width: 100%; height: 70px; flex-direction: row; border-right: none; border-top: 1px solid #ddd; z-index: 1000; padding: 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
-            .logo-container { display: none; }
-            .nav-menu { display: flex; flex-direction: row; margin: 0; width: 100%; justify-content: space-around; align-items: center; }
-            .nav-menu a { padding: 10px; flex-direction: column; font-size: 11px; border-left: none; color: #777; }
-            .nav-menu a i { margin-right: 0; margin-bottom: 4px; font-size: 20px; }
-            .nav-menu a:hover, .nav-menu a.active { border-left: none; background: transparent; color: var(--primary-blue); }
-            .main-content { padding: 20px; padding-bottom: 90px; }
-            .payment-grid { grid-template-columns: 1fr; }
-        }
-    </style>
-</head>
-<body>
+    .panel { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #eaeaea; }
+    
+    /* Left Panel: Details */
+    .sport-title { display: flex; align-items: center; gap: 15px; color: var(--primary-blue); font-size: 20px; font-weight: bold; margin-bottom: 20px; }
+    .amount-row { display: flex; justify-content: space-between; font-weight: bold; font-size: 16px; color: var(--primary-blue); margin-bottom: 20px; }
+    .gcash-details { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #eee; padding-top: 20px; }
+    .gcash-info h3 { margin: 0; color: var(--primary-blue); font-size: 18px; }
+    .gcash-info p { margin: 5px 0 0 0; color: var(--text-gray); font-size: 18px; }
+    
+    /* Right Panel: Options */
+    .panel h3 { margin-top: 0; color: var(--primary-blue); font-size: 18px; margin-bottom: 5px; }
+    .panel p.sub { color: var(--text-gray); font-size: 13px; margin-top: 0; margin-bottom: 20px; }
+    
+    .radio-option { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .radio-label { display: flex; align-items: center; cursor: pointer; color: var(--primary-blue); font-weight: 600; font-size: 16px; }
+    .radio-label input { appearance: none; width: 20px; height: 20px; border: 2px solid var(--primary-blue); border-radius: 50%; margin-right: 12px; outline: none; position: relative; cursor: pointer; }
+    .radio-label input:checked::after { content: ''; position: absolute; top: 3px; left: 3px; width: 10px; height: 10px; background: var(--primary-blue); border-radius: 50%; }
+    .price-text { color: var(--primary-blue); font-weight: 600; font-size: 16px; }
+    
+    /* Upload Area */
+    .upload-area { border: 2px dashed #ccc; border-radius: 12px; padding: 40px; text-align: center; background: #fafafa; cursor: pointer; transition: 0.2s; }
+    .upload-area:hover { border-color: var(--primary-blue); background: var(--light-blue); }
+    .upload-icon { font-size: 40px; color: var(--primary-blue); margin-bottom: 15px; }
+    .upload-text { color: var(--primary-blue); font-size: 16px; font-weight: 600; margin-bottom: 10px; }
+    .btn-outline { border: 1px solid var(--primary-blue); color: var(--primary-blue); background: white; padding: 10px 25px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; margin-top: 10px; }
+    
+    .btn-submit { background: var(--primary-blue); color: white; border: none; padding: 16px; border-radius: 8px; width: 100%; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 25px; }
+    .btn-submit:hover { background: #002299; }
 
-    <aside class="sidebar">
-        <div class="logo-container">
-            <img src="{{ asset('images/logo.png') }}" alt="Logo" style="max-width: 180px; height: auto;">
-        </div>
-        <ul class="nav-menu">
-            <li><a href="{{ url('/home') }}"><i class="fa-solid fa-house"></i> Home</a></li>
-            <li><a href="{{ route('reservation.index') }}" class="active"><i class="fa-regular fa-calendar-plus"></i> Reservation</a></li>
-            <li><a href="{{ route('history.index') }}"><i class="fa-solid fa-clock-rotate-left"></i> History</a></li>
-            <li><a href="{{ route('profile.index') }}"><i class="fa-regular fa-user"></i> Profile</a></li>
-        </ul>
-    </aside>
+    /* Success Receipt Modal specific to Payment page */
+    .success-modal .modal-content { text-align: center; overflow: hidden; padding: 40px 30px 30px; }
+    .success-circle { background: #28a745; color: white; width: 80px; height: 80px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 40px; margin: 0 auto 20px auto; border: 5px solid #d4edda; }
+    .modal-title { color: #222; margin: 0 0 10px 0; font-size: 22px; font-weight: 700; }
+    .modal-text { color: var(--text-gray); font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
+    .modal-text strong { color: var(--primary-blue); }
+    .reservation-id { color: var(--primary-blue); font-size: 16px; font-weight: 600; margin-bottom: 15px; }
+    .qr-box { border: 2px solid var(--primary-blue); border-radius: 12px; padding: 15px; display: inline-block; margin-bottom: 10px; }
+    .qr-hint { color: var(--primary-blue); font-size: 11px; margin-bottom: 20px; }
+    .btn-download { border: 2px solid var(--primary-blue); color: var(--primary-blue); background: white; padding: 12px 30px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; width: 100%; box-sizing: border-box; transition: 0.2s; }
+    .btn-download:hover { background: var(--primary-blue); color: white; }
+    /* Confetti dots */
+    .confetti { position: absolute; width: 8px; height: 8px; border-radius: 50%; }
+    .confetti-1 { top: 15px; left: 20px; background: #f39c12; }
+    .confetti-2 { top: 30px; right: 40px; background: #e74c3c; }
+    .confetti-3 { top: 10px; right: 80px; background: #3498db; }
+    .confetti-4 { top: 50px; left: 50px; background: #2ecc71; }
+    .confetti-5 { top: 25px; left: 100px; background: #9b59b6; }
+    .confetti-6 { top: 45px; right: 25px; background: #f1c40f; }
+    .confetti-7 { top: 8px; left: 60%; background: #e67e22; }
+    .confetti-8 { top: 55px; left: 30%; background: #1abc9c; }
 
-    <main class="main-content">
-        <header class="top-header">
-            <h1>Payment</h1>
-            <i class="fa-regular fa-bell" style="font-size: 24px; color: var(--primary-blue);"></i>
-        </header>
+    @media (max-width: 768px) {
+        .payment-grid { grid-template-columns: 1fr; }
+        .gcash-details { flex-direction: column; align-items: flex-start; gap: 20px; }
+        .gcash-details img { align-self: center; margin-top: 10px; }
+    }
+</style>
+@endsection
 
-        <!-- 1. DYNAMIC FORM WRAPPER -->
-        <form action="{{ url('/reserve/process-payment') }}" method="POST" enctype="multipart/form-data">
-            @csrf
-            
-            <!-- Hidden inputs seamlessly catching data from the persistent session -->
-            <input type="hidden" name="court_id" value="{{ session('court_id') }}">
-            <input type="hidden" name="sport" value="{{ session('sport') }}">
-            <input type="hidden" name="start_time" value="{{ session('start_time') }}">
-            <input type="hidden" name="end_time" value="{{ session('end_time') }}">
-            <input type="hidden" name="total_amount" value="{{ session('total_price') }}">
+@section('content')
+<form action="{{ url('/reserve/process-payment') }}" method="POST" enctype="multipart/form-data">
+    @csrf
+    
+    <!-- Hidden inputs seamlessly catching data from the persistent session -->
+    <input type="hidden" name="court_id" value="{{ session('court_id') }}">
+    <input type="hidden" name="sport" value="{{ session('sport') }}">
+    <input type="hidden" name="start_time" value="{{ session('start_time') }}">
+    <input type="hidden" name="end_time" value="{{ session('end_time') }}">
+    <input type="hidden" name="total_amount" value="{{ session('total_price') }}">
 
-            <div class="payment-grid">
-                
-                <div class="panel">
-                    <div class="sport-title">
-                        <!-- Dynamically show correct icon and text -->
-                        @if(session('sport') == 'Pickleball')
-                            <i class="fa-solid fa-table-tennis-paddle-ball" style="font-size: 24px;"></i>
-                        @else
-                            <img src="{{ asset('images/shuttlecock.png') }}" width="35" alt="Badminton">
-                        @endif
-                        {{ session('sport', 'Badminton') }}
-                    </div>
-                    
-                    <div style="border: 1px solid #eee; border-radius: 12px; padding: 20px;">
-                        <div class="amount-row">
-                            <span>Total Amount</span>
-                            <!-- Dynamic Total Price -->
-                            <span>₱ {{ number_format(session('total_price', 230), 2) }}</span>
-                        </div>
-                        
-                        <div class="gcash-details">
-                            <div class="gcash-info">
-                                <span style="color: #999; font-size: 12px;">Payment Method</span>
-                                <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
-                                    <div style="background: #007bff; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 20px;">G</div>
-                                    <div>
-                                        <h3>Gcash</h3>
-                                        <p>09123456789</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=GcashPayment" alt="GCash QR" style="border-radius: 8px;">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="panel">
-                    <h3>Payment Option</h3>
-                    <p class="sub">50% Down Payment Required to Confirm Reservation</p>
-                    
-                    <div class="radio-option">
-                        <label class="radio-label">
-                            <input type="radio" name="payment_type" value="full" checked>
-                            Full Payment
-                        </label>
-                        <!-- Dynamic Full Price -->
-                        <span class="price-text">₱ {{ number_format(session('total_price', 230), 2) }}</span>
-                    </div>
-                    
-                    <div class="radio-option">
-                        <label class="radio-label" style="align-items: flex-start;">
-                            <input type="radio" name="payment_type" value="half" style="margin-top: 3px;">
-                            <div style="display: flex; flex-direction: column;">
-                                50% Down Payment
-                                <span style="color: var(--text-gray); font-size: 12px; font-weight: normal; margin-top: 3px;">Please pay the remaining balance<br>before your playing time.</span>
-                            </div>
-                        </label>
-                        <!-- Dynamic Half Price -->
-                        <span class="price-text">₱ {{ number_format(session('total_price', 230) / 2, 2) }}</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="panel">
-                <h3>Upload Receipt <span style="color: var(--text-gray); font-size: 13px; font-weight: normal;">(Required)</span></h3>
-                <p class="sub">Please upload the Gcash receipt</p>
-                
-                <div class="upload-area" onclick="document.getElementById('receipt-upload').click()">
-                    <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
-                    <div class="upload-text" id="file-name-display">Drag and drop your file here</div>
-                    <div style="color: var(--text-gray); font-size: 14px; margin-bottom: 10px;">or</div>
-                    <button type="button" class="btn-outline">Choose File</button>
-                    
-                    <!-- The actual hidden file input -->
-                    <input type="file" id="receipt-upload" name="receipt" accept="image/png, image/jpeg" style="display: none;" required onchange="document.getElementById('file-name-display').innerText = this.files[0].name">
-                </div>
-                <div style="text-align: center; color: #999; font-size: 12px; margin-top: 15px;">Accepted file: JPG, PNG (Max.5MB)</div>
-            </div>
-
-            <button type="submit" class="btn-submit">Complete Payment</button>
-
-        </form>
-    </main>
-
-    <!-- Success / Receipt Modal -->
-    <div class="modal-overlay" id="successModal">
-        <div class="modal-content">
-            <!-- Confetti dots -->
-            <div class="confetti confetti-1"></div>
-            <div class="confetti confetti-2"></div>
-            <div class="confetti confetti-3"></div>
-            <div class="confetti confetti-4"></div>
-            <div class="confetti confetti-5"></div>
-            <div class="confetti confetti-6"></div>
-            <div class="confetti confetti-7"></div>
-            <div class="confetti confetti-8"></div>
-
-            <button class="modal-close" onclick="closeModal()">&times;</button>
-            
-            <div class="success-circle">
-                <i class="fa-solid fa-check"></i>
-            </div>
-            
-            <h2 class="modal-title">Reservation Confirmed!</h2>
-            
-            <p class="modal-text">
-                Your reservation for<br>
-                <strong>{{ session('sport', 'Badminton') }} Court {{ session('court_id', 1) }}</strong><br>
-                @if(session('start_time'))
-                    on <strong>{{ \Carbon\Carbon::parse(session('start_time'))->format('F j, Y') }}</strong> 
-                    at <strong>{{ \Carbon\Carbon::parse(session('start_time'))->format('g:i A') }}</strong><br>
+    <div class="payment-grid">
+        <div class="panel">
+            <div class="sport-title">
+                @if(session('sport') == 'Pickleball')
+                    <i class="fa-solid fa-table-tennis-paddle-ball" style="font-size: 24px;"></i>
+                @else
+                    <img src="{{ asset('images/shuttlecock.png') }}" width="35" alt="Badminton">
                 @endif
-                has been confirmed
-            </p>
-
-            <div class="reservation-id">
-                Reservation ID: <span style="color: var(--primary-blue);">{{ session('reservation_id', '') }}</span>
+                {{ session('sport', 'Badminton') }}
             </div>
-
-            <div class="qr-box" id="qrCodeBox">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data={{ urlencode(session('reservation_id', 'COURT-RESERVE')) }}" alt="Reservation QR Code" width="180" height="180">
+            
+            <div style="border: 1px solid #eee; border-radius: 12px; padding: 20px;">
+                <div class="amount-row">
+                    <span>Total Amount</span>
+                    <span>₱ {{ number_format(session('total_price', 230), 2) }}</span>
+                </div>
+                
+                <div class="gcash-details">
+                    <div class="gcash-info">
+                        <span style="color: #999; font-size: 12px;">Payment Method</span>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
+                            <div style="background: #007bff; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 20px;">G</div>
+                            <div>
+                                <h3>Gcash</h3>
+                                <p>09123456789</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Order Gcash QR to be on bottom on mobile -->
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=GcashPayment" alt="GCash QR" style="border-radius: 8px;" class="desktop-only-qr">
+                </div>
             </div>
+        </div>
 
-            <p class="qr-hint">Please arrive 3-5 minutes before your schedule time.</p>
-
-            <button class="btn-download" onclick="downloadQR()">Download QR</button>
+        <div class="panel">
+            <h3>Payment Option</h3>
+            <p class="sub">50% Down Payment Required to Confirm Reservation</p>
+            
+            <div class="radio-option">
+                <label class="radio-label">
+                    <input type="radio" name="payment_type" value="full" checked>
+                    Full Payment
+                </label>
+                <span class="price-text">₱ {{ number_format(session('total_price', 230), 2) }}</span>
+            </div>
+            
+            <div class="radio-option">
+                <label class="radio-label" style="align-items: flex-start;">
+                    <input type="radio" name="payment_type" value="half" style="margin-top: 3px;">
+                    <div style="display: flex; flex-direction: column;">
+                        50% Down Payment
+                        <span style="color: var(--text-gray); font-size: 12px; font-weight: normal; margin-top: 3px;">Please pay the remaining balance<br>before your playing time.</span>
+                    </div>
+                </label>
+                <span class="price-text">₱ {{ number_format(session('total_price', 230) / 2, 2) }}</span>
+            </div>
         </div>
     </div>
 
-    <script>
-        function showModal() {
-            document.getElementById('successModal').style.display = 'flex';
-        }
-        function closeModal() {
-            document.getElementById('successModal').style.display = 'none';
-            // Redirect them back to the homepage!
-            window.location.href = "{{ url('/home') }}"; 
-        }
-        function downloadQR() {
-            let qrImg = document.querySelector('#qrCodeBox img');
-            if (!qrImg) return;
-            // Fetch the QR image and trigger download
-            fetch(qrImg.src)
-                .then(res => res.blob())
-                .then(blob => {
-                    let link = document.createElement('a');
-                    link.href = URL.createObjectURL(blob);
-                    link.download = 'reservation-{{ session("reservation_id", "QR") }}.png';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                });
-        }
+    <div class="panel">
+        <h3>Upload Receipt <span style="color: var(--text-gray); font-size: 13px; font-weight: normal;">(Required)</span></h3>
+        <p class="sub">Please upload the Gcash receipt</p>
+        
+        <label for="receipt" class="upload-area" style="display: block;">
+            <div class="upload-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+            <div class="upload-text">Drag your file to upload</div>
+            <button type="button" class="btn-outline">Select file</button>
+            <input type="file" name="receipt" id="receipt" style="display: none;" accept="image/*" required>
+        </label>
+    </div>
 
-        // Automatically show modal if Laravel flashes a 'success' message
-        @if(session('success'))
-            window.onload = function() {
-                showModal();
-            };
-        @endif
-    </script>
-</body>
-</html>
+    <button type="submit" class="btn-submit">Complete Payment</button>
+</form>
+@endsection
+
+@section('modals')
+<!-- Success Modal Formatted Exactly as Designed -->
+<div class="modal-overlay success-modal" id="successModal">
+    <div class="modal-content">
+        <!-- Confetti Decoration -->
+        <div class="confetti confetti-1"></div>
+        <div class="confetti confetti-2"></div>
+        <div class="confetti confetti-3"></div>
+        <div class="confetti confetti-4"></div>
+        <div class="confetti confetti-5"></div>
+        <div class="confetti confetti-6"></div>
+        <div class="confetti confetti-7"></div>
+        <div class="confetti confetti-8"></div>
+        
+        <button class="modal-close" onclick="closeSuccessModal()">&times;</button>
+        
+        <div class="success-circle">
+            <i class="fa-solid fa-check"></i>
+        </div>
+        
+        <h2 class="modal-title">Payment Successful!</h2>
+        
+        <p class="modal-text">
+            Your reservation for <strong>{{ session('flash_sport') }} Court {{ session('flash_court') }}</strong><br>
+            on <strong>{{ session('flash_start') ? \Carbon\Carbon::parse(session('flash_start'))->format('M j, Y') : '' }}</strong><br>
+            has been successfully booked.
+        </p>
+        
+        <div class="reservation-id">
+            Reservation ID: {{ session('reservation_code') }}
+        </div>
+        
+        <div class="qr-box">
+            @if(session('reservation_code'))
+                <img id="qr-image" src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data={{ urlencode(session('reservation_code')) }}" alt="QR Code">
+            @endif
+        </div>
+        
+        <div class="qr-hint">Scan this QR code at the entrance</div>
+        
+        <button class="btn-download" onclick="downloadQR()">Download QR Code</button>
+    </div>
+</div>
+@endsection
+
+@section('scripts')
+<script>
+    // File upload label update
+    document.getElementById('receipt').addEventListener('change', function(e) {
+        if(e.target.files.length > 0) {
+            document.querySelector('.upload-text').innerText = e.target.files[0].name;
+            document.querySelector('.upload-text').style.color = 'var(--success-green)';
+            document.querySelector('.upload-icon').style.color = 'var(--success-green)';
+        }
+    });
+
+    // Check if session has success message, then show modal
+    @if(session('success'))
+        document.getElementById('successModal').style.display = 'flex';
+    @endif
+
+    function closeSuccessModal() {
+        document.getElementById('successModal').style.display = 'none';
+        // Redirect to reservation tab instead of reloading
+        window.location.href = "{{ route('reservation.index') }}";
+    }
+
+    function downloadQR() {
+        const qrImage = document.getElementById('qr-image').src;
+        fetch(qrImage)
+            .then(response => response.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = 'Reservation_QR_{{ session("reservation_code") }}.png';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+            })
+            .catch(() => alert('Failed to download QR code.'));
+    }
+</script>
+@endsection

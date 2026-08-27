@@ -23,9 +23,12 @@ class User extends Authenticatable
         'email', 
         'contact', 
         'password',
-        'role',                 // <-- Swapped is_admin for role
+        'role',
         'verification_code',    
         'phone_verified_at',    
+        'profile_picture',
+        'phone_number',
+        'two_factor_enabled',
     ];
 
     /**
@@ -54,12 +57,6 @@ class User extends Authenticatable
     public function reservations()
     {
         return $this->hasMany(Reservation::class);
-    }
-
-    // A user can have multiple notifications
-    public function notifications()
-    {
-        return $this->hasMany(Notification::class);
     }
 
 }

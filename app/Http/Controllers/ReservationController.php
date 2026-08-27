@@ -144,32 +144,32 @@ class ReservationController extends Controller
         session()->forget(['court_id', 'sport', 'start_time', 'end_time', 'total_price']);
 
         return back()->with('success', true)
-                     ->with('reservation_id', $reservation->reservation_code)
-                     ->with('sport', $reservation->sport)
-                     ->with('court_id', $reservation->court_id)
-                     ->with('start_time', $reservation->start_time);
+                     ->with('reservation_code', $reservation->reservation_code)
+                     ->with('flash_sport', $reservation->sport)
+                     ->with('flash_court', $reservation->court_id)
+                     ->with('flash_start', $reservation->start_time);
     }
 
-    /**
-     * User edit a confirmed reservation.
-     */
     public function updateUserReservation(Request $request, $id)
     {
         $reservation = Reservation::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
-
+        
         $request->validate([
             'reservation_date' => 'required|date|after_or_equal:today',
             'start_time' => 'required',
-            'end_time' => 'required',
+            'end_time' => 'required'
         ]);
 
         $start = Carbon::parse($request->reservation_date . ' ' . $request->start_time);
         $end = Carbon::parse($request->reservation_date . ' ' . $request->end_time);
 
-        // Check if double booked again
+        if ($start->isPast()) {
+            return back()->withErrors(['start_time' => 'You cannot book a time slot that has already passed.']);
+        }
+
         $isDoubleBooked = Reservation::where('court_id', $reservation->court_id)
-            ->whereIn('status', ['pending', 'confirmed'])
             ->where('id', '!=', $reservation->id)
+            ->whereIn('status', ['pending', 'confirmed'])
             ->where(function ($query) use ($start, $end) {
                 $query->where(function ($q) use ($start, $end) {
                     $q->where('start_time', '<', $end)->where('end_time', '>', $start);
@@ -177,21 +177,17 @@ class ReservationController extends Controller
             })->exists();
 
         if ($isDoubleBooked) {
-            return back()->with('error', 'This time slot is already reserved by someone else.');
+            return back()->withErrors(['availability' => 'This court is already reserved.']);
         }
 
         $reservation->start_time = $start;
         $reservation->end_time = $end;
-        // Setting it back to pending for approval
-        $reservation->status = 'pending';
+        $reservation->status = 'pending'; // Requires re-approval
         $reservation->save();
 
-        return back()->with('success', 'Reservation updated successfully! Please wait for admin approval.');
+        return back()->with('success', 'Reservation updated successfully. It is now awaiting approval.');
     }
 
-    /**
-     * User cancel a confirmed reservation.
-     */
     public function cancelUserReservation(Request $request, $id)
     {
         $reservation = Reservation::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
@@ -199,18 +195,14 @@ class ReservationController extends Controller
         $reservation->status = 'cancelled';
         $reservation->save();
 
-        return back()->with('success', 'Reservation cancelled successfully. A refund will be processed if applicable based on our policy.');
+        return response()->json(['success' => true]);
     }
 
-    /**
-     * Mark all notifications as read for the user.
-     */
     public function markNotificationsRead()
     {
-        \App\Models\Notification::where('user_id', Auth::id())
-            ->where('is_read', false)
-            ->update(['is_read' => true]);
-            
+        if(Auth::check()) {
+            Auth::user()->notifications()->where('is_read', false)->update(['is_read' => true]);
+        }
         return response()->json(['success' => true]);
     }
 }

@@ -82,26 +82,29 @@ class AuthController extends Controller
                 return redirect()->intended('/cashier/dashboard');
             }
 
-            // 4. REGULAR USER CHECK: Are they verified yet?
-            if (is_null($user->phone_verified_at)) {
+            // 4. REGULAR USER CHECK: Are they verified yet or is 2FA enabled?
+            if (is_null($user->phone_verified_at) || $user->two_factor_enabled) {
                 // Generate a fresh code because they need to verify!
                 $newCode = rand(1000, 9999);
                 $user->verification_code = $newCode;
+                // Unverify them so middleware catches them
+                $user->phone_verified_at = null;
                 $user->save();
 
                 // Send fresh SMS via Semaphore API
                 try {
+                    $phoneToUse = $user->phone_number ?? $user->contact;
                     Http::post('https://api.semaphore.co/api/v4/messages', [
                         'apikey'  => env('SEMAPHORE_API_KEY'),
-                        'number'  => $user->contact,
+                        'number'  => $phoneToUse,
                         'message' => "Your fresh Court Reserve verification code is: {$newCode}",
                     ]);
                 } catch (\Exception $e) {
-                    Log::error("Failed to send SMS to {$user->contact}: " . $e->getMessage());
+                    Log::error("Failed to send SMS to {$phoneToUse}: " . $e->getMessage());
                 }
 
                 // Log the new code
-                Log::info("NEW SMS SENT TO {$user->contact}: Your fresh verification code is: {$newCode}");
+                Log::info("NEW SMS SENT TO {$phoneToUse}: Your fresh verification code is: {$newCode}");
 
                 return redirect()->route('verify.index');
             }
