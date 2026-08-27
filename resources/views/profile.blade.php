@@ -13,8 +13,8 @@
     /* Left Sidebar Profile */
     .profile-sidebar { text-align: center; }
     .profile-pic-container { position: relative; width: 150px; height: 150px; margin: 0 auto 20px auto; }
-    .profile-pic { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 4px solid var(--light-blue); }
-    .profile-pic-placeholder { width: 100%; height: 100%; border-radius: 50%; background: var(--primary-blue); color: white; display: flex; justify-content: center; align-items: center; font-size: 60px; font-weight: bold; border: 4px solid var(--light-blue); }
+    .profile-pic { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 4px solid var(--light-blue); position: absolute; top: 0; left: 0; z-index: 1; }
+    .profile-pic-placeholder { width: 100%; height: 100%; border-radius: 50%; background: var(--primary-blue); color: white; display: flex; justify-content: center; align-items: center; font-size: 60px; font-weight: bold; border: 4px solid var(--light-blue); box-sizing: border-box; }
     
     .upload-btn { position: absolute; bottom: 0; right: 10px; background: var(--primary-blue); color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: 0.2s; }
     .upload-btn:hover { background: #002299; transform: scale(1.05); }
@@ -84,12 +84,11 @@
         <form id="avatarForm" action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="profile-pic-container">
+                <div class="profile-pic-placeholder">
+                    {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                </div>
                 @if(Auth::user()->profile_picture)
-                    <img src="{{ asset('storage/' . Auth::user()->profile_picture) }}" class="profile-pic" alt="Profile">
-                @else
-                    <div class="profile-pic-placeholder">
-                        {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
-                    </div>
+                    <img src="{{ asset('storage/' . Auth::user()->profile_picture) }}" class="profile-pic" alt="Profile" onerror="this.style.display='none'">
                 @endif
                 <label for="profile_picture" class="upload-btn">
                     <i class="fa-solid fa-camera"></i>
@@ -116,22 +115,6 @@
                 <p>Pending</p>
             </div>
         </div>
-
-        <!-- Spacer to push help center & logout to the bottom -->
-        <div style="flex-grow: 1;"></div>
-
-        <a href="#" class="help-center-btn">
-            <i class="fa-solid fa-circle-question"></i>
-            <div>
-                <span style="display: block; font-size: 14px;">Help Center</span>
-                <span style="font-size: 11px; color: var(--text-gray); font-weight: normal;">Currently Unavailable</span>
-            </div>
-        </a>
-
-        <form action="{{ route('logout') }}" method="POST" style="margin-top: 15px;">
-            @csrf
-            <button type="submit" class="btn-outline-red" style="width: 100%;"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out</button>
-        </form>
     </div>
 
     <!-- Right Side: Forms -->
@@ -205,5 +188,21 @@
             </form>
         </div>
     </div>
+</div>
+
+<!-- Help Center & Logout pinned at the very bottom -->
+<div style="margin-top: 40px; padding-bottom: 30px;">
+    <a href="#" class="help-center-btn">
+        <i class="fa-solid fa-circle-question"></i>
+        <div>
+            <span style="display: block; font-size: 14px;">Help Center</span>
+            <span style="font-size: 11px; color: var(--text-gray); font-weight: normal;">Currently Unavailable</span>
+        </div>
+    </a>
+
+    <form action="{{ route('logout') }}" method="POST" style="margin-top: 15px;">
+        @csrf
+        <button type="submit" class="btn-outline-red" style="width: 100%;"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out</button>
+    </form>
 </div>
 @endsection

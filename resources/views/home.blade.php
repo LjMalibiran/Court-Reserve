@@ -6,7 +6,7 @@
 @section('styles')
 <style>
     /* Welcome Card */
-    .welcome-card { background: white; border-radius: 12px; padding: 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 40px; border: 1px solid #eaeaea; }
+    .welcome-card { background: white; border-radius: 12px; padding: 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 60px; border: 1px solid #eaeaea; }
     .welcome-text h2 { margin: 0; font-weight: normal; color: var(--primary-blue); font-size: 20px;}
     .welcome-text h2 strong { font-size: 32px; display: block; margin-top: 5px; }
     .welcome-text p { color: var(--text-gray); margin: 5px 0 0 0; }
