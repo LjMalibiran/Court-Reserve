@@ -50,7 +50,7 @@
     .cancel-circle { background: var(--danger-red); color: white; width: 70px; height: 70px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 35px; margin: 0 auto 20px auto; border: 5px solid var(--danger-light); }
     
     @media (max-width: 768px) {
-        .welcome-card { flex-direction: column; text-align: center; gap: 20px; }
+        .welcome-card { flex-direction: column; text-align: center; gap: 20px; margin-bottom: 30px; background: transparent; border: none; box-shadow: none; padding: 20px 10px; }
         .reservations-grid { display: flex; flex-direction: column; gap: 20px; }
         .panel { max-height: none; }
     }

@@ -6,13 +6,13 @@
 @section('styles')
 <style>
     /* Tabs */
-    .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: none; flex-wrap: wrap; padding-bottom: 10px; }
+    .tabs { display: flex; gap: 10px; margin-bottom: 30px; border-bottom: none; flex-wrap: wrap; padding-bottom: 15px; border-bottom: 1px solid #eee; }
     .tab-link { color: var(--text-gray); font-weight: 600; text-decoration: none; cursor: pointer; padding: 8px 18px; border-radius: 25px; background: white; border: 1px solid #ddd; transition: 0.2s; white-space: nowrap; font-size: 14px; }
     .tab-link:hover { background: var(--light-blue); }
     .tab-link.active { background: var(--primary-blue); color: white; border-color: var(--primary-blue); }
 
     /* Search Bar */
-    .search-container { display: flex; gap: 10px; margin-top: 5px; margin-bottom: 30px; }
+    .search-container { display: flex; gap: 10px; margin-bottom: 25px; }
     .search-bar { flex-grow: 1; padding: 12px 20px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; outline: none; }
     .filter-btn { padding: 12px 20px; border: 1px solid #ddd; border-radius: 8px; background: white; cursor: pointer; color: var(--text-gray); }
 
