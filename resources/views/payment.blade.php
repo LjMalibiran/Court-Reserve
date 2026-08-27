@@ -141,15 +141,16 @@
         <h3>Upload Receipt <span style="color: var(--text-gray); font-size: 13px; font-weight: normal;">(Required)</span></h3>
         <p class="sub">Please upload the Gcash receipt</p>
         
-        <label for="receipt" class="upload-area" style="display: block;">
+        <label for="receipt" class="upload-area" style="display: block; position: relative;">
             <div class="upload-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
             <div class="upload-text">Drag your file to upload</div>
             <button type="button" class="btn-outline">Select file</button>
-            <input type="file" name="receipt" id="receipt" style="display: none;" accept="image/*" required>
+            <input type="file" name="receipt" id="receipt" style="position: absolute; opacity: 0; width: 1px; height: 1px;" accept="image/*" required>
         </label>
+        <div id="receiptError" style="color: var(--danger-red); font-size: 13px; display: none; margin-top: 10px;"><i class="fa-solid fa-circle-exclamation"></i> Please upload a GCash receipt before completing your payment.</div>
     </div>
 
-    <button type="submit" class="btn-submit">Complete Payment</button>
+    <button type="submit" class="btn-submit" onclick="return validatePayment(event)">Complete Payment</button>
 </form>
 @endsection
 
@@ -206,8 +207,19 @@
             document.querySelector('.upload-text').innerText = e.target.files[0].name;
             document.querySelector('.upload-text').style.color = 'var(--success-green)';
             document.querySelector('.upload-icon').style.color = 'var(--success-green)';
+            document.getElementById('receiptError').style.display = 'none';
         }
     });
+
+    function validatePayment(e) {
+        const fileInput = document.getElementById('receipt');
+        if(fileInput.files.length === 0) {
+            e.preventDefault();
+            document.getElementById('receiptError').style.display = 'block';
+            return false;
+        }
+        return true;
+    }
 
     // Check if session has success message, then show modal
     @if(session('success'))

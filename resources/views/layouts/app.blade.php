@@ -53,17 +53,17 @@
         .notification-title { font-weight: bold; color: var(--primary-blue); font-size: 14px; margin-bottom: 5px; }
         .notification-msg { font-size: 12px; color: var(--text-gray); margin: 0; line-height: 1.4; }
 
-        .btn-primary-solid { background: var(--primary-blue); color: white; border: none; padding: 12px 25px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 15px; transition: 0.2s; }
+        .btn-primary-solid { background: var(--primary-blue); color: white; border: none; padding: 12px 25px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 15px; transition: 0.2s; margin-top: 10px; margin-bottom: 10px; }
         .btn-primary-solid:hover { background-color: #002299; }
-        .btn-outline-blue { background: white; border: 1px solid var(--primary-blue); color: var(--primary-blue); padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; width: 100%; text-align: center; display: inline-block; box-sizing: border-box; }
-        .btn-outline-red { background: white; border: 1px solid var(--danger-red); color: var(--danger-red); padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; width: 100%; text-align: center; display: inline-block; box-sizing: border-box; }
+        .btn-outline-blue { background: white; border: 1px solid var(--primary-blue); color: var(--primary-blue); padding: 12px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; width: 100%; text-align: center; display: inline-block; box-sizing: border-box; margin-top: 10px; margin-bottom: 10px; }
+        .btn-outline-red { background: white; border: 1px solid var(--danger-red); color: var(--danger-red); padding: 12px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; width: 100%; text-align: center; display: inline-block; box-sizing: border-box; margin-top: 10px; margin-bottom: 10px; }
         .btn-outline-blue:hover { background: var(--primary-blue); color: white; }
         .btn-outline-red:hover { background: var(--danger-red); color: white; }
 
         /* Modal Styles */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: white; padding: 30px; border-radius: 16px; width: 90%; max-width: 400px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
-        .modal-close { position: absolute; top: 15px; right: 15px; font-size: 20px; color: #777; cursor: pointer; background: none; border: none; }
+        .modal-content { background: white; padding: 30px; border-radius: 16px; width: 90%; max-width: 400px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; margin: 20px; }
+        .modal-close { position: absolute; top: 15px; right: 15px; font-size: 20px; color: #777; cursor: pointer; background: none; border: none; padding: 5px; margin: 0; }
         .modal-title { margin: 0 0 20px 0; font-size: 20px; color: var(--primary-blue); text-align: center; }
 
         /* Mobile App Navigation Override */
@@ -85,7 +85,7 @@
     
     <aside class="sidebar">
         <div class="logo-container">
-            <img src="{{ asset('images/logo.png') }}" alt="Logo" style="max-width: 150px;">
+            <img src="{{ asset('images/logo.png') }}" alt="Logo" style="max-width: 150px; margin: 10px 0;">
         </div>
         
         <ul class="nav-menu">
@@ -121,18 +121,18 @@
                     <div class="notification-header">
                         <span>Notifications</span>
                         @if($unreadCount > 0)
-                            <span style="color: var(--primary-blue); font-size: 12px; cursor: pointer;" onclick="markAllRead()">Mark all as read</span>
+                            <span style="color: var(--primary-blue); font-size: 12px; cursor: pointer; margin-left: 10px;" onclick="markAllRead()">Mark all as read</span>
                         @endif
                     </div>
                     @forelse($notifications as $notif)
-                        <div class="notification-item {{ $notif->is_read ? '' : 'unread' }}" onclick="openNotificationDetails({{ $notif->reservation_id ?? 'null' }}, '{{ $notif->reservation ? ($notif->reservation->sport ?? 'Badminton') . ' Court ' . $notif->reservation->court_id : '' }}', '{{ $notif->reservation ? \Carbon\Carbon::parse($notif->reservation->start_time)->format('D, M j, Y') : '' }}', '{{ $notif->reservation ? \Carbon\Carbon::parse($notif->reservation->start_time)->format('g:i A') . ' - ' . \Carbon\Carbon::parse($notif->reservation->end_time)->format('g:i A') : '' }}', '{{ $notif->reservation ? $notif->reservation->reservation_code : '' }}', '{{ $notif->reservation ? ucfirst($notif->reservation->status) : '' }}')">
+                        <div class="notification-item {{ $notif->is_read ? '' : 'unread' }}" onclick="openNotificationDetails('{{ $notif->reservation_id ?? '' }}', '{{ addslashes($notif->reservation ? ($notif->reservation->sport ?? 'Badminton') . ' Court ' . $notif->reservation->court_id : $notif->title) }}', '{{ $notif->reservation ? \Carbon\Carbon::parse($notif->reservation->start_time)->format('D, M j, Y') : '' }}', '{{ $notif->reservation ? \Carbon\Carbon::parse($notif->reservation->start_time)->format('g:i A') . ' - ' . \Carbon\Carbon::parse($notif->reservation->end_time)->format('g:i A') : '' }}', '{{ $notif->reservation ? $notif->reservation->reservation_code : '' }}', '{{ $notif->reservation ? ucfirst($notif->reservation->status) : '' }}', '{{ addslashes($notif->message) }}')">
                             <div class="notification-title">{{ $notif->title }}</div>
                             <p class="notification-msg">{{ $notif->message }}</p>
                             <span style="font-size: 10px; color: #aaa; margin-top: 5px; display: block;">{{ $notif->created_at->diffForHumans() }}</span>
                         </div>
                     @empty
                         <div class="notification-item">
-                            <p class="notification-msg" style="text-align: center;">No new notifications</p>
+                            <p class="notification-msg" style="text-align: center; margin: 10px 0;">No new notifications</p>
                         </div>
                     @endforelse
                 </div>
@@ -149,31 +149,31 @@
     <div class="modal-overlay" id="notifDetailsModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeGlobalModal('notifDetailsModal')">&times;</button>
-            <h2 class="modal-title">Reservation Details</h2>
+            <h2 class="modal-title">Notification Details</h2>
             
             <div style="margin-bottom: 20px; text-align: center;">
                 <h3 id="nd-title" style="margin: 0; color: var(--primary-blue);"></h3>
                 <span id="nd-badge" style="padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; display: inline-block; margin-top: 5px;"></span>
             </div>
 
-            <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                <div style="display: flex; gap: 10px; margin-bottom: 10px; font-size: 14px; color: var(--text-gray);">
-                    <i class="fa-regular fa-calendar" style="width: 20px; text-align: center;"></i>
-                    <span id="nd-date"></span>
-                </div>
-                <div style="display: flex; gap: 10px; font-size: 14px; color: var(--text-gray);">
-                    <i class="fa-regular fa-clock" style="width: 20px; text-align: center;"></i>
-                    <span id="nd-time"></span>
-                </div>
-            </div>
+            <p id="nd-fallback-msg" style="text-align: center; color: var(--text-gray); display: none; margin: 20px 0; line-height: 1.5;"></p>
 
-            <div style="text-align: center; margin-bottom: 20px;">
-                <img id="nd-qr" src="" alt="QR" width="100" height="100" style="border-radius: 8px; border: 1px solid #eee;">
-                <span style="display: block; font-size: 11px; color: var(--text-gray); margin-top: 5px;">Reservation Code: <strong id="nd-code"></strong></span>
-            </div>
+            <div id="nd-info-grid">
+                <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px; font-size: 14px; color: var(--text-gray);">
+                        <i class="fa-regular fa-calendar" style="width: 20px; text-align: center;"></i>
+                        <span id="nd-date"></span>
+                    </div>
+                    <div style="display: flex; gap: 10px; font-size: 14px; color: var(--text-gray);">
+                        <i class="fa-regular fa-clock" style="width: 20px; text-align: center;"></i>
+                        <span id="nd-time"></span>
+                    </div>
+                </div>
 
-            <div id="nd-actions" style="display: flex; flex-direction: column; gap: 10px; display: none;">
-                <!-- Filled dynamically if confirmed -->
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <img id="nd-qr" src="" alt="QR" width="100" height="100" style="border-radius: 8px; border: 1px solid #eee; margin-bottom: 10px;">
+                    <span style="display: block; font-size: 11px; color: var(--text-gray); margin-top: 5px;">Reservation Code: <strong id="nd-code"></strong></span>
+                </div>
             </div>
         </div>
     </div>
@@ -208,30 +208,37 @@
             document.getElementById(id).style.display = 'none';
         }
 
-        function openNotificationDetails(reservationId, title, date, time, code, status) {
-            if (!reservationId || !title) return; // if notification has no reservation
-
+        function openNotificationDetails(reservationId, title, date, time, code, status, fallbackMsg) {
             document.getElementById('notifDetailsModal').style.display = 'flex';
             document.getElementById('nd-title').innerText = title;
-            document.getElementById('nd-date').innerText = date;
-            document.getElementById('nd-time').innerText = time;
-            document.getElementById('nd-code').innerText = code;
-            
-            const qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=" + encodeURIComponent(code);
-            document.getElementById('nd-qr').src = qrUrl;
 
-            const badge = document.getElementById('nd-badge');
-            badge.innerText = status;
-            if(status === 'Confirmed') {
-                badge.style.backgroundColor = '#d1fae5'; badge.style.color = '#059669';
-            } else if(status === 'Cancelled') {
-                badge.style.backgroundColor = '#fee2e2'; badge.style.color = '#dc2626';
+            if (reservationId && reservationId !== 'null' && reservationId !== '') {
+                document.getElementById('nd-fallback-msg').style.display = 'none';
+                document.getElementById('nd-info-grid').style.display = 'block';
+                document.getElementById('nd-badge').style.display = 'inline-block';
+                
+                document.getElementById('nd-date').innerText = date;
+                document.getElementById('nd-time').innerText = time;
+                document.getElementById('nd-code').innerText = code;
+                
+                const qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=" + encodeURIComponent(code);
+                document.getElementById('nd-qr').src = qrUrl;
+
+                const badge = document.getElementById('nd-badge');
+                badge.innerText = status;
+                if(status === 'Confirmed') {
+                    badge.style.backgroundColor = '#d1fae5'; badge.style.color = '#059669';
+                } else if(status === 'Cancelled') {
+                    badge.style.backgroundColor = '#fee2e2'; badge.style.color = '#dc2626';
+                } else {
+                    badge.style.backgroundColor = '#fef3c7'; badge.style.color = '#d97706';
+                }
             } else {
-                badge.style.backgroundColor = '#fef3c7'; badge.style.color = '#d97706';
+                document.getElementById('nd-info-grid').style.display = 'none';
+                document.getElementById('nd-badge').style.display = 'none';
+                document.getElementById('nd-fallback-msg').innerText = fallbackMsg || "This notification has no detailed reservation data attached.";
+                document.getElementById('nd-fallback-msg').style.display = 'block';
             }
-            
-            // Note: you can optionally inject Edit/Cancel buttons in #nd-actions here if needed,
-            // but the prompt mainly asked for the details to pop up.
         }
     </script>
     

@@ -18,7 +18,7 @@
     .sport-btn.active { background: var(--light-blue); border-color: var(--primary-blue); color: var(--primary-blue); }
 
     /* Court Selection (Badminton uses dots, Pickleball uses squares) */
-    .court-selection { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
+    .court-selection { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
     .court-btn { padding: 15px 5px; border: 1px solid #ddd; border-radius: 8px; text-align: center; cursor: pointer; transition: 0.2s; background: white; display: flex; flex-direction: column; align-items: center; gap: 10px; }
     
     .court-btn .court-icon-badminton { width: 15px; height: 15px; background: #ddd; border-radius: 50%; transition: 0.2s; }
@@ -60,7 +60,7 @@
 
     @media (max-width: 768px) {
         .booking-grid { grid-template-columns: 1fr; }
-        .court-selection { grid-template-columns: repeat(2, 1fr); }
+        .court-selection { grid-template-columns: repeat(3, 1fr); }
     }
 </style>
 @endsection
@@ -198,8 +198,8 @@
                 <h2 style="margin: 0 0 20px 0; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 15px; text-align: center;">Summary</h2>
                 
                 <div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 25px;">
-                    <div id="summarySportIcon">
-                        <img src="{{ asset('images/shuttlecock.png') }}" alt="Badminton" width="30" style="filter: brightness(0) invert(1);">
+                    <div id="summarySportIcon" style="background: white; border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center;">
+                        <img src="{{ asset('images/shuttlecock.png') }}" alt="Badminton" width="24">
                     </div>
                     <h3 id="summarySportText" style="margin: 0; font-size: 22px;">Badminton</h3>
                 </div>
@@ -271,9 +271,9 @@
 
         document.getElementById('summarySportText').innerText = sport;
         if (sport === 'Badminton') {
-            document.getElementById('summarySportIcon').innerHTML = `<img src="{{ asset('images/shuttlecock.png') }}" width="30" style="filter: brightness(0) invert(1);">`;
+            document.getElementById('summarySportIcon').innerHTML = `<img src="{{ asset('images/shuttlecock.png') }}" width="24">`;
         } else {
-            document.getElementById('summarySportIcon').innerHTML = `<i class="fa-solid fa-table-tennis-paddle-ball" style="font-size: 26px;"></i>`;
+            document.getElementById('summarySportIcon').innerHTML = `<i class="fa-solid fa-table-tennis-paddle-ball" style="font-size: 24px; color: #f39c12;"></i>`;
         }
 
         currentCourtNum = 1;

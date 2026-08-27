@@ -124,6 +124,12 @@
                 <span style="font-size: 11px; color: var(--text-gray); font-weight: normal;">Currently Unavailable</span>
             </div>
         </a>
+
+        <!-- Visible Logout button for mobile -->
+        <form action="{{ route('logout') }}" method="POST" style="margin-top: 20px;">
+            @csrf
+            <button type="submit" class="btn-outline-red" style="width: 100%;"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out</button>
+        </form>
     </div>
 
     <!-- Right Side: Forms -->

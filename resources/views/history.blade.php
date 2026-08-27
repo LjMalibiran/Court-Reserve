@@ -6,9 +6,10 @@
 @section('styles')
 <style>
     /* Tabs */
-    .tabs { display: flex; gap: 30px; margin-bottom: 25px; border-bottom: 1px solid #ddd; padding-bottom: 10px; }
-    .tab-link { color: var(--text-gray); font-weight: 600; text-decoration: none; cursor: pointer; }
-    .tab-link.active { color: var(--primary-blue); border-bottom: 2px solid var(--primary-blue); padding-bottom: 10px; }
+    .tabs { display: flex; gap: 15px; margin-bottom: 25px; border-bottom: none; overflow-x: auto; padding-bottom: 5px; }
+    .tab-link { color: var(--text-gray); font-weight: 600; text-decoration: none; cursor: pointer; padding: 10px 20px; border-radius: 25px; background: white; border: 1px solid #ddd; transition: 0.2s; white-space: nowrap; }
+    .tab-link:hover { background: var(--light-blue); }
+    .tab-link.active { background: var(--primary-blue); color: white; border-color: var(--primary-blue); }
 
     /* Search Bar */
     .search-container { display: flex; gap: 10px; margin-bottom: 30px; }
