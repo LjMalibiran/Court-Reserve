@@ -80,7 +80,7 @@
 
 <div class="profile-grid">
     <!-- Left Sidebar: Overview & Avatar -->
-    <div class="panel profile-sidebar">
+    <div class="panel profile-sidebar" style="display: flex; flex-direction: column;">
         <form id="avatarForm" action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="profile-pic-container">
@@ -117,6 +117,9 @@
             </div>
         </div>
 
+        <!-- Spacer to push help center & logout to the bottom -->
+        <div style="flex-grow: 1;"></div>
+
         <a href="#" class="help-center-btn">
             <i class="fa-solid fa-circle-question"></i>
             <div>
@@ -125,8 +128,7 @@
             </div>
         </a>
 
-        <!-- Visible Logout button for mobile -->
-        <form action="{{ route('logout') }}" method="POST" style="margin-top: 20px;">
+        <form action="{{ route('logout') }}" method="POST" style="margin-top: 15px;">
             @csrf
             <button type="submit" class="btn-outline-red" style="width: 100%;"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out</button>
         </form>

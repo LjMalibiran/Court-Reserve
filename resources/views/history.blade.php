@@ -6,8 +6,8 @@
 @section('styles')
 <style>
     /* Tabs */
-    .tabs { display: flex; gap: 15px; margin-bottom: 25px; border-bottom: none; overflow-x: auto; padding-bottom: 5px; }
-    .tab-link { color: var(--text-gray); font-weight: 600; text-decoration: none; cursor: pointer; padding: 10px 20px; border-radius: 25px; background: white; border: 1px solid #ddd; transition: 0.2s; white-space: nowrap; }
+    .tabs { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: none; flex-wrap: wrap; padding-bottom: 5px; }
+    .tab-link { color: var(--text-gray); font-weight: 600; text-decoration: none; cursor: pointer; padding: 8px 18px; border-radius: 25px; background: white; border: 1px solid #ddd; transition: 0.2s; white-space: nowrap; font-size: 14px; }
     .tab-link:hover { background: var(--light-blue); }
     .tab-link.active { background: var(--primary-blue); color: white; border-color: var(--primary-blue); }
 
