@@ -201,7 +201,7 @@ class ReservationController extends Controller
     public function markNotificationsRead()
     {
         if(Auth::check()) {
-            Auth::user()->notifications()->where('is_read', false)->update(['is_read' => true]);
+            Auth::user()->customNotifications()->where('is_read', false)->update(['is_read' => true]);
         }
         return response()->json(['success' => true]);
     }

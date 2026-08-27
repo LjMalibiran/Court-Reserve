@@ -108,7 +108,7 @@
             
             @php
                 // Fetch notifications globally for any page using the layout
-                $notifications = Auth::check() ? Auth::user()->notifications()->with('reservation')->orderBy('created_at', 'desc')->take(10)->get() : collect();
+                $notifications = Auth::check() ? Auth::user()->customNotifications()->with('reservation')->orderBy('created_at', 'desc')->take(10)->get() : collect();
                 $unreadCount = $notifications->where('is_read', false)->count();
             @endphp
             <div class="notification-wrapper">

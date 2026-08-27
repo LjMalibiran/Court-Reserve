@@ -59,4 +59,10 @@ class User extends Authenticatable
         return $this->hasMany(Reservation::class);
     }
 
+    // Custom notifications (to avoid conflict with Notifiable trait)
+    public function customNotifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
 }
