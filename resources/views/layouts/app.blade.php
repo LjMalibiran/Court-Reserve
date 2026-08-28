@@ -20,42 +20,42 @@
         body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #ffffff; display: flex; height: 100vh; overflow: hidden; }
         
         /* Sidebar Styling */
-        .sidebar { width: 250px; background-color: #f8f9fa; border-right: none; display: flex; flex-direction: column; padding-top: 20px; z-index: 10; }
-        .logo-container { padding: 0 20px 20px; text-align: center; }
-        .nav-menu { list-style: none; padding: 0; margin: 20px 0; flex-grow: 1; }
-        .nav-menu li { margin-bottom: 0; }
-        .nav-menu a { display: flex; align-items: center; padding: 15px 30px; color: var(--text-dark); text-decoration: none; font-weight: 500; transition: 0.2s; font-size: 16px; }
-        .nav-menu a:hover { background-color: var(--light-blue); color: var(--primary-blue); }
-        .nav-menu a.active { background-color: #e0e7ff; color: var(--primary-blue); font-weight: 600; }
-        .nav-menu a i { margin-right: 15px; font-size: 20px; width: 24px; text-align: center; }
+        .sidebar { width: 260px; background-color: #f8fafc; border-right: 1px solid #f1f5f9; display: flex; flex-direction: column; padding: 25px 0; z-index: 10; justify-content: space-between; }
+        .logo-container { padding: 0 25px 20px; text-align: left; }
+        .logo-container img { max-width: 160px; }
+        .nav-menu { list-style: none; padding: 0; margin: 15px 0 0 0; flex-grow: 1; }
+        .nav-menu li { margin-bottom: 6px; padding: 0 15px; }
+        .nav-menu a { display: flex; align-items: center; padding: 14px 20px; color: #0f2b6e; text-decoration: none; font-weight: 500; transition: 0.2s; font-size: 17px; border-radius: 10px; }
+        .nav-menu a:hover { background-color: #e0e7ff; color: #0033cc; }
+        .nav-menu a.active { background-color: #dbeafe; color: #0033cc; font-weight: 600; }
+        .nav-menu a i { margin-right: 16px; font-size: 22px; width: 26px; text-align: center; }
         
-        .logout-container { padding: 20px 30px; }
-        .btn-logout { width: 100%; display: flex; align-items: center; padding: 15px 0; background: none; border: none; color: var(--primary-blue); font-weight: 500; cursor: pointer; transition: 0.2s; text-decoration: none; font-size: 16px; }
-        .btn-logout:hover { color: var(--danger-red); }
-        .btn-logout i { margin-right: 15px; font-size: 20px; width: 24px; text-align: center; }
+        .logout-container { padding: 0 35px 15px; }
+        .btn-logout { background: none; border: none; color: #0033cc; cursor: pointer; transition: 0.2s; padding: 10px 0; font-size: 24px; display: flex; align-items: center; justify-content: flex-start; }
+        .btn-logout:hover { color: var(--danger-red); transform: scale(1.1); }
 
         /* Main Content */
         .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; background-color: #ffffff; }
         .main-content::after {
             content: "";
             position: absolute;
-            bottom: -50px;
-            right: -50px;
-            width: 500px;
-            height: 500px;
+            bottom: -80px;
+            right: -80px;
+            width: 550px;
+            height: 550px;
             background-image: url('{{ asset('images/shuttlecock.png') }}');
             background-size: contain;
             background-repeat: no-repeat;
-            opacity: 0.03;
+            opacity: 0.04;
             pointer-events: none;
             z-index: 0;
         }
         
         /* Header */
-        .top-header { display: flex; justify-content: space-between; align-items: center; padding: 30px 40px 10px 40px; background-color: transparent; position: relative; z-index: 1; }
-        .top-header h1 { margin: 0; font-size: 28px; color: var(--primary-blue); font-weight: 600; }
-        .bell-icon { font-size: 20px; color: var(--primary-blue); cursor: pointer; transition: 0.2s; position: relative; }
-        .bell-icon:hover { color: #002299; }
+        .top-header { display: flex; justify-content: space-between; align-items: center; padding: 30px 45px 15px 45px; background-color: transparent; position: relative; z-index: 1; }
+        .top-header h1 { margin: 0; font-size: 32px; color: #0f2b6e; font-weight: 700; }
+        .bell-icon { font-size: 22px; color: #0f2b6e; cursor: pointer; transition: 0.2s; position: relative; }
+        .bell-icon:hover { color: #0033cc; }
 
         /* Notifications & Modals CSS */
         .notification-wrapper { position: relative; }
@@ -112,7 +112,7 @@
         <div class="logout-container">
             <form action="{{ route('logout') }}" method="POST" style="margin: 0;">
                 @csrf
-                <button type="submit" class="btn-logout"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</button>
+                <button type="submit" class="btn-logout" title="Logout"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
             </form>
         </div>
     </aside>
