@@ -6,48 +6,48 @@
 @section('styles')
 <style>
     /* Welcome Card */
-    .welcome-card { background: white; border-radius: 20px; padding: 35px 45px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 20px rgba(0,0,0,0.02); margin-bottom: 30px; border: 1px solid #e2e8f0; }
-    .welcome-text h2 { margin: 0; font-weight: 500; color: #0f2b6e; font-size: 22px; }
-    .welcome-text h2 strong { font-size: 38px; display: block; margin-top: 4px; font-weight: 800; color: #0f2b6e; letter-spacing: -0.5px; }
-    .welcome-text p { color: #94a3b8; margin: 8px 0 0 0; font-size: 15px; font-weight: 400; }
+    .welcome-card { background: #ffffff; border-radius: 20px; padding: 26px 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 20px rgba(15, 43, 110, 0.04); margin-bottom: 22px; border: 1.5px solid #e2e8f0; }
+    .welcome-text h2 { margin: 0; font-weight: 500; color: #0f2b6e; font-size: 20px; }
+    .welcome-text h2 strong { font-size: 36px; display: block; margin-top: 3px; font-weight: 800; color: #0f2b6e; letter-spacing: -0.5px; }
+    .welcome-text p { color: #94a3b8; margin: 6px 0 0 0; font-size: 14px; font-weight: 400; }
     
-    .sport-buttons { display: flex; gap: 24px; }
-    .sport-btn { background: white; border: 1px solid #f1f5f9; padding: 22px 35px; border-radius: 20px; cursor: pointer; box-shadow: 0 10px 25px rgba(0,0,0,0.06); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; transition: 0.2s; text-decoration: none; min-width: 155px; box-sizing: border-box; }
-    .sport-btn:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(0,0,0,0.09); }
-    .sport-btn span { font-size: 20px; font-weight: 700; }
+    .sport-buttons { display: flex; gap: 20px; }
+    .sport-btn { background: #ffffff; border: 1px solid #e2e8f0; padding: 18px 32px; border-radius: 18px; cursor: pointer; box-shadow: 0 10px 25px rgba(0,0,0,0.06); display: flex; flex-direction: column; align-items: center; justify-content: center; transition: transform 0.2s, box-shadow 0.2s; text-decoration: none; min-width: 145px; box-sizing: border-box; }
+    .sport-btn:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(0,0,0,0.1); }
+    .sport-btn span { font-size: 20px; font-weight: 700; margin-top: 8px; }
     .sport-btn.badminton span { color: #0033cc; }
     .sport-btn.pickleball span { color: #ea580c; }
 
     /* Grid Layout */
-    .reservations-grid { display: grid; grid-template-columns: 1fr 1.15fr; gap: 30px; }
-    .panel { background: white; border-radius: 18px; padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; min-height: 380px; display: flex; flex-direction: column; position: relative; }
-    .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-    .panel-header h3 { margin: 0; color: #0f2b6e; font-size: 20px; font-weight: 700; }
+    .reservations-grid { display: grid; grid-template-columns: 1fr 1.15fr; gap: 24px; }
+    .panel { background: #ffffff; border-radius: 18px; padding: 24px 28px; box-shadow: 0 4px 18px rgba(15, 43, 110, 0.03); border: 1.5px solid #e2e8f0; display: flex; flex-direction: column; position: relative; }
+    .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .panel-header h3 { margin: 0; color: #0f2b6e; font-size: 19px; font-weight: 700; }
     
     /* Badges */
-    .badge-confirmed { background-color: #dcfce7; color: #15803d; padding: 4px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; display: inline-block; }
-    .badge-pending { background-color: #fef3c7; color: #d97706; padding: 4px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; display: inline-block; }
-    .badge-cancelled { background-color: #fee2e2; color: #dc2626; padding: 4px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; display: inline-block; }
+    .badge-confirmed { background-color: #dcfce7; color: #15803d; padding: 4px 14px; border-radius: 6px; font-size: 11.5px; font-weight: 600; display: inline-block; }
+    .badge-pending { background-color: #fef3c7; color: #d97706; padding: 4px 14px; border-radius: 6px; font-size: 11.5px; font-weight: 600; display: inline-block; }
+    .badge-cancelled { background-color: #fee2e2; color: #dc2626; padding: 4px 14px; border-radius: 6px; font-size: 11.5px; font-weight: 600; display: inline-block; }
 
     /* Action Buttons in Today's Reservation */
-    .btn-today-edit { background: white; border: 1.5px solid #0033cc; color: #0033cc; border-radius: 8px; font-weight: 600; padding: 9px 0; width: 210px; text-align: center; cursor: pointer; transition: 0.2s; font-size: 13.5px; display: block; margin: 0 auto; }
+    .btn-today-edit { background: white; border: 1.5px solid #0033cc; color: #0033cc; border-radius: 8px; font-weight: 600; padding: 8px 0; width: 200px; text-align: center; cursor: pointer; transition: 0.2s; font-size: 13px; display: block; margin: 0 auto; }
     .btn-today-edit:hover { background: #e0e7ff; }
-    .btn-today-cancel { background: white; border: 1.5px solid #b91c1c; color: #b91c1c; border-radius: 8px; font-weight: 600; padding: 9px 0; width: 210px; text-align: center; cursor: pointer; transition: 0.2s; font-size: 13.5px; display: block; margin: 8px auto 0 auto; }
+    .btn-today-cancel { background: white; border: 1.5px solid #b91c1c; color: #b91c1c; border-radius: 8px; font-weight: 600; padding: 8px 0; width: 200px; text-align: center; cursor: pointer; transition: 0.2s; font-size: 13px; display: block; margin: 8px auto 0 auto; }
     .btn-today-cancel:hover { background: #fee2e2; }
 
     /* Empty State */
-    .empty-state { flex-grow: 1; display: flex; justify-content: center; align-items: center; text-align: center; color: #cbd5e1; font-size: 20px; font-weight: 700; letter-spacing: 1px; }
+    .empty-state { flex-grow: 1; display: flex; justify-content: center; align-items: center; text-align: center; color: #cbd5e1; font-size: 20px; font-weight: 700; letter-spacing: 1px; min-height: 200px; }
 
     /* Compact Res Card (Upcoming) */
-    .compact-res-card { border: 1px solid #e2e8f0; border-radius: 14px; padding: 16px 20px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: 0.2s; background: white; }
+    .compact-res-card { border: 1px solid #e2e8f0; border-radius: 14px; padding: 14px 18px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: 0.2s; background: white; }
     .compact-res-card:hover { border-color: #cbd5e1; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
-    .crc-left { display: flex; align-items: center; gap: 16px; }
+    .crc-left { display: flex; align-items: center; gap: 14px; }
     .crc-icon { width: 36px; height: 36px; display: flex; justify-content: center; align-items: center; }
-    .crc-details h4 { margin: 0; color: #0f2b6e; font-size: 16px; font-weight: 700; }
-    .crc-details h4 span { font-weight: 500; font-size: 14px; color: #0f2b6e; margin-left: 2px; }
-    .crc-details p { margin: 4px 0 0 0; font-size: 12px; color: #64748b; }
+    .crc-details h4 { margin: 0; color: #0f2b6e; font-size: 15.5px; font-weight: 700; }
+    .crc-details h4 span { font-weight: 500; font-size: 13.5px; color: #0f2b6e; margin-left: 2px; }
+    .crc-details p { margin: 3px 0 0 0; font-size: 11.5px; color: #64748b; }
     .crc-right { display: flex; align-items: center; gap: 10px; }
-    .crc-chevron { color: #94a3b8; font-size: 14px; }
+    .crc-chevron { color: #94a3b8; font-size: 13px; }
 
     /* Modals CSS */
     .time-slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px; margin-top: 10px; }
@@ -72,29 +72,35 @@
     </div>
     <div class="sport-buttons">
         <a href="{{ route('reservation.index') }}?sport=Badminton" class="sport-btn badminton">
-            <!-- Custom Badminton Icon -->
-            <svg width="48" height="48" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M22 44L14 18C14 16 16 14 18 14L46 14C48 14 50 16 50 18L42 44" stroke="#0033cc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M18 22C26 25 38 25 46 22" stroke="#0033cc" stroke-width="2.5" stroke-linecap="round"/>
-                <path d="M20 32C28 35 36 35 44 32" stroke="#0033cc" stroke-width="2.5" stroke-linecap="round"/>
-                <path d="M26 16L28 44M38 16L36 44M32 14L32 44" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
-                <path d="M22 44C22 49.5 26.5 54 32 54C37.5 54 42 49.5 42 44H22Z" fill="#0033cc"/>
+            <!-- Precise Angled Badminton Shuttlecock SVG -->
+            <svg width="52" height="52" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g transform="translate(6, 6) rotate(-25 26 26)">
+                    <path d="M12 10C10 18 12 28 18 36L34 36C40 28 42 18 40 10C35 12 26 12 12 10Z" fill="#e0e7ff" fill-opacity="0.35" stroke="#0033cc" stroke-width="2.5" stroke-linejoin="round"/>
+                    <path d="M16 11C20 18 22 28 24 36" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M36 11C32 18 30 28 28 36" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M26 11L26 36" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M14 20C20 23 32 23 38 20" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M16 28C21 31 31 31 36 28" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
+                    <rect x="18" y="36" width="16" height="3" rx="1" fill="#0033cc"/>
+                    <path d="M18 39C18 44.5 21.5 48 26 48C30.5 48 34 44.5 34 39H18Z" fill="#0033cc"/>
+                </g>
             </svg>
             <span>Badminton</span>
         </a>
         <a href="{{ route('reservation.index') }}?sport=Pickleball" class="sport-btn pickleball">
-            <!-- Custom Pickleball Icon -->
-            <svg width="48" height="48" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="32" cy="32" r="26" fill="#f97316"/>
-                <circle cx="32" cy="18" r="3.5" fill="white"/>
-                <circle cx="21" cy="24" r="3.5" fill="white"/>
-                <circle cx="43" cy="24" r="3.5" fill="white"/>
-                <circle cx="17" cy="34" r="3.5" fill="white"/>
-                <circle cx="32" cy="33" r="4" fill="white"/>
-                <circle cx="47" cy="34" r="3.5" fill="white"/>
-                <circle cx="23" cy="44" r="3.5" fill="white"/>
-                <circle cx="41" cy="44" r="3.5" fill="white"/>
-                <circle cx="32" cy="49" r="3.5" fill="white"/>
+            <!-- Precise Perforated Pickleball SVG -->
+            <svg width="52" height="52" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="32" cy="32" r="24" fill="#f97316"/>
+                <circle cx="32" cy="32" r="24" stroke="#ea580c" stroke-width="2"/>
+                <circle cx="32" cy="18" r="3.2" fill="#ffffff"/>
+                <circle cx="21" cy="23" r="3.2" fill="#ffffff"/>
+                <circle cx="43" cy="23" r="3.2" fill="#ffffff"/>
+                <circle cx="16" cy="32" r="3.2" fill="#ffffff"/>
+                <circle cx="32" cy="32" r="3.5" fill="#ffffff"/>
+                <circle cx="48" cy="32" r="3.2" fill="#ffffff"/>
+                <circle cx="21" cy="41" r="3.2" fill="#ffffff"/>
+                <circle cx="43" cy="41" r="3.2" fill="#ffffff"/>
+                <circle cx="32" cy="46" r="3.2" fill="#ffffff"/>
             </svg>
             <span>Pickleball</span>
         </a>
@@ -116,62 +122,70 @@
         </div>
         
         @forelse($todayReservations as $res)
-            <!-- Large Card for Today -->
+            <!-- Detailed Card for Today -->
             <div style="flex-grow: 1; display: flex; flex-direction: column;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 22px;">
-                    <div style="display: flex; align-items: center; gap: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px;">
+                    <div style="display: flex; align-items: center; gap: 14px;">
                         <div>
                             @if(($res->sport ?? 'Badminton') == 'Pickleball')
-                                <svg width="44" height="44" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <circle cx="32" cy="32" r="26" fill="#f97316"/>
-                                    <circle cx="32" cy="18" r="3.5" fill="white"/>
-                                    <circle cx="21" cy="24" r="3.5" fill="white"/>
-                                    <circle cx="43" cy="24" r="3.5" fill="white"/>
-                                    <circle cx="17" cy="34" r="3.5" fill="white"/>
-                                    <circle cx="32" cy="33" r="4" fill="white"/>
-                                    <circle cx="47" cy="34" r="3.5" fill="white"/>
-                                    <circle cx="23" cy="44" r="3.5" fill="white"/>
-                                    <circle cx="41" cy="44" r="3.5" fill="white"/>
-                                    <circle cx="32" cy="49" r="3.5" fill="white"/>
+                                <svg width="42" height="42" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="32" cy="32" r="24" fill="#f97316"/>
+                                    <circle cx="32" cy="32" r="24" stroke="#ea580c" stroke-width="2"/>
+                                    <circle cx="32" cy="18" r="3.2" fill="#ffffff"/>
+                                    <circle cx="21" cy="23" r="3.2" fill="#ffffff"/>
+                                    <circle cx="43" cy="23" r="3.2" fill="#ffffff"/>
+                                    <circle cx="16" cy="32" r="3.2" fill="#ffffff"/>
+                                    <circle cx="32" cy="32" r="3.5" fill="#ffffff"/>
+                                    <circle cx="48" cy="32" r="3.2" fill="#ffffff"/>
+                                    <circle cx="21" cy="41" r="3.2" fill="#ffffff"/>
+                                    <circle cx="43" cy="41" r="3.2" fill="#ffffff"/>
+                                    <circle cx="32" cy="46" r="3.2" fill="#ffffff"/>
                                 </svg>
                             @else
-                                <svg width="44" height="44" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M22 44L14 18C14 16 16 14 18 14L46 14C48 14 50 16 50 18L42 44" stroke="#0033cc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M18 22C26 25 38 25 46 22" stroke="#0033cc" stroke-width="2.5" stroke-linecap="round"/>
-                                    <path d="M20 32C28 35 36 35 44 32" stroke="#0033cc" stroke-width="2.5" stroke-linecap="round"/>
-                                    <path d="M26 16L28 44M38 16L36 44M32 14L32 44" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
-                                    <path d="M22 44C22 49.5 26.5 54 32 54C37.5 54 42 49.5 42 44H22Z" fill="#0033cc"/>
+                                <svg width="42" height="42" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <g transform="translate(6, 6) rotate(-25 26 26)">
+                                        <path d="M12 10C10 18 12 28 18 36L34 36C40 28 42 18 40 10C35 12 26 12 12 10Z" fill="#e0e7ff" fill-opacity="0.35" stroke="#0033cc" stroke-width="2.5" stroke-linejoin="round"/>
+                                        <path d="M16 11C20 18 22 28 24 36" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
+                                        <path d="M36 11C32 18 30 28 28 36" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
+                                        <path d="M26 11L26 36" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
+                                        <path d="M14 20C20 23 32 23 38 20" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
+                                        <path d="M16 28C21 31 31 31 36 28" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
+                                        <rect x="18" y="36" width="16" height="3" rx="1" fill="#0033cc"/>
+                                        <path d="M18 39C18 44.5 21.5 48 26 48C30.5 48 34 44.5 34 39H18Z" fill="#0033cc"/>
+                                    </g>
                                 </svg>
                             @endif
                         </div>
                         <div>
-                            <h4 style="margin: 0; color: #0f2b6e; font-size: 22px; font-weight: 700; line-height: 1.2;">{{ $res->sport ?? 'Badminton' }}</h4>
-                            <div style="font-weight: 500; font-size: 19px; color: #0f2b6e; margin-top: 2px;">Court {{ $res->court_id }}</div>
+                            <h4 style="margin: 0; color: #0f2b6e; font-size: 21px; font-weight: 700; line-height: 1.2;">{{ $res->sport ?? 'Badminton' }}</h4>
+                            <div style="font-weight: 500; font-size: 18px; color: #0f2b6e; margin-top: 2px;">Court {{ $res->court_id }}</div>
                         </div>
                     </div>
                     <div style="text-align: center; cursor: pointer;" onclick="openResDetails({{ $res->id }}, '{{ $res->court_id }}', '{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}', '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }}', '{{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}', '{{ $res->sport ?? 'Badminton' }}', '{{ $res->reservation_code }}', '{{ $res->status }}')">
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data={{ urlencode($res->reservation_code) }}" style="width: 85px; height: 85px; border-radius: 8px; border: 1px solid #e2e8f0; padding: 3px;">
-                        <span style="display: block; font-size: 11px; color: #94a3b8; margin-top: 4px;">Tap to view QR</span>
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data={{ urlencode($res->reservation_code) }}" style="width: 78px; height: 78px; border-radius: 8px; border: 1px solid #e2e8f0; padding: 3px;">
+                        <span style="display: block; font-size: 10.5px; color: #94a3b8; margin-top: 3px;">Tap to view QR</span>
                     </div>
                 </div>
 
-                <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; color: #475569; font-size: 14px;">
+                <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; color: #475569; font-size: 13.5px;">
                     <div style="display: flex; align-items: center; gap: 12px;">
-                        <i class="fa-regular fa-calendar" style="font-size: 17px; color: #64748b; width: 20px;"></i>
+                        <i class="fa-regular fa-calendar" style="font-size: 16px; color: #64748b; width: 18px;"></i>
                         <span>{{ \Carbon\Carbon::parse($res->start_time)->format('D, F j, Y') }}</span>
                     </div>
                     <div style="display: flex; align-items: center; gap: 12px;">
-                        <i class="fa-regular fa-clock" style="font-size: 17px; color: #64748b; width: 20px;"></i>
+                        <i class="fa-regular fa-clock" style="font-size: 16px; color: #64748b; width: 18px;"></i>
                         <span>{{ \Carbon\Carbon::parse($res->start_time)->format('g:i') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }} | {{ max(1, \Carbon\Carbon::parse($res->start_time)->diffInHours(\Carbon\Carbon::parse($res->end_time))) }} hr</span>
                     </div>
                 </div>
                 
-                <div style="margin-top: auto; padding-top: 15px;">
+                <div style="margin-top: auto; padding-top: 10px;">
                     <button class="btn-today-edit" onclick="openEditModal({{ $res->id }}, '{{ $res->sport ?? 'Badminton' }}')">Edit Reservation</button>
-                    <button class="btn-today-cancel" onclick="openCancelModal({{ $res->id }}, '{{ $res->reservation_code }}')">Cancel Reservation</button>
+                    @if($res->status != 'cancelled')
+                        <button class="btn-today-cancel" onclick="openCancelModal({{ $res->id }}, '{{ $res->reservation_code }}')">Cancel Reservation</button>
+                    @endif
                 </div>
             </div>
-            @if(!$loop->last) <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 25px 0;"> @endif
+            @if(!$loop->last) <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;"> @endif
         @empty
             <div class="empty-state">
                 NO RESERVATION
@@ -183,7 +197,7 @@
     <div class="panel">
         <div class="panel-header">
             <h3>Upcoming Reservation</h3>
-            <a href="{{ route('history.index') }}" style="color: #0033cc; font-size: 12px; text-decoration: none; font-weight: 600;">View All</a>
+            <a href="{{ route('history.index') }}" style="color: #0033cc; font-size: 12.5px; text-decoration: none; font-weight: 600;">View All</a>
         </div>
         
         <div style="display: flex; flex-direction: column; gap: 12px; flex-grow: 1;">
@@ -195,25 +209,31 @@
                     <div class="crc-left">
                         <div class="crc-icon">
                             @if(($res->sport ?? 'Badminton') == 'Pickleball')
-                                <svg width="34" height="34" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <circle cx="32" cy="32" r="26" fill="#f97316"/>
-                                    <circle cx="32" cy="18" r="3.5" fill="white"/>
-                                    <circle cx="21" cy="24" r="3.5" fill="white"/>
-                                    <circle cx="43" cy="24" r="3.5" fill="white"/>
-                                    <circle cx="17" cy="34" r="3.5" fill="white"/>
-                                    <circle cx="32" cy="33" r="4" fill="white"/>
-                                    <circle cx="47" cy="34" r="3.5" fill="white"/>
-                                    <circle cx="23" cy="44" r="3.5" fill="white"/>
-                                    <circle cx="41" cy="44" r="3.5" fill="white"/>
-                                    <circle cx="32" cy="49" r="3.5" fill="white"/>
+                                <svg width="32" height="32" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="32" cy="32" r="24" fill="#f97316"/>
+                                    <circle cx="32" cy="32" r="24" stroke="#ea580c" stroke-width="2"/>
+                                    <circle cx="32" cy="18" r="3.2" fill="#ffffff"/>
+                                    <circle cx="21" cy="23" r="3.2" fill="#ffffff"/>
+                                    <circle cx="43" cy="23" r="3.2" fill="#ffffff"/>
+                                    <circle cx="16" cy="32" r="3.2" fill="#ffffff"/>
+                                    <circle cx="32" cy="32" r="3.5" fill="#ffffff"/>
+                                    <circle cx="48" cy="32" r="3.2" fill="#ffffff"/>
+                                    <circle cx="21" cy="41" r="3.2" fill="#ffffff"/>
+                                    <circle cx="43" cy="41" r="3.2" fill="#ffffff"/>
+                                    <circle cx="32" cy="46" r="3.2" fill="#ffffff"/>
                                 </svg>
                             @else
-                                <svg width="34" height="34" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M22 44L14 18C14 16 16 14 18 14L46 14C48 14 50 16 50 18L42 44" stroke="#0033cc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M18 22C26 25 38 25 46 22" stroke="#0033cc" stroke-width="2.5" stroke-linecap="round"/>
-                                    <path d="M20 32C28 35 36 35 44 32" stroke="#0033cc" stroke-width="2.5" stroke-linecap="round"/>
-                                    <path d="M26 16L28 44M38 16L36 44M32 14L32 44" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
-                                    <path d="M22 44C22 49.5 26.5 54 32 54C37.5 54 42 49.5 42 44H22Z" fill="#0033cc"/>
+                                <svg width="32" height="32" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <g transform="translate(6, 6) rotate(-25 26 26)">
+                                        <path d="M12 10C10 18 12 28 18 36L34 36C40 28 42 18 40 10C35 12 26 12 12 10Z" fill="#e0e7ff" fill-opacity="0.35" stroke="#0033cc" stroke-width="2.5" stroke-linejoin="round"/>
+                                        <path d="M16 11C20 18 22 28 24 36" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
+                                        <path d="M36 11C32 18 30 28 28 36" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
+                                        <path d="M26 11L26 36" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
+                                        <path d="M14 20C20 23 32 23 38 20" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
+                                        <path d="M16 28C21 31 31 31 36 28" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
+                                        <rect x="18" y="36" width="16" height="3" rx="1" fill="#0033cc"/>
+                                        <path d="M18 39C18 44.5 21.5 48 26 48C30.5 48 34 44.5 34 39H18Z" fill="#0033cc"/>
+                                    </g>
                                 </svg>
                             @endif
                         </div>

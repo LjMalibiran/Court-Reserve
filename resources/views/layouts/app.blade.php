@@ -39,14 +39,14 @@
         .main-content::after {
             content: "";
             position: absolute;
-            bottom: -80px;
-            right: -80px;
-            width: 550px;
-            height: 550px;
+            bottom: -60px;
+            right: -60px;
+            width: 420px;
+            height: 420px;
             background-image: url('{{ asset('images/shuttlecock.png') }}');
             background-size: contain;
             background-repeat: no-repeat;
-            opacity: 0.04;
+            opacity: 0.03;
             pointer-events: none;
             z-index: 0;
         }
