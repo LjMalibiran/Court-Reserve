@@ -181,17 +181,13 @@
     <div class="panel">
         <div class="panel-header">
             <h3>Today's Reservation</h3>
-            @if(count($todayReservations) > 0)
-                @php
-                    $firstToday = $todayReservations->first();
-                    $badgeClass = $firstToday->status == 'confirmed' ? 'badge-confirmed' : ($firstToday->status == 'cancelled' ? 'badge-cancelled' : 'badge-pending');
-                @endphp
-                <span class="{{ $badgeClass }}">{{ ucfirst($firstToday->status) }}</span>
-            @endif
         </div>
         
         <div class="scrollable-list">
             @forelse($todayReservations as $res)
+                @php
+                    $badgeClass = $res->status == 'confirmed' ? 'badge-confirmed' : ($res->status == 'cancelled' ? 'badge-cancelled' : 'badge-pending');
+                @endphp
                 <div class="today-res-wrapper">
                     <div class="today-res-top">
                         <div class="today-res-title-group">
@@ -226,8 +222,11 @@
                                 @endif
                             </div>
                             <div class="today-res-title-text">
-                                <h4>{{ $res->sport ?? 'Badminton' }}</h4>
-                                <div>Court {{ $res->court_id }}</div>
+                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+                                    <h4 style="margin: 0;">{{ $res->sport ?? 'Badminton' }}</h4>
+                                    <span class="{{ $badgeClass }}" style="padding: 4px 10px; font-size: 11px; line-height: 1;">{{ ucfirst($res->status) }}</span>
+                                </div>
+                                <div style="margin-top: 0;">Court {{ $res->court_id }}</div>
                             </div>
                         </div>
                         <div class="today-res-qr">
