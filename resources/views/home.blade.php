@@ -3,35 +3,31 @@
 @section('title', 'Dashboard | Court Reserve')
 @section('header_title', 'Home')
 
-@section('styles')
+@section('content')
+<!-- Inline styles directly inside content to bypass layout yield issues -->
 <style>
-    /* Welcome Card */
-    .welcome-card { background: #ffffff; border-radius: 20px; padding: 32px 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 20px rgba(15, 43, 110, 0.04); margin-bottom: 24px; border: 1px solid #e2e8f0; }
-    .welcome-text h2 { margin: 0; font-weight: 500; color: #0f2b6e; font-size: 22px; line-height: 1.2; }
-    .welcome-text h2 strong { font-size: 42px; display: block; margin-top: 4px; font-weight: 800; color: #0f2b6e; letter-spacing: -0.5px; }
-    .welcome-text p { color: #94a3b8; margin: 8px 0 0 0; font-size: 15px; font-weight: 400; }
+    .welcome-card { background: #ffffff !important; border-radius: 20px !important; padding: 32px 40px !important; display: flex !important; justify-content: space-between !important; align-items: center !important; box-shadow: 0 4px 20px rgba(15, 43, 110, 0.05) !important; margin-bottom: 24px !important; border: 1.5px solid #e2e8f0 !important; }
+    .welcome-text h2 { margin: 0 !important; font-weight: 500 !important; color: #0f2b6e !important; font-size: 24px !important; line-height: 1.2 !important; }
+    .welcome-text h2 strong { font-size: 40px !important; display: block !important; margin-top: 4px !important; font-weight: 800 !important; color: #0f2b6e !important; letter-spacing: -0.5px !important; }
+    .welcome-text p { color: #94a3b8 !important; margin: 8px 0 0 0 !important; font-size: 15px !important; }
     
-    .sport-buttons { display: flex; gap: 24px; }
-    .sport-btn { background: #ffffff; border: 1px solid #e2e8f0; padding: 20px 36px; border-radius: 20px; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.06); display: flex; flex-direction: column; align-items: center; justify-content: center; transition: transform 0.2s, box-shadow 0.2s; text-decoration: none; min-width: 160px; box-sizing: border-box; }
-    .sport-btn:hover { transform: translateY(-4px); box-shadow: 0 14px 35px rgba(0,0,0,0.1); }
-    .sport-btn span { font-size: 22px; font-weight: 700; margin-top: 12px; }
-    .sport-btn.badminton span { color: #0033cc; }
-    .sport-btn.pickleball span { color: #ea580c; }
+    .sport-buttons { display: flex !important; gap: 20px !important; }
+    .sport-btn { background: #ffffff !important; border: 1.5px solid #e2e8f0 !important; padding: 20px 36px !important; border-radius: 20px !important; cursor: pointer !important; box-shadow: 0 8px 24px rgba(0,0,0,0.06) !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; transition: transform 0.2s, box-shadow 0.2s !important; text-decoration: none !important; min-width: 150px !important; box-sizing: border-box !important; }
+    .sport-btn:hover { transform: translateY(-4px) !important; box-shadow: 0 12px 28px rgba(0,0,0,0.1) !important; }
+    .sport-btn span { font-size: 20px !important; font-weight: 700 !important; margin-top: 10px !important; }
+    .sport-btn.badminton span { color: #0033cc !important; }
+    .sport-btn.pickleball span { color: #ea580c !important; }
 
-    /* Grid Layout */
-    .reservations-grid { display: grid; grid-template-columns: 1fr 1.15fr; gap: 24px; }
-    .panel { background: #ffffff; border-radius: 20px; padding: 28px 32px; box-shadow: 0 4px 18px rgba(15, 43, 110, 0.03); border: 1px solid #e2e8f0; display: flex; flex-direction: column; position: relative; }
-    .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-    .panel-header h3 { margin: 0; color: #0f2b6e; font-size: 20px; font-weight: 700; }
-    .panel-header a { color: #0033cc; font-size: 13px; text-decoration: none; font-weight: 600; transition: 0.2s; }
-    .panel-header a:hover { text-decoration: underline; }
+    .reservations-grid { display: grid !important; grid-template-columns: 1fr 1.15fr !important; gap: 24px !important; }
+    .panel { background: #ffffff !important; border-radius: 20px !important; padding: 28px 32px !important; box-shadow: 0 4px 18px rgba(15, 43, 110, 0.04) !important; border: 1.5px solid #e2e8f0 !important; display: flex !important; flex-direction: column !important; position: relative !important; }
+    .panel-header { display: flex !important; justify-content: space-between !important; align-items: center !important; margin-bottom: 24px !important; }
+    .panel-header h3 { margin: 0 !important; color: #0f2b6e !important; font-size: 20px !important; font-weight: 700 !important; }
+    .panel-header a { color: #0033cc !important; font-size: 13px !important; text-decoration: none !important; font-weight: 600 !important; }
     
-    /* Badges */
-    .badge-confirmed { background-color: #dcfce7; color: #15803d; padding: 6px 16px; border-radius: 6px; font-size: 12px; font-weight: 600; display: inline-block; }
-    .badge-pending { background-color: #fef3c7; color: #d97706; padding: 6px 16px; border-radius: 6px; font-size: 12px; font-weight: 600; display: inline-block; }
-    .badge-cancelled { background-color: #fee2e2; color: #dc2626; padding: 6px 16px; border-radius: 6px; font-size: 12px; font-weight: 600; display: inline-block; }
+    .badge-confirmed { background-color: #dcfce7 !important; color: #15803d !important; padding: 6px 16px !important; border-radius: 6px !important; font-size: 12px !important; font-weight: 600 !important; display: inline-block !important; }
+    .badge-pending { background-color: #fef3c7 !important; color: #d97706 !important; padding: 6px 16px !important; border-radius: 6px !important; font-size: 12px !important; font-weight: 600 !important; display: inline-block !important; }
+    .badge-cancelled { background-color: #fee2e2 !important; color: #dc2626 !important; padding: 6px 16px !important; border-radius: 6px !important; font-size: 12px !important; font-weight: 600 !important; display: inline-block !important; }
 
-    /* Today's Reservation Internal Layout */
     .today-res-wrapper { flex-grow: 1; display: flex; flex-direction: column; }
     .today-res-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
     .today-res-title-group { display: flex; align-items: flex-start; gap: 16px; }
@@ -44,7 +40,6 @@
     .datetime-row { display: flex; align-items: center; gap: 14px; }
     .datetime-row i { font-size: 18px; color: #64748b; width: 20px; text-align: center; }
     
-    /* Action Buttons */
     .today-res-actions { margin-top: auto; padding-top: 10px; display: flex; flex-direction: column; gap: 12px; align-items: center; }
     .btn-today-edit { background: white; border: 1.5px solid #0033cc; color: #0033cc; border-radius: 8px; font-weight: 600; padding: 10px 0; width: 100%; max-width: 260px; text-align: center; cursor: pointer; transition: 0.2s; font-size: 14px; }
     .btn-today-edit:hover { background: #e0e7ff; }
@@ -52,11 +47,9 @@
     .btn-today-cancel:hover { background: #fee2e2; }
     .divider { border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0; }
 
-    /* Empty State */
     .empty-state { flex-grow: 1; display: flex; justify-content: center; align-items: center; text-align: center; color: #cbd5e1; font-size: 20px; font-weight: 700; letter-spacing: 1px; min-height: 200px; }
 
-    /* Compact Res Card (Upcoming) */
-    .compact-res-card { border: 1px solid #e2e8f0; border-radius: 14px; padding: 16px 20px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: 0.2s; background: white; }
+    .compact-res-card { border: 1.5px solid #e2e8f0; border-radius: 16px; padding: 16px 20px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: 0.2s; background: white; }
     .compact-res-card:hover { border-color: #cbd5e1; box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
     .crc-left { display: flex; align-items: center; gap: 16px; }
     .crc-icon { width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; }
@@ -66,21 +59,18 @@
     .crc-right { display: flex; align-items: center; gap: 14px; }
     .crc-chevron { color: #94a3b8; font-size: 14px; }
 
-    /* Modals CSS */
     .time-slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px; margin-top: 10px; }
-    .time-slot { border: 1px solid #ddd; border-radius: 6px; padding: 8px; text-align: center; font-size: 12px; cursor: pointer; color: var(--primary-blue); transition: 0.2s; }
-    .time-slot.selected { background: var(--primary-blue); color: white; border-color: var(--primary-blue); }
+    .time-slot { border: 1px solid #ddd; border-radius: 6px; padding: 8px; text-align: center; font-size: 12px; cursor: pointer; color: #0033cc; transition: 0.2s; }
+    .time-slot.selected { background: #0033cc; color: white; border-color: #0033cc; }
     .time-slot.booked { background: #f0f0f0; color: #aaa; text-decoration: line-through; cursor: not-allowed; border-color: #eee; }
-    .cancel-circle { background: var(--danger-red); color: white; width: 70px; height: 70px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 35px; margin: 0 auto 20px auto; border: 5px solid var(--danger-light); }
-    
+    .cancel-circle { background: #dc2626; color: white; width: 70px; height: 70px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 35px; margin: 0 auto 20px auto; border: 5px solid #fee2e2; }
+
     @media (max-width: 768px) {
-        .welcome-card { flex-direction: column; text-align: center; gap: 24px; margin-bottom: 30px; background: transparent; border: none; box-shadow: none; padding: 20px 10px; }
-        .reservations-grid { display: flex; flex-direction: column; gap: 24px; }
+        .welcome-card { flex-direction: column !important; text-align: center !important; gap: 24px !important; padding: 20px 10px !important; }
+        .reservations-grid { display: flex !important; flex-direction: column !important; gap: 24px !important; }
     }
 </style>
-@endsection
 
-@section('content')
 <div class="welcome-card">
     <div class="welcome-text">
         <h2>Welcome back, <strong>{{ Auth::user()->name ?? 'Player' }}!</strong></h2>
@@ -88,7 +78,7 @@
     </div>
     <div class="sport-buttons">
         <a href="{{ route('reservation.index') }}?sport=Badminton" class="sport-btn badminton">
-            <svg width="60" height="60" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="56" height="56" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g transform="translate(6, 6) rotate(-25 26 26)">
                     <path d="M12 10C10 18 12 28 18 36L34 36C40 28 42 18 40 10C35 12 26 12 12 10Z" fill="#e0e7ff" fill-opacity="0.35" stroke="#0033cc" stroke-width="2.5" stroke-linejoin="round"/>
                     <path d="M16 11C20 18 22 28 24 36" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
@@ -103,7 +93,7 @@
             <span>Badminton</span>
         </a>
         <a href="{{ route('reservation.index') }}?sport=Pickleball" class="sport-btn pickleball">
-            <svg width="60" height="60" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="56" height="56" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="32" cy="32" r="24" fill="#f97316"/>
                 <circle cx="32" cy="32" r="24" stroke="#ea580c" stroke-width="2"/>
                 <circle cx="32" cy="18" r="3.2" fill="#ffffff"/>
@@ -141,7 +131,7 @@
                     <div class="today-res-title-group">
                         <div>
                             @if(($res->sport ?? 'Badminton') == 'Pickleball')
-                                <svg width="46" height="46" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <svg width="44" height="44" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <circle cx="32" cy="32" r="24" fill="#f97316"/>
                                     <circle cx="32" cy="32" r="24" stroke="#ea580c" stroke-width="2"/>
                                     <circle cx="32" cy="18" r="3.2" fill="#ffffff"/>
@@ -155,7 +145,7 @@
                                     <circle cx="32" cy="46" r="3.2" fill="#ffffff"/>
                                 </svg>
                             @else
-                                <svg width="46" height="46" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <svg width="44" height="44" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <g transform="translate(6, 6) rotate(-25 26 26)">
                                         <path d="M12 10C10 18 12 28 18 36L34 36C40 28 42 18 40 10C35 12 26 12 12 10Z" fill="#e0e7ff" fill-opacity="0.35" stroke="#0033cc" stroke-width="2.5" stroke-linejoin="round"/>
                                         <path d="M16 11C20 18 22 28 24 36" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
@@ -269,253 +259,4 @@
         </div>
     </div>
 </div>
-@endsection
-
-@section('modals')
-<!-- Cancel Reservation Modal -->
-<div class="modal-overlay" id="cancelModal">
-    <div class="modal-content">
-        <button class="modal-close" onclick="closeGlobalModal('cancelModal')">&times;</button>
-        <h2 class="modal-title" style="color: var(--danger-red);">Cancel Reservation</h2>
-        
-        <div style="margin-bottom: 15px;">
-            <span id="cancel-res-code" style="color: var(--primary-blue); font-weight: bold; font-size: 14px;"></span>
-            <div class="res-title" id="cancel-res-title" style="font-size: 16px; font-weight: bold; margin-top: 5px;"></div>
-            <div style="font-size: 13px; color: var(--text-gray); margin-top: 5px;">
-                <i class="fa-regular fa-calendar" style="width: 15px;"></i> <span id="cancel-res-date"></span>
-            </div>
-            <div style="font-size: 13px; color: var(--text-gray); margin-top: 5px;">
-                <i class="fa-regular fa-clock" style="width: 15px;"></i> <span id="cancel-res-time"></span>
-            </div>
-        </div>
-
-        <form id="cancelForm" method="POST" action="">
-            @csrf
-            <div style="margin-bottom: 20px;">
-                <label style="font-size: 12px; color: var(--text-gray); display: block; margin-bottom: 5px;">Please select a reason for cancellation</label>
-                <select name="reason" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; outline: none; font-family: inherit;">
-                    <option>Schedule Conflict</option>
-                    <option>Weather Conditions</option>
-                    <option>Personal Emergency</option>
-                    <option>Other</option>
-                </select>
-            </div>
-
-            <div style="background: var(--danger-light); color: var(--danger-red); padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 13px;">
-                <strong>Refund Policy</strong><br>
-                Payment will only be refunded if you cancel at least 5 hours before your reservation.<br>
-                No refund for late cancellation.
-            </div>
-
-            <div style="display: flex; gap: 10px;">
-                <button type="button" class="btn-outline-blue" onclick="closeGlobalModal('cancelModal')">Keep Reservation</button>
-                <button type="button" class="btn-primary-solid" style="background: var(--danger-red); width: 100%;" onclick="submitCancel()">Confirm Cancellation</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Edit Reservation Modal -->
-<div class="modal-overlay" id="editModal">
-    <div class="modal-content" style="max-width: 500px;">
-        <button class="modal-close" onclick="closeGlobalModal('editModal')">&times;</button>
-        <h2 class="modal-title">Edit Reservation</h2>
-        
-        <div style="margin-bottom: 20px;">
-            <div class="res-title" id="edit-res-title" style="font-size: 16px; font-weight: bold;"></div>
-            <span style="padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; background: #d1fae5; color: #059669; margin-top: 5px; display: inline-block;">Confirmed</span>
-        </div>
-
-        <form id="editForm" method="POST" action="">
-            @csrf
-            <div style="margin-bottom: 20px;">
-                <h4 style="margin: 0 0 10px 0; color: var(--primary-blue);">Details</h4>
-                <div style="display: flex; gap: 15px;">
-                    <div style="flex: 1;">
-                        <label style="font-size: 12px; color: var(--text-gray);">Date</label>
-                        <input type="date" id="edit-date" name="reservation_date" required onchange="checkAvailability()" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; outline: none;">
-                    </div>
-                    <div style="flex: 1;">
-                        <label style="font-size: 12px; color: var(--text-gray);">Duration</label>
-                        <select id="edit-duration" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; outline: none; background: #f9f9f9; cursor: not-allowed;" disabled>
-                            <option>1 Hour</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <div style="margin-bottom: 20px;">
-                <label style="font-size: 12px; color: var(--text-gray);">Available Time Slot</label>
-                <div class="time-slots" id="edit-time-slots">
-                    <!-- Filled by JS -->
-                </div>
-            </div>
-
-            <input type="hidden" id="edit-start-time" name="start_time" required>
-            <input type="hidden" id="edit-end-time" name="end_time" required>
-            <input type="hidden" id="edit-court-id" name="court_id">
-
-            <button type="submit" class="btn-primary-solid" style="width: 100%;">Save Changes</button>
-        </form>
-    </div>
-</div>
-
-<!-- Success Cancel Modal -->
-<div class="modal-overlay" id="successCancelModal">
-    <div class="modal-content" style="text-align: center;">
-        <div class="cancel-circle">
-            <i class="fa-solid fa-xmark"></i>
-        </div>
-        <h2 class="modal-title" style="color: var(--danger-red);">Reservation Cancelled</h2>
-        <p class="notification-msg" style="margin-bottom: 20px; font-size: 14px;">
-            Your reservation for<br>
-            <strong style="color: var(--primary-blue);" id="success-cancel-title"></strong><br>
-            on <strong style="color: var(--primary-blue);" id="success-cancel-datetime"></strong><br>
-            has been cancelled.
-        </p>
-        <p style="font-size: 12px; color: var(--text-gray); margin-bottom: 20px;">A cancellation receipt has been sent to your email.</p>
-        <button class="btn-primary-solid" style="width: 100%;" onclick="location.reload()">Done</button>
-    </div>
-</div>
-@endsection
-
-@section('scripts')
-<script>
-    function openResDetails(id, courtId, date, startTime, endTime, sport, code, status) {
-        // Open the global notifDetailsModal
-        openNotificationDetails(id, sport + ' Court ' + courtId, date, startTime + ' - ' + endTime, code, status);
-        
-        // Inject Edit/Cancel buttons if confirmed
-        const actionsDiv = document.getElementById('nd-actions');
-        if (status === 'confirmed') {
-            actionsDiv.style.display = 'flex';
-            actionsDiv.innerHTML = `
-                <button class="btn-outline-blue" onclick="closeGlobalModal('notifDetailsModal'); openEditModal(${id}, '${courtId}', '${date}', '${startTime}', '${sport}', '${code}')">Edit Reservation</button>
-                <button class="btn-outline-red" onclick="closeGlobalModal('notifDetailsModal'); openCancelModal(${id}, '${code}', '${sport} Court ${courtId}', '${date}', '${startTime} - ${endTime}')">Cancel Reservation</button>
-            `;
-        } else {
-            actionsDiv.style.display = 'none';
-        }
-    }
-
-    // Modal Handling
-    function openCancelModal(id, code, title, date, time) {
-        document.getElementById('cancelForm').action = '/reservations/' + id + '/cancel-user';
-        document.getElementById('cancel-res-code').innerText = code;
-        document.getElementById('cancel-res-title').innerHTML = title;
-        document.getElementById('cancel-res-date').innerText = date;
-        document.getElementById('cancel-res-time').innerText = time;
-        
-        // Store for success modal
-        document.getElementById('success-cancel-title').innerHTML = title;
-        document.getElementById('success-cancel-datetime').innerHTML = date + ' at ' + time.split(' - ')[0];
-
-        document.getElementById('cancelModal').style.display = 'flex';
-    }
-
-    function submitCancel() {
-        document.getElementById('cancelModal').style.display = 'none';
-        
-        fetch(document.getElementById('cancelForm').action, {
-            method: 'POST',
-            body: new FormData(document.getElementById('cancelForm'))
-        }).then(response => {
-            if(response.ok) {
-                document.getElementById('successCancelModal').style.display = 'flex';
-            } else {
-                alert('Error cancelling reservation.');
-                location.reload();
-            }
-        });
-    }
-
-    let currentEditCourtId = null;
-    let currentEditStartTimeStr = null;
-
-    function openEditModal(id, courtId, date, startTime, sport, code) {
-        document.getElementById('editForm').action = '/reservations/' + id + '/edit-user';
-        document.getElementById('edit-res-title').innerHTML = sport + ' Court ' + courtId;
-        
-        // Convert 'M j, Y' to YYYY-MM-DD for date input
-        const d = new Date(date);
-        const yyyy = d.getFullYear();
-        const mm = String(d.getMonth() + 1).padStart(2, '0');
-        const dd = String(d.getDate()).padStart(2, '0');
-        
-        document.getElementById('edit-date').value = `${yyyy}-${mm}-${dd}`;
-        document.getElementById('edit-date').min = new Date().toISOString().split('T')[0];
-        document.getElementById('edit-court-id').value = courtId;
-        
-        currentEditCourtId = courtId;
-        
-        // convert "4:00 PM" to "16:00"
-        let match = startTime.match(/(\d+):(\d+) (AM|PM)/);
-        if(match) {
-            let h = parseInt(match[1]);
-            if(match[3] === 'PM' && h !== 12) h += 12;
-            if(match[3] === 'AM' && h === 12) h = 0;
-            currentEditStartTimeStr = (h < 10 ? '0' + h : h) + ':00';
-        }
-
-        checkAvailability();
-        document.getElementById('editModal').style.display = 'flex';
-    }
-
-    function checkAvailability() {
-        let date = document.getElementById('edit-date').value;
-        let courtId = currentEditCourtId;
-
-        if(!date || !courtId) return;
-
-        fetch(`/api/check-availability?date=${date}&court_id=${courtId}`)
-            .then(response => response.json())
-            .then(data => {
-                renderTimeSlots(data.booked_slots);
-            });
-    }
-
-    function renderTimeSlots(bookedSlots) {
-        const container = document.getElementById('edit-time-slots');
-        container.innerHTML = '';
-        
-        const startHour = 8;
-        const endHour = 22;
-
-        for(let hour = startHour; hour < endHour; hour++) {
-            let timeString24 = (hour < 10 ? '0' + hour : hour) + ':00';
-            let suffix = hour >= 12 ? 'PM' : 'AM';
-            let hour12 = hour > 12 ? hour - 12 : (hour === 0 ? 12 : hour);
-            let timeString12 = `${hour12}:00 ${suffix}`;
-
-            let div = document.createElement('div');
-            div.className = 'time-slot';
-            div.innerText = timeString12;
-            div.dataset.time24 = timeString24;
-
-            if(bookedSlots.includes(timeString12) && timeString24 !== currentEditStartTimeStr) {
-                div.classList.add('booked');
-            } else {
-                div.onclick = function() {
-                    document.querySelectorAll('#edit-time-slots .time-slot').forEach(el => el.classList.remove('selected'));
-                    this.classList.add('selected');
-                    
-                    document.getElementById('edit-start-time').value = this.dataset.time24 + ':00';
-                    
-                    let endH = parseInt(this.dataset.time24.split(':')[0]) + 1;
-                    let endString24 = (endH < 10 ? '0' + endH : endH) + ':00:00';
-                    document.getElementById('edit-end-time').value = endString24;
-                };
-            }
-
-            if(timeString24 === currentEditStartTimeStr) {
-                div.classList.add('selected');
-                document.getElementById('edit-start-time').value = timeString24 + ':00';
-                let endH = parseInt(timeString24.split(':')[0]) + 1;
-                document.getElementById('edit-end-time').value = (endH < 10 ? '0' + endH : endH) + ':00:00';
-            }
-
-            container.appendChild(div);
-        }
-    }
-</script>
 @endsection
