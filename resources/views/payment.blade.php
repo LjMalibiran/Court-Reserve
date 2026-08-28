@@ -6,39 +6,46 @@
 @section('styles')
 <style>
     /* Payment Layout Grid */
-    .payment-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 25px; margin-top: 10px; }
+    .payment-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; margin-top: 10px; max-width: 1000px; }
     
-    .panel { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #eaeaea; }
+    .panel { background: white; border-radius: 12px; padding: 30px; border: 1px solid #eaeaea; position: relative; }
     
     /* Left Panel: Details */
-    .sport-title { display: flex; align-items: center; gap: 15px; color: var(--primary-blue); font-size: 20px; font-weight: bold; margin-bottom: 20px; }
-    .amount-row { display: flex; justify-content: space-between; font-weight: bold; font-size: 16px; color: var(--primary-blue); margin-bottom: 20px; }
-    .gcash-details { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #eee; padding-top: 20px; }
-    .gcash-info h3 { margin: 0; color: var(--primary-blue); font-size: 18px; }
-    .gcash-info p { margin: 5px 0 0 0; color: var(--text-gray); font-size: 18px; }
+    .sport-title { display: flex; align-items: center; gap: 15px; color: var(--primary-blue); font-size: 22px; font-weight: 700; margin-bottom: 25px; }
+    .amount-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .amount-label { color: var(--primary-blue); font-size: 14px; font-weight: 600; }
+    .amount-value { color: var(--primary-blue); font-size: 18px; font-weight: bold; }
+    
+    .gcash-details { display: flex; justify-content: space-between; align-items: center; border-top: 2px solid #f3f4f6; padding-top: 25px; }
+    .gcash-info h3 { margin: 0; color: var(--primary-blue); font-size: 18px; font-weight: 700; }
+    .gcash-info p { margin: 5px 0 0 0; color: #6b7280; font-size: 16px; }
     
     /* Right Panel: Options */
-    .panel h3 { margin-top: 0; color: var(--primary-blue); font-size: 18px; margin-bottom: 5px; }
-    .panel p.sub { color: var(--text-gray); font-size: 13px; margin-top: 0; margin-bottom: 20px; }
+    .panel h3 { margin-top: 0; color: var(--primary-blue); font-size: 18px; margin-bottom: 8px; }
+    .panel p.sub { color: #9ca3af; font-size: 13px; margin-top: 0; margin-bottom: 30px; }
     
-    .radio-option { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .radio-option { display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px; }
     .radio-label { display: flex; align-items: center; cursor: pointer; color: var(--primary-blue); font-weight: 600; font-size: 16px; }
-    .radio-label input { appearance: none; width: 20px; height: 20px; border: 2px solid var(--primary-blue); border-radius: 50%; margin-right: 12px; outline: none; position: relative; cursor: pointer; }
-    .radio-label input:checked::after { content: ''; position: absolute; top: 3px; left: 3px; width: 10px; height: 10px; background: var(--primary-blue); border-radius: 50%; }
+    .radio-label input { appearance: none; width: 22px; height: 22px; border: 2px solid var(--primary-blue); border-radius: 50%; margin-right: 15px; outline: none; position: relative; cursor: pointer; }
+    .radio-label input:checked::after { content: ''; position: absolute; top: 4px; left: 4px; width: 10px; height: 10px; background: var(--primary-blue); border-radius: 50%; }
     .price-text { color: var(--primary-blue); font-weight: 600; font-size: 16px; }
     
     /* Upload Area */
-    .upload-area { border: 2px dashed #ccc; border-radius: 12px; padding: 40px; text-align: center; background: #fafafa; cursor: pointer; transition: 0.2s; }
-    .upload-area:hover { border-color: var(--primary-blue); background: var(--light-blue); }
-    .upload-icon { font-size: 40px; color: var(--primary-blue); margin-bottom: 15px; }
-    .upload-text { color: var(--primary-blue); font-size: 16px; font-weight: 600; margin-bottom: 10px; }
-    .btn-outline { border: 1px solid var(--primary-blue); color: var(--primary-blue); background: white; padding: 10px 25px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; margin-top: 10px; }
+    .upload-container { max-width: 1000px; }
+    .upload-area { border: 2px dashed #d1d5db; border-radius: 12px; padding: 50px 20px; text-align: center; background: white; cursor: pointer; transition: 0.2s; display: block; position: relative; }
+    .upload-area:hover { border-color: var(--primary-blue); background: #f8fafc; }
+    .upload-icon { font-size: 50px; color: var(--primary-blue); margin-bottom: 20px; }
+    .upload-text { color: var(--primary-blue); font-size: 16px; font-weight: 600; margin-bottom: 15px; }
+    .upload-or { color: #9ca3af; font-size: 14px; margin-bottom: 15px; font-weight: normal; }
+    .btn-outline { border: 1px solid var(--primary-blue); color: var(--primary-blue); background: white; padding: 12px 35px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; transition: 0.2s; }
+    .btn-outline:hover { background: var(--light-blue); }
+    .upload-hint { text-align: center; color: #9ca3af; font-size: 12px; margin-top: 15px; }
     
-    .btn-submit { background: var(--primary-blue); color: white; border: none; padding: 16px; border-radius: 8px; width: 100%; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 25px; }
+    .btn-submit { background: var(--primary-blue); color: white; border: none; padding: 16px; border-radius: 8px; width: 100%; max-width: 1000px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 30px; transition: 0.2s; }
     .btn-submit:hover { background: #002299; }
 
     /* Success Receipt Modal specific to Payment page */
-    .success-modal .modal-content { text-align: center; overflow: hidden; padding: 40px 30px 30px; }
+    .success-modal .modal-content { text-align: center; overflow: hidden; padding: 40px 30px 30px; border: 1px solid #eaeaea; }
     .success-circle { background: #28a745; color: white; width: 80px; height: 80px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 40px; margin: 0 auto 20px auto; border: 5px solid #d4edda; }
     .modal-title { color: #222; margin: 0 0 10px 0; font-size: 22px; font-weight: 700; }
     .modal-text { color: var(--text-gray); font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
@@ -68,10 +75,9 @@
 @endsection
 
 @section('content')
-<form action="{{ url('/reserve/process-payment') }}" method="POST" enctype="multipart/form-data">
+<form action="{{ url('/reserve/process-payment') }}" method="POST" enctype="multipart/form-data" id="paymentForm" onsubmit="return validatePayment(event)">
     @csrf
     
-    <!-- Hidden inputs seamlessly catching data from the persistent session -->
     <input type="hidden" name="court_id" value="{{ session('court_id') }}">
     <input type="hidden" name="sport" value="{{ session('sport') }}">
     <input type="hidden" name="start_time" value="{{ session('start_time') }}">
@@ -79,35 +85,34 @@
     <input type="hidden" name="total_amount" value="{{ session('total_price') }}">
 
     <div class="payment-grid">
-        <div class="panel">
+        <div class="panel" style="background: transparent; border: none; padding: 0;">
             <div class="sport-title">
                 @if(session('sport') == 'Pickleball')
-                    <i class="fa-solid fa-table-tennis-paddle-ball" style="font-size: 24px;"></i>
+                    <i class="fa-solid fa-table-tennis-paddle-ball" style="font-size: 30px;"></i>
                 @else
-                    <img src="{{ asset('images/shuttlecock.png') }}" width="35" alt="Badminton">
+                    <i class="fa-solid fa-shuttlecock" style="font-size: 30px; background: -webkit-linear-gradient(#0033cc, #001f7a); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
                 @endif
                 {{ session('sport', 'Badminton') }}
             </div>
             
-            <div style="border: 1px solid #eee; border-radius: 12px; padding: 20px;">
+            <div style="border: 1px solid #eaeaea; border-radius: 12px; padding: 25px; background: white;">
                 <div class="amount-row">
-                    <span>Total Amount</span>
-                    <span>₱ {{ number_format(session('total_price', 230), 2) }}</span>
+                    <span class="amount-label">Total Amount</span>
+                    <span class="amount-value">₱ {{ number_format(session('total_price', 230), 2) }}</span>
                 </div>
                 
                 <div class="gcash-details">
                     <div class="gcash-info">
-                        <span style="color: #999; font-size: 12px;">Payment Method</span>
-                        <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
-                            <div style="background: #007bff; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 20px;">G</div>
+                        <span style="color: #9ca3af; font-size: 13px; font-weight: 600; display: block; margin-bottom: 10px;">Payment Method</span>
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <div style="background: #007bff; color: white; width: 45px; height: 45px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 22px;">G</div>
                             <div>
                                 <h3>Gcash</h3>
                                 <p>09123456789</p>
                             </div>
                         </div>
                     </div>
-                    <!-- Order Gcash QR to be on bottom on mobile -->
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=GcashPayment" alt="GCash QR" style="border-radius: 8px;" class="desktop-only-qr">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=GcashPayment" alt="GCash QR" style="border-radius: 8px; border: 1px solid #eaeaea; padding: 5px;" class="desktop-only-qr">
                 </div>
             </div>
         </div>
@@ -129,7 +134,7 @@
                     <input type="radio" name="payment_type" value="half" style="margin-top: 3px;">
                     <div style="display: flex; flex-direction: column;">
                         50% Down Payment
-                        <span style="color: var(--text-gray); font-size: 12px; font-weight: normal; margin-top: 3px;">Please pay the remaining balance<br>before your playing time.</span>
+                        <span style="color: #9ca3af; font-size: 12px; font-weight: normal; margin-top: 5px; line-height: 1.4;">Please pay the remaining balance<br>before your playing time.</span>
                     </div>
                 </label>
                 <span class="price-text">₱ {{ number_format(session('total_price', 230) / 2, 2) }}</span>
@@ -137,25 +142,26 @@
         </div>
     </div>
 
-    <div class="panel">
-        <h3>Upload Receipt <span style="color: var(--text-gray); font-size: 13px; font-weight: normal;">(Required)</span></h3>
+    <div class="panel upload-container">
+        <h3>Upload Receipt <span style="color: #9ca3af; font-size: 13px; font-weight: normal;">(Required)</span></h3>
         <p class="sub">Please upload the Gcash receipt</p>
         
-        <label for="receipt" class="upload-area" style="display: block; position: relative;">
+        <label for="receipt" class="upload-area">
             <div class="upload-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
-            <div class="upload-text">Drag your file to upload</div>
-            <button type="button" class="btn-outline">Select file</button>
-            <input type="file" name="receipt" id="receipt" style="position: absolute; opacity: 0; width: 1px; height: 1px;" accept="image/*" required>
+            <div class="upload-text">Drag and drop your file here<div class="upload-or">or</div></div>
+            <button type="button" class="btn-outline">Choose File</button>
+            <input type="file" name="receipt" id="receipt" style="position: absolute; opacity: 0; width: 1px; height: 1px;" accept="image/*">
         </label>
-        <div id="receiptError" style="color: var(--danger-red); font-size: 13px; display: none; margin-top: 10px;"><i class="fa-solid fa-circle-exclamation"></i> Please upload a GCash receipt before completing your payment.</div>
+        <div id="receiptError" style="color: var(--danger-red); font-size: 13px; display: none; margin-top: 10px; font-weight: 600;"><i class="fa-solid fa-circle-exclamation"></i> Please upload a GCash receipt before completing your payment.</div>
+        <div id="fileNameDisplay" style="color: var(--primary-blue); font-size: 14px; margin-top: 15px; font-weight: 600; text-align: center; display: none;"></div>
     </div>
+    <div class="upload-hint upload-container">Accepted file: JPG, PNG (Max.5MB)</div>
 
-    <button type="submit" class="btn-submit" onclick="return validatePayment(event)">Complete Payment</button>
+    <button type="submit" class="btn-submit">Complete Payment</button>
 </form>
 @endsection
 
 @section('modals')
-<!-- Success Modal Formatted Exactly as Designed -->
 <div class="modal-overlay success-modal" id="successModal">
     <div class="modal-content">
         <!-- Confetti Decoration -->

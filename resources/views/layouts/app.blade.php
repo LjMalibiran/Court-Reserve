@@ -17,30 +17,45 @@
             --danger-red: #e63946;
             --danger-light: #ffe6e6;
         }
-        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-light); display: flex; height: 100vh; overflow: hidden; }
+        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #ffffff; display: flex; height: 100vh; overflow: hidden; }
         
         /* Sidebar Styling */
-        .sidebar { width: 250px; background-color: white; border-right: 1px solid #eee; display: flex; flex-direction: column; padding-top: 20px; z-index: 10; }
-        .logo-container { padding: 0 20px 20px; border-bottom: 1px solid #eee; text-align: center; }
+        .sidebar { width: 250px; background-color: #f8f9fa; border-right: none; display: flex; flex-direction: column; padding-top: 20px; z-index: 10; }
+        .logo-container { padding: 0 20px 20px; text-align: center; }
         .nav-menu { list-style: none; padding: 0; margin: 20px 0; flex-grow: 1; }
-        .nav-menu li { margin-bottom: 5px; }
-        .nav-menu a { display: flex; align-items: center; padding: 12px 20px; color: var(--text-gray); text-decoration: none; font-weight: 500; border-left: 4px solid transparent; transition: 0.2s; }
-        .nav-menu a:hover, .nav-menu a.active { background-color: var(--light-blue); color: var(--primary-blue); border-left-color: var(--primary-blue); }
-        .nav-menu a i { margin-right: 15px; font-size: 18px; width: 20px; text-align: center; }
+        .nav-menu li { margin-bottom: 0; }
+        .nav-menu a { display: flex; align-items: center; padding: 15px 30px; color: var(--text-dark); text-decoration: none; font-weight: 500; transition: 0.2s; font-size: 16px; }
+        .nav-menu a:hover { background-color: var(--light-blue); color: var(--primary-blue); }
+        .nav-menu a.active { background-color: #e0e7ff; color: var(--primary-blue); font-weight: 600; }
+        .nav-menu a i { margin-right: 15px; font-size: 20px; width: 24px; text-align: center; }
         
-        .logout-container { padding: 20px; border-top: 1px solid #eee; }
-        .btn-logout { width: 100%; display: flex; align-items: center; padding: 12px 15px; background: none; border: none; color: var(--text-gray); font-weight: 500; cursor: pointer; transition: 0.2s; text-decoration: none; }
+        .logout-container { padding: 20px 30px; }
+        .btn-logout { width: 100%; display: flex; align-items: center; padding: 15px 0; background: none; border: none; color: var(--primary-blue); font-weight: 500; cursor: pointer; transition: 0.2s; text-decoration: none; font-size: 16px; }
         .btn-logout:hover { color: var(--danger-red); }
-        .btn-logout i { margin-right: 15px; font-size: 18px; width: 20px; text-align: center; }
+        .btn-logout i { margin-right: 15px; font-size: 20px; width: 24px; text-align: center; }
 
         /* Main Content */
-        .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; background-color: #ffffff; }
+        .main-content::after {
+            content: "";
+            position: absolute;
+            bottom: -50px;
+            right: -50px;
+            width: 500px;
+            height: 500px;
+            background-image: url('{{ asset('images/shuttlecock.png') }}');
+            background-size: contain;
+            background-repeat: no-repeat;
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 0;
+        }
         
         /* Header */
-        .top-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 30px; background-color: transparent; }
-        .top-header h1 { margin: 0; font-size: 24px; color: var(--text-dark); }
-        .bell-icon { font-size: 24px; color: var(--text-gray); cursor: pointer; transition: 0.2s; position: relative; }
-        .bell-icon:hover { color: var(--primary-blue); }
+        .top-header { display: flex; justify-content: space-between; align-items: center; padding: 30px 40px 10px 40px; background-color: transparent; position: relative; z-index: 1; }
+        .top-header h1 { margin: 0; font-size: 28px; color: var(--primary-blue); font-weight: 600; }
+        .bell-icon { font-size: 20px; color: var(--primary-blue); cursor: pointer; transition: 0.2s; position: relative; }
+        .bell-icon:hover { color: #002299; }
 
         /* Notifications & Modals CSS */
         .notification-wrapper { position: relative; }

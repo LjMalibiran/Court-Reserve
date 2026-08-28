@@ -6,40 +6,38 @@
 @section('styles')
 <style>
     /* Welcome Card */
-    .welcome-card { background: white; border-radius: 12px; padding: 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 60px; border: 1px solid #eaeaea; }
+    .welcome-card { background: white; border-radius: 12px; padding: 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 30px; border: 1px solid #eaeaea; }
     .welcome-text h2 { margin: 0; font-weight: normal; color: var(--primary-blue); font-size: 20px;}
-    .welcome-text h2 strong { font-size: 32px; display: block; margin-top: 5px; }
-    .welcome-text p { color: var(--text-gray); margin: 5px 0 0 0; }
+    .welcome-text h2 strong { font-size: 32px; display: block; margin-top: 5px; font-weight: 600; }
+    .welcome-text p { color: #9ca3af; margin: 5px 0 0 0; font-size: 14px; }
     
-    .sport-buttons { display: flex; gap: 15px; }
-    .sport-btn { background: white; border: 1px solid #ddd; padding: 15px 30px; border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; gap: 10px; transition: 0.2s; text-decoration: none; }
+    .sport-buttons { display: flex; gap: 20px; }
+    .sport-btn { background: white; border: 1px solid #eaeaea; padding: 15px 40px; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; gap: 10px; transition: 0.2s; text-decoration: none; min-width: 140px; box-sizing: border-box; }
     .sport-btn i { font-size: 30px; }
     .sport-btn.badminton { color: var(--primary-blue); }
-    .sport-btn.pickleball { color: #f39c12; }
-    .sport-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.1); }
+    .sport-btn.pickleball { color: #f97316; }
+    .sport-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
 
     /* Grid Layout */
-    .reservations-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
-    .panel { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #eaeaea; min-height: 300px; display: flex; flex-direction: column; max-height: 400px; overflow-y: auto; }
-    .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
-    .panel-header h3 { margin: 0; color: var(--primary-blue); font-size: 18px; }
+    .reservations-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+    .panel { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #eaeaea; min-height: 300px; display: flex; flex-direction: column; overflow-y: auto; }
+    .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .panel-header h3 { margin: 0; color: var(--primary-blue); font-size: 16px; font-weight: 600; }
     
     /* Empty State */
-    .empty-state { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; }
-    .empty-state i { font-size: 50px; color: #e0e0e0; margin-bottom: 15px; }
-    .empty-state h4 { color: var(--text-dark); margin: 0 0 8px 0; font-size: 18px; }
-    .empty-state p { color: var(--text-gray); margin: 0 0 20px 0; font-size: 14px; }
+    .empty-state { flex-grow: 1; display: flex; justify-content: center; align-items: center; text-align: center; color: #d1d5db; font-size: 20px; font-weight: bold; letter-spacing: 1px; }
 
-    /* Compact Res Card (Like Photo) */
-    .compact-res-card { border: 1px solid #eee; border-radius: 8px; padding: 12px 15px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: 0.2s; background: white; }
+    /* Compact Res Card */
+    .compact-res-card { border: 1px solid #eee; border-radius: 8px; padding: 15px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: 0.2s; background: white; }
     .compact-res-card:hover { border-color: #ccc; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
     .crc-left { display: flex; align-items: center; gap: 15px; }
-    .crc-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 24px; }
-    .crc-icon.pickleball { color: #f39c12; }
-    .crc-details h4 { margin: 0; color: var(--primary-blue); font-size: 15px; }
-    .crc-details p { margin: 2px 0 0 0; font-size: 12px; color: var(--text-gray); }
+    .crc-icon { width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; font-size: 28px; }
+    .crc-icon.pickleball { color: #f97316; }
+    .crc-icon.badminton { color: var(--primary-blue); }
+    .crc-details h4 { margin: 0; color: var(--primary-blue); font-size: 15px; font-weight: 600; }
+    .crc-details p { margin: 4px 0 0 0; font-size: 12px; color: var(--text-gray); }
     .crc-right { display: flex; align-items: center; gap: 10px; }
-    .crc-badge { padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+    .crc-badge { padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: bold; }
     .crc-chevron { color: #ccc; font-size: 14px; }
 
     /* Modals CSS that are specific to home page (Edit/Cancel) */
@@ -61,15 +59,15 @@
 <div class="welcome-card">
     <div class="welcome-text">
         <h2>Welcome back, <strong>{{ Auth::user()->name ?? 'Player' }}!</strong></h2>
-        <p>What sport are you playing today?</p>
+        <p>What sport do you want to play today?</p>
     </div>
     <div class="sport-buttons">
         <a href="{{ route('reservation.index') }}?sport=Badminton" class="sport-btn badminton">
-            <img src="{{ asset('images/shuttlecock.png') }}" alt="Badminton Icon" width="60" style="margin-bottom: 5px;">
+            <i class="fa-solid fa-shuttlecock" style="font-size: 35px; margin-bottom: 5px; background: -webkit-linear-gradient(#0033cc, #001f7a); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
             Badminton
         </a>
         <a href="{{ route('reservation.index') }}?sport=Pickleball" class="sport-btn pickleball">
-            <i class="fa-solid fa-table-tennis-paddle-ball" style="font-size: 45px; margin-bottom: 5px;"></i>
+            <i class="fa-solid fa-table-tennis-paddle-ball" style="font-size: 35px; margin-bottom: 5px;"></i>
             Pickleball
         </a>
     </div>
@@ -80,38 +78,45 @@
     <div class="panel">
         <div class="panel-header">
             <h3>Today's Reservation</h3>
+            @if(count($todayReservations) > 0)
+                <span style="background-color: #d1fae5; color: #059669; padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: bold;">Confirmed</span>
+            @endif
         </div>
         
         @forelse($todayReservations as $res)
-            <div class="compact-res-card" onclick="openResDetails({{ $res->id }}, '{{ $res->court_id }}', '{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}', '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }}', '{{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}', '{{ $res->sport ?? 'Badminton' }}', '{{ $res->reservation_code }}', '{{ $res->status }}')">
-                <div class="crc-left">
-                    <div class="crc-icon {{ strtolower($res->sport ?? 'badminton') }}">
-                        @if(($res->sport ?? 'Badminton') == 'Pickleball')
-                            <i class="fa-solid fa-table-tennis-paddle-ball"></i>
-                        @else
-                            <img src="{{ asset('images/shuttlecock.png') }}" width="30">
-                        @endif
+            <!-- Large Card for Today (if 1 or more) -->
+            <div style="flex-grow: 1; display: flex; flex-direction: column;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 25px;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="font-size: 40px; color: {{ strtolower($res->sport ?? 'badminton') == 'pickleball' ? '#f97316' : 'var(--primary-blue)' }};">
+                            @if(($res->sport ?? 'Badminton') == 'Pickleball')
+                                <i class="fa-solid fa-table-tennis-paddle-ball"></i>
+                            @else
+                                <i class="fa-solid fa-shuttlecock"></i>
+                            @endif
+                        </div>
+                        <h4 style="margin: 0; color: var(--primary-blue); font-size: 20px; font-weight: 600; line-height: 1.2;">{{ $res->sport ?? 'Badminton' }}<br><span style="font-weight: normal; font-size: 18px;">Court {{ $res->court_id }}</span></h4>
                     </div>
-                    <div class="crc-details">
-                        <h4>{{ $res->sport ?? 'Badminton' }} Court {{ $res->court_id }}</h4>
-                        <p>{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y | g:i A') }}</p>
+                    <div style="text-align: center; cursor: pointer;" onclick="openResDetails({{ $res->id }}, '{{ $res->court_id }}', '{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}', '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }}', '{{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}', '{{ $res->sport ?? 'Badminton' }}', '{{ $res->reservation_code }}', '{{ $res->status }}')">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data={{ urlencode($res->reservation_code) }}" style="width: 80px; height: 80px; border-radius: 8px; border: 1px solid #eee;">
+                        <span style="display: block; font-size: 10px; color: #9ca3af; margin-top: 5px;">Tap to view QR</span>
                     </div>
                 </div>
-                <div class="crc-right">
-                    <span class="crc-badge" style="background-color: {{ $res->status == 'confirmed' ? '#d1fae5' : ($res->status == 'cancelled' ? '#fee2e2' : '#fef3c7') }}; color: {{ $res->status == 'confirmed' ? '#059669' : ($res->status == 'cancelled' ? '#dc2626' : '#d97706') }};">
-                        {{ ucfirst($res->status) }}
-                    </span>
-                    <i class="fa-solid fa-chevron-right crc-chevron"></i>
+
+                <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 30px; color: #6b7280; font-size: 14px;">
+                    <div style="display: flex; align-items: center; gap: 15px;"><i class="fa-regular fa-calendar" style="font-size: 18px;"></i> {{ \Carbon\Carbon::parse($res->start_time)->format('D, M j, Y') }}</div>
+                    <div style="display: flex; align-items: center; gap: 15px;"><i class="fa-regular fa-clock" style="font-size: 18px;"></i> {{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }} | 1 hr</div>
+                </div>
+                
+                <div style="margin-top: auto;">
+                    <button class="btn-outline-blue" onclick="openEditModal({{ $res->id }}, '{{ $res->sport ?? 'Badminton' }}')">Edit Reservation</button>
+                    <button class="btn-outline-red" onclick="openCancelModal({{ $res->id }}, '{{ $res->reservation_code }}')">Cancel Reservation</button>
                 </div>
             </div>
+            @if(!$loop->last) <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;"> @endif
         @empty
             <div class="empty-state">
-                <i class="fa-regular fa-calendar-xmark"></i>
-                <h4>No reservations today</h4>
-                <p>You don't have any court bookings for today.</p>
-                <a href="{{ route('reservation.index') }}">
-                    <button class="btn-primary-solid">Book a Court</button>
-                </a>
+                NO RESERVATION
             </div>
         @endforelse
     </div>
@@ -120,6 +125,7 @@
     <div class="panel">
         <div class="panel-header">
             <h3>Upcoming Reservation</h3>
+            <a href="{{ route('history.index') }}" style="color: var(--primary-blue); font-size: 12px; text-decoration: none; font-weight: 600;">View All</a>
         </div>
         
         @forelse($upcomingReservations as $res)
@@ -129,11 +135,11 @@
                         @if(($res->sport ?? 'Badminton') == 'Pickleball')
                             <i class="fa-solid fa-table-tennis-paddle-ball"></i>
                         @else
-                            <img src="{{ asset('images/shuttlecock.png') }}" width="30">
+                            <i class="fa-solid fa-shuttlecock"></i>
                         @endif
                     </div>
                     <div class="crc-details">
-                        <h4>{{ $res->sport ?? 'Badminton' }} Court {{ $res->court_id }}</h4>
+                        <h4>{{ $res->sport ?? 'Badminton' }} <span style="font-weight: normal; font-size: 13px;">Court {{ $res->court_id }}</span></h4>
                         <p>{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y | g:i A') }}</p>
                     </div>
                 </div>
@@ -146,12 +152,7 @@
             </div>
         @empty
             <div class="empty-state">
-                <i class="fa-regular fa-calendar-xmark"></i>
-                <h4>No upcoming reservations</h4>
-                <p>You don't have any future bookings yet.</p>
-                <a href="{{ route('reservation.index') }}">
-                    <button class="btn-primary-solid">Book a Court</button>
-                </a>
+                NO RESERVATION
             </div>
         @endforelse
     </div>
