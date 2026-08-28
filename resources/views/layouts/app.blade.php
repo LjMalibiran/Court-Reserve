@@ -86,11 +86,27 @@
             body { flex-direction: column; overflow-x: hidden; overflow-y: auto; }
             .sidebar { position: fixed; bottom: 0; left: 0; width: 100%; height: 70px; flex-direction: row; border-right: none; border-top: 1px solid #ddd; z-index: 1000; padding: 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); background-color: white; }
             .logo-container, .logout-container { display: none !important; }
-            .nav-menu { display: flex; flex-direction: row; margin: 0; width: 100%; justify-content: space-around; align-items: center; }
-            .nav-menu a { padding: 10px; flex-direction: column; font-size: 11px; border-left: none; color: #777; }
+            .nav-menu { display: flex; flex-direction: row; margin: 0; width: 100%; justify-content: space-around; align-items: center; padding: 0; }
+            .nav-menu li { flex: 1; padding: 0; margin: 0; display: flex; justify-content: center; }
+            .nav-menu a { padding: 10px; flex-direction: column; font-size: 11px; border-left: none; color: #777; width: 100%; align-items: center; justify-content: center; border-radius: 0; }
             .nav-menu a i { margin-right: 0; margin-bottom: 4px; font-size: 20px; }
+            .nav-menu a span { display: block; }
             .nav-menu a:hover, .nav-menu a.active { border-left: none; background: transparent; color: var(--primary-blue); }
+            .mobile-logout { display: flex !important; align-items: center; justify-content: center; flex: 1; }
+            
             .main-content { padding-bottom: 120px; }
+            
+            /* Responsive Header & Containers */
+            .top-header { padding: 20px 20px 10px 20px !important; }
+            .top-header h1 { font-size: 24px !important; }
+            .content-area { padding: 0 20px !important; }
+            
+            /* Modals */
+            .modal-content { padding: 20px !important; margin: 15px !important; width: 100% !important; max-width: calc(100% - 30px) !important; }
+            .modal-title { font-size: 18px !important; }
+            
+            /* Notifications Dropdown */
+            .notification-dropdown { width: calc(100vw - 40px) !important; right: -20px !important; }
         }
         
         @yield('styles')
@@ -100,21 +116,16 @@
     
     <aside class="sidebar">
         <div class="logo-container">
-            <img src="{{ asset('images/logo.png') }}" alt="Logo" style="max-width: 150px; margin: 10px 0;">
+            
+            <img src="{{ asset('images/logo.png') }}" alt="Logo">
         </div>
         
         <ul class="nav-menu">
-            <li><a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}"><i class="fa-solid fa-house"></i> Home</a></li>
-            <li><a href="{{ route('reservation.index') }}" class="{{ request()->routeIs('reservation.*') ? 'active' : '' }}"><i class="fa-regular fa-calendar-plus"></i> Reservation</a></li>
-            <li><a href="{{ route('history.index') }}" class="{{ request()->routeIs('history.*') ? 'active' : '' }}"><i class="fa-solid fa-clock-rotate-left"></i> History</a></li>
-            <li><a href="{{ route('profile.index') }}" class="{{ request()->routeIs('profile.*') ? 'active' : '' }}"><i class="fa-regular fa-user"></i> Profile</a></li>
+            <li><a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}"><i class="fa-solid fa-house"></i> <span>Home</span></a></li>
+            <li><a href="{{ route('reservation.index') }}" class="{{ request()->routeIs('reservation.*') ? 'active' : '' }}"><i class="fa-regular fa-calendar-plus"></i> <span>Reservation</span></a></li>
+            <li><a href="{{ route('history.index') }}" class="{{ request()->routeIs('history.*') ? 'active' : '' }}"><i class="fa-solid fa-clock-rotate-left"></i> <span>History</span></a></li>
+            <li><a href="{{ route('profile.index') }}" class="{{ request()->routeIs('profile.*') ? 'active' : '' }}"><i class="fa-regular fa-user"></i> <span>Profile</span></a></li>
         </ul>
-        <div class="logout-container">
-            <form action="{{ route('logout') }}" method="POST" style="margin: 0;">
-                @csrf
-                <button type="submit" class="btn-logout" title="Logout"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
-            </form>
-        </div>
     </aside>
 
     <main class="main-content">

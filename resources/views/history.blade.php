@@ -6,10 +6,10 @@
 @section('styles')
 <style>
     /* Tabs */
-    .tabs { display: flex; gap: 10px; margin-bottom: 30px; border-bottom: none; flex-wrap: wrap; padding-bottom: 15px; border-bottom: 1px solid #eee; }
-    .tab-link { color: var(--text-gray); font-weight: 600; text-decoration: none; cursor: pointer; padding: 8px 18px; border-radius: 25px; background: white; border: 1px solid #ddd; transition: 0.2s; white-space: nowrap; font-size: 14px; }
-    .tab-link:hover { background: var(--light-blue); }
-    .tab-link.active { background: var(--primary-blue); color: white; border-color: var(--primary-blue); }
+    .tabs { display: flex; gap: 24px; margin-bottom: 25px; border-bottom: 1.5px solid #e2e8f0; padding-bottom: 0; }
+    .tab-link { color: #64748b; font-weight: 600; text-decoration: none; cursor: pointer; padding: 10px 4px; border: none; background: transparent; transition: 0.2s; white-space: nowrap; font-size: 15px; border-bottom: 3px solid transparent; margin-bottom: -1.5px; border-radius: 0; }
+    .tab-link:hover { color: #0f2b6e; background: transparent; }
+    .tab-link.active { color: #0033cc; border-bottom-color: #0033cc; background: transparent; }
 
     /* Search Bar */
     .search-container { display: flex; gap: 10px; margin-bottom: 25px; }
@@ -33,6 +33,12 @@
     .empty-state i { font-size: 50px; color: #e0e0e0; margin-bottom: 15px; }
     .empty-state h4 { color: var(--text-dark); margin: 0 0 8px 0; font-size: 18px; }
     .empty-state p { color: var(--text-gray); margin: 0; font-size: 14px; }
+
+    @media (max-width: 768px) {
+        .history-card { flex-direction: column; align-items: flex-start; gap: 15px; }
+        .badge { align-self: flex-start; }
+        .tabs { gap: 15px; overflow-x: auto; padding-bottom: 5px; }
+    }
 </style>
 @endsection
 

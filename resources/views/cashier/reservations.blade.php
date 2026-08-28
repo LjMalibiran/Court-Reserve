@@ -116,7 +116,9 @@
         <div class="controls-bar">
             <div class="filter-tabs">
                 <button class="tab-btn active" onclick="switchTab('all', this)">All <span>{{ $reservations->count() }}</span></button>
-                <button class="tab-btn" onclick="switchTab('pending', this)">Pending <span>{{ $reservations->where('status', 'pending')->count() }}</span></button>
+                <button id="btn-pending-tab" class="tab-btn" onclick="switchTab('pending', this)">
+                Pending <span>{{ $reservations->where('status', 'pending')->count() }}</span>
+                </button>
                 <button class="tab-btn" onclick="switchTab('confirmed', this)">Confirmed <span>{{ $reservations->where('status', 'confirmed')->count() }}</span></button>
                 <button class="tab-btn" onclick="switchTab('completed', this)">Completed <span>{{ $reservations->where('status', 'completed')->count() }}</span></button>
                 <button class="tab-btn" onclick="switchTab('cancelled', this)">Cancelled <span>{{ $reservations->where('status', 'cancelled')->count() }}</span></button>
@@ -438,5 +440,18 @@
             
     }, 5000);
     </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('tab') === 'pending') {
+                const pendingBtn = document.getElementById('btn-pending-tab');
+                if (pendingBtn) {
+                    pendingBtn.click();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
 </body>
 </html>

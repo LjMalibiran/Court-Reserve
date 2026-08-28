@@ -4,9 +4,24 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Reservation;
+use App\Models\User;
 
 class CashierController extends Controller
 {
+    // ==========================================
+    // DASHBOARD METRICS
+    // ==========================================
+    public function dashboard()
+    {
+        // 1. Exact same calculation as Admin
+        $totalReserved = Reservation::where('status', '!=', 'cancelled')->count();
+        $pendingReservations = Reservation::where('status', 'pending')->count();
+        // This counts everyone EXCEPT the admin (1) and cashier (2)
+        $totalUsers = User::whereNotIn('role', [1, 2, 'admin', 'cashier'])->count();
+
+        return view('cashier.dashboard', compact('totalReserved', 'pendingReservations', 'totalUsers'));
+    }
+
     // ==========================================
     // RESERVATION LOGIC
     // ==========================================
@@ -108,4 +123,4 @@ class CashierController extends Controller
 
         return back()->with('error', 'Reservation not found.');
     }
-}   
+}

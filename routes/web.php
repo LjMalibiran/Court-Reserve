@@ -13,25 +13,26 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CashierController;
 
 // ==========================================
-// 1. PUBLIC ROUTES (Anyone can see these)
+// 1. PUBLIC ROUTES & DATABASE SETUP
 // ==========================================
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-// --- PASTE THESE RIGHT HERE ---
 Route::get('/setup-database', function () {
     \App\Models\User::updateOrCreate(
         ['email' => 'admin@batangas.com'],
-        ['name' => 'Lj', 'password' => \Illuminate\Support\Facades\Hash::make('admin123'), 'role' => 'admin']
+        ['name' => 'CourtReserve', 'password' => Hash::make('123Court'), 'role' => 'admin']
     );
     \App\Models\User::updateOrCreate(
         ['email' => 'cashier@batangas.com'],
-        ['name' => 'Main Cashier', 'password' => \Illuminate\Support\Facades\Hash::make('cashier123'), 'role' => 'cashier']
+        ['name' => 'Lj Malibiran', 'password' => Hash::make('123Lj'), 'role' => 'cashier']
     );
-    \App\Models\Court::updateOrCreate(['id' => 1], ['sport' => 'Badminton', 'price_per_hour' => 230]);
-    \App\Models\Court::updateOrCreate(['id' => 2], ['sport' => 'Pickleball', 'price_per_hour' => 230]);
+    \App\Models\Court::updateOrCreate(['id' => 1], ['is_active' => true]);
+    \App\Models\Court::updateOrCreate(['id' => 2], ['is_active' => true]);
+    \App\Models\Court::updateOrCreate(['id' => 3], ['is_active' => true]);
+    
     return 'Database successfully populated! You can now log in.';
 });
 
@@ -43,15 +44,6 @@ Route::get('/check-admin', function () {
     } catch (\Exception $e) {
         return "CRITICAL ERROR: " . $e->getMessage();
     }
-});
-// ------------------------------
-
-// ==========================================
-// 1. PUBLIC ROUTES (Anyone can see these)
-// ==========================================
-
-Route::get('/', function () {
-    return view('welcome');
 });
 
 // Normal User Login & Register
@@ -67,27 +59,25 @@ Route::get('/terms', function () {
     return view('terms');
 })->name('terms');
 
+
 // ==========================================
-// 2. STAFF GATEWAY & LOGINS (Must be public!)
+// 2. STAFF GATEWAY & LOGINS 
 // ==========================================
 
-// The Gateway Screen
 Route::get('/staff/login', function () {
     return view('admin.selection');
 })->name('staff.selection');
 
-// Admin Login
 Route::get('/admin/login', function () {
     return view('admin.login'); 
 })->name('admin.login');
+
 Route::post('/admin/login', [AdminAuthController::class, 'login'])->name('admin.login.submit');
 
-// Cashier Login
 Route::get('/cashier/login', function () {
     return view('cashier.login'); 
 })->name('cashier.login');
 
-// Cashier Sign-Up (If they register themselves)
 Route::get('/cashier/sign-up', function () {
     return view('cashier.sign-up');
 });
@@ -100,16 +90,11 @@ Route::redirect('/admin', '/admin/login');
 // ==========================================
 
 Route::middleware(['auth'])->group(function () {
-    
-    // Show the verification page
     Route::get('/verify', function () {
         return view('verify');
     })->name('verify.index');
 
-    // Handle the verification submission
     Route::post('/verify', [VerificationController::class, 'verify'])->name('verify.post');
-    
-    // Allow users to logout even if they aren't verified yet
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 
@@ -120,28 +105,23 @@ Route::middleware(['auth'])->group(function () {
 
 Route::middleware(['auth', 'verified.phone'])->group(function () {
     
-   // Dashboard
+    // Dashboard
     Route::get('/home', function () {
-        // Fetch reservations for TODAY
         $todayReservations = \App\Models\Reservation::where('user_id', Auth::id())
             ->whereDate('start_time', \Carbon\Carbon::today())
-            ->orderBy('start_time', 'asc')
+            ->orderBy('created_at', 'desc')
             ->get();
 
-        // Fetch reservations for FUTURE dates
         $upcomingReservations = \App\Models\Reservation::where('user_id', Auth::id())
             ->whereDate('start_time', '>', \Carbon\Carbon::today())
-            ->orderBy('start_time', 'asc')
+            ->orderBy('created_at', 'desc')
             ->get();
 
         return view('home', compact('todayReservations', 'upcomingReservations')); 
     })->name('home');
 
     // Reservation 
-    Route::get('/reservation', function () {
-        return view('reservation');
-    })->name('reservation.index');
-    
+    Route::get('/reservation', function () { return view('reservation'); })->name('reservation.index');
     Route::post('/reservations', [ReservationController::class, 'store'])->name('reservations.store');
 
     // History Route
@@ -160,10 +140,7 @@ Route::middleware(['auth', 'verified.phone'])->group(function () {
     Route::post('/profile/toggle-2fa', [\App\Http\Controllers\ProfileController::class, 'toggle2FA'])->name('profile.toggle-2fa');
 
     // Payment
-    Route::get('/payment', function () {
-        return view('payment');
-    })->name('payment.index');
-
+    Route::get('/payment', function () { return view('payment'); })->name('payment.index');
     Route::post('/reserve/process-payment', [ReservationController::class, 'processPayment']);
 
     // User Reservation Management
@@ -177,38 +154,13 @@ Route::middleware(['auth', 'verified.phone'])->group(function () {
 
 
 // ==========================================
-// 5. ADMIN SECURE AREA (Only Admins allowed)
+// 5. ADMIN SECURE AREA
 // ==========================================
 
 Route::middleware([\App\Http\Middleware\AdminMiddleware::class])->group(function () {
 
-    Route::get('/admin/dashboard', function () {
-        $today = \Carbon\Carbon::today();
-
-        $todayReservations = \App\Models\Reservation::with('user') 
-            ->whereDate('start_time', $today)
-            ->where('status', 'confirmed')
-            ->orderBy('start_time', 'asc')
-            ->get();
-
-        $upcomingReservations = \App\Models\Reservation::with('user')
-            ->whereDate('start_time', '>', $today)
-            ->orderBy('start_time', 'asc')
-            ->limit(5)
-            ->get();
-
-        $totalReserved = \App\Models\Reservation::count();
-        $totalUsers = \App\Models\User::count(); 
-        $pending = \App\Models\Reservation::where('status', 'pending')->count();
-
-        return view('admin.dashboard', compact(
-            'todayReservations', 
-            'upcomingReservations', 
-            'totalReserved', 
-            'totalUsers', 
-            'pending'
-        ));
-    })->name('admin.dashboard');
+    // IMPORTANT: Now using the controller to fetch identical data!
+    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 
     // QR Verification Routes
     Route::get('/admin/qr-verification', [AdminController::class, 'qrIndex']);
@@ -237,90 +189,25 @@ Route::middleware([\App\Http\Middleware\AdminMiddleware::class])->group(function
 
 
 // ==========================================
-// 6. CASHIER SECURE AREA (Only Cashiers allowed)
+// 6. CASHIER SECURE AREA
 // ==========================================
 
 Route::middleware([\App\Http\Middleware\CashierMiddleware::class])->group(function () {
 
-    Route::get('/cashier/dashboard', function () {
-        return view('cashier.dashboard'); 
-    })->name('cashier.dashboard');
+    // IMPORTANT: Now using the controller to fetch identical data!
+    Route::get('/cashier/dashboard', [CashierController::class, 'dashboard'])->name('cashier.dashboard');
 
-    Route::get('/cashier/qr-verification', function () {
-        return view('cashier.qr-verification');
-    });
+    Route::get('/cashier/qr-verification', [CashierController::class, 'qrIndex']);
+    Route::post('/cashier/qr-verification/search', [CashierController::class, 'qrSearch']);
+    Route::post('/cashier/qr-verification/verify/{id}', [CashierController::class, 'qrVerify']);
 
     Route::get('/cashier/reservations', [CashierController::class, 'reservationsIndex']);
     Route::post('/cashier/reservations/{id}/confirm', [CashierController::class, 'confirmReservation']);
     Route::post('/cashier/reservations/{id}/cancel', [CashierController::class, 'cancelReservation']);
 
-    Route::get('/cashier/walk-in', function () {
-        return view('cashier.walk-in'); 
-    });
-
-    Route::get('/cashier/sales/transactions', function () {
-        return view('cashier.transactions'); 
-    });
-
-    Route::get('/cashier/sales/refunds', function () {
-        return view('cashier.refunds'); 
-    });
-
-    Route::get('/cashier/profile', function () {
-        return view('cashier.profile'); 
-    })->name('cashier.profile');
-
-    Route::get('/setup-database', function () {
-    // 1. Generate the Admin Account (Lj)
-    \App\Models\User::updateOrCreate(
-        ['email' => 'CourtReserve@batangas.com'],
-        [
-            'name' => 'CourtReserve', 
-            'password' => \Illuminate\Support\Facades\Hash::make('123Court'),
-            'role' => 'admin' // Make sure this matches your actual role column setup!
-        ]
-    );
-
-    // 2. Generate the Cashier Account
-    \App\Models\User::updateOrCreate(
-        ['email' => 'cashier@batangas.com'],
-        [
-            'name' => 'Lj Malibiran',
-            'password' => \Illuminate\Support\Facades\Hash::make('123Lj'),
-            'role' => 'cashier'
-        ]
-    );
-
-    // 3. Re-create the Courts (Otherwise reservations will crash!)
-    \App\Models\Court::updateOrCreate(
-        ['id' => 1],
-        ['sport' => 'Badminton', 'price_per_hour' => 230]
-    );
-    
-    \App\Models\Court::updateOrCreate(
-        ['id' => 2],
-        ['sport' => 'Pickleball', 'price_per_hour' => 230]
-    );
-
-    return 'Database successfully populated! You can now log in.';
-});
-
-Route::get('/check-admin', function () {
-    try {
-        $admin = \App\Models\User::where('role', 'admin')->first();
-        
-        if (!$admin) {
-            return "ERROR: No admin account exists in the database! The generator failed.";
-        }
-        
-        return "SUCCESS! Admin found. <br> 
-                <strong>Login ID / Name:</strong> " . $admin->name . "<br>
-                <strong>Email:</strong> " . $admin->email . "<br>
-                <strong>Role:</strong> " . $admin->role;
-                
-    } catch (\Exception $e) {
-        return "CRITICAL ERROR: " . $e->getMessage();
-    }
-});
+    Route::get('/cashier/walk-in', function () { return view('cashier.walk-in'); });
+    Route::get('/cashier/sales/transactions', function () { return view('cashier.transactions'); });
+    Route::get('/cashier/sales/refunds', function () { return view('cashier.refunds'); });
+    Route::get('/cashier/profile', function () { return view('cashier.profile'); })->name('cashier.profile');
 
 });

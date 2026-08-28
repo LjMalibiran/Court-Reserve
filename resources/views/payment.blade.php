@@ -5,71 +5,83 @@
 
 @section('styles')
 <style>
-    /* Payment Layout Grid */
-    .payment-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; margin-top: 10px; max-width: 1000px; }
+    .payment-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 30px; margin-top: 10px; max-width: 1000px; }
     
-    .panel { background: white; border-radius: 12px; padding: 30px; border: 1px solid #eaeaea; position: relative; }
+    .panel { background: white; border-radius: 16px; padding: 32px; border: 1.5px solid #e2e8f0; position: relative; }
     
     /* Left Panel: Details */
-    .sport-title { display: flex; align-items: center; gap: 15px; color: var(--primary-blue); font-size: 22px; font-weight: 700; margin-bottom: 25px; }
-    .amount-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-    .amount-label { color: var(--primary-blue); font-size: 14px; font-weight: 600; }
-    .amount-value { color: var(--primary-blue); font-size: 18px; font-weight: bold; }
+    .sport-title { display: flex; align-items: center; gap: 12px; color: #0f2b6e; font-size: 24px; font-weight: 800; margin-bottom: 25px; }
     
-    .gcash-details { display: flex; justify-content: space-between; align-items: center; border-top: 2px solid #f3f4f6; padding-top: 25px; }
-    .gcash-info h3 { margin: 0; color: var(--primary-blue); font-size: 18px; font-weight: 700; }
-    .gcash-info p { margin: 5px 0 0 0; color: #6b7280; font-size: 16px; }
+    .amount-box { border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 24px; background: white; }
+    .amount-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .amount-label { color: #0f2b6e; font-size: 15px; font-weight: 700; }
+    .amount-value { color: #0f2b6e; font-size: 18px; font-weight: 800; }
+    
+    .gcash-details { display: flex; justify-content: space-between; align-items: center; border-top: 1.5px solid #e2e8f0; padding-top: 24px; }
+    .gcash-info h3 { margin: 0; color: #0f2b6e; font-size: 18px; font-weight: 700; }
+    .gcash-info p { margin: 2px 0 0 0; color: #64748b; font-size: 14px; font-weight: 600;}
+    .gcash-qr-wrap { background: white; padding: 6px; border: 1.5px solid #e2e8f0; border-radius: 8px; }
     
     /* Right Panel: Options */
-    .panel h3 { margin-top: 0; color: var(--primary-blue); font-size: 18px; margin-bottom: 8px; }
-    .panel p.sub { color: #9ca3af; font-size: 13px; margin-top: 0; margin-bottom: 30px; }
+    .panel-title { margin-top: 0; color: #0f2b6e; font-size: 20px; font-weight: 800; margin-bottom: 6px; }
+    .panel-sub { color: #64748b; font-size: 13px; margin-top: 0; margin-bottom: 24px; font-weight: 500;}
     
-    .radio-option { display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px; }
-    .radio-label { display: flex; align-items: center; cursor: pointer; color: var(--primary-blue); font-weight: 600; font-size: 16px; }
-    .radio-label input { appearance: none; width: 22px; height: 22px; border: 2px solid var(--primary-blue); border-radius: 50%; margin-right: 15px; outline: none; position: relative; cursor: pointer; }
-    .radio-label input:checked::after { content: ''; position: absolute; top: 4px; left: 4px; width: 10px; height: 10px; background: var(--primary-blue); border-radius: 50%; }
-    .price-text { color: var(--primary-blue); font-weight: 600; font-size: 16px; }
+    .radio-option { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; cursor: pointer; }
+    .radio-label { display: flex; align-items: flex-start; cursor: pointer; color: #0f2b6e; font-weight: 700; font-size: 16px; flex: 1;}
+    .radio-label input { appearance: none; min-width: 20px; width: 20px; height: 20px; border: 2px solid #cbd5e1; border-radius: 50%; margin-right: 14px; outline: none; position: relative; cursor: pointer; margin-top: 2px;}
+    .radio-label input:checked { border-color: #0033cc; }
+    .radio-label input:checked::after { content: ''; position: absolute; top: 3px; left: 3px; width: 10px; height: 10px; background: #0033cc; border-radius: 50%; }
+    .price-text { color: #0f2b6e; font-weight: 800; font-size: 16px; margin-left: 15px;}
+    .radio-sub { color: #94a3b8; font-size: 12px; font-weight: 500; margin-top: 4px; line-height: 1.4; display: block; }
     
     /* Upload Area */
-    .upload-container { max-width: 1000px; }
-    .upload-area { border: 2px dashed #d1d5db; border-radius: 12px; padding: 50px 20px; text-align: center; background: white; cursor: pointer; transition: 0.2s; display: block; position: relative; }
-    .upload-area:hover { border-color: var(--primary-blue); background: #f8fafc; }
-    .upload-icon { font-size: 50px; color: var(--primary-blue); margin-bottom: 20px; }
-    .upload-text { color: var(--primary-blue); font-size: 16px; font-weight: 600; margin-bottom: 15px; }
-    .upload-or { color: #9ca3af; font-size: 14px; margin-bottom: 15px; font-weight: normal; }
-    .btn-outline { border: 1px solid var(--primary-blue); color: var(--primary-blue); background: white; padding: 12px 35px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; transition: 0.2s; }
-    .btn-outline:hover { background: var(--light-blue); }
-    .upload-hint { text-align: center; color: #9ca3af; font-size: 12px; margin-top: 15px; }
+    .upload-area { border: 2px dashed #cbd5e1; border-radius: 12px; padding: 40px 20px; text-align: center; background: white; cursor: pointer; transition: 0.2s; display: block; position: relative; margin-bottom: 12px;}
+    .upload-area:hover { border-color: #0033cc; background: #f8fafc; }
+    .upload-icon { font-size: 45px; color: #0033cc; margin-bottom: 15px; }
+    .upload-text { color: #0f2b6e; font-size: 16px; font-weight: 700; margin-bottom: 12px; }
+    .upload-or { color: #64748b; font-size: 13px; margin-bottom: 15px; font-weight: 600; }
+    .btn-outline { border: 1.5px solid #0033cc; color: #0033cc; background: white; padding: 10px 28px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 14px; transition: 0.2s; }
+    .btn-outline:hover { background: #f0f4ff; }
+    .upload-hint { text-align: center; color: #94a3b8; font-size: 12px; font-weight: 600;}
     
-    .btn-submit { background: var(--primary-blue); color: white; border: none; padding: 16px; border-radius: 8px; width: 100%; max-width: 1000px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 30px; transition: 0.2s; }
+    /* Submit Button (outside panels, full width of container) */
+    .btn-submit-container { max-width: 1000px; display: flex; justify-content: flex-end; margin-top: 10px;}
+    .btn-submit { background: #0033cc; color: white; border: none; padding: 16px 40px; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.2s; min-width: 200px;}
     .btn-submit:hover { background: #002299; }
 
-    /* Success Receipt Modal specific to Payment page */
-    .success-modal .modal-content { text-align: center; overflow: hidden; padding: 40px 30px 30px; border: 1px solid #eaeaea; }
-    .success-circle { background: #28a745; color: white; width: 80px; height: 80px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 40px; margin: 0 auto 20px auto; border: 5px solid #d4edda; }
-    .modal-title { color: #222; margin: 0 0 10px 0; font-size: 22px; font-weight: 700; }
-    .modal-text { color: var(--text-gray); font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
-    .modal-text strong { color: var(--primary-blue); }
-    .reservation-id { color: var(--primary-blue); font-size: 16px; font-weight: 600; margin-bottom: 15px; }
-    .qr-box { border: 2px solid var(--primary-blue); border-radius: 12px; padding: 15px; display: inline-block; margin-bottom: 10px; }
-    .qr-hint { color: var(--primary-blue); font-size: 11px; margin-bottom: 20px; }
-    .btn-download { border: 2px solid var(--primary-blue); color: var(--primary-blue); background: white; padding: 12px 30px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; width: 100%; box-sizing: border-box; transition: 0.2s; }
-    .btn-download:hover { background: var(--primary-blue); color: white; }
-    /* Confetti dots */
-    .confetti { position: absolute; width: 8px; height: 8px; border-radius: 50%; }
-    .confetti-1 { top: 15px; left: 20px; background: #f39c12; }
-    .confetti-2 { top: 30px; right: 40px; background: #e74c3c; }
-    .confetti-3 { top: 10px; right: 80px; background: #3498db; }
-    .confetti-4 { top: 50px; left: 50px; background: #2ecc71; }
-    .confetti-5 { top: 25px; left: 100px; background: #9b59b6; }
-    .confetti-6 { top: 45px; right: 25px; background: #f1c40f; }
-    .confetti-7 { top: 8px; left: 60%; background: #e67e22; }
-    .confetti-8 { top: 55px; left: 30%; background: #1abc9c; }
+    /* ERROR */
+    .error-msg { color: #dc2626; font-size: 13px; display: none; margin-top: 10px; font-weight: 600; text-align: center;}
+
+    /* MODAL: Match 9.png exactly */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 9999; padding: 20px; }
+    .modal-content { background: white; border-radius: 20px; padding: 40px; width: 100%; max-width: 450px; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.15); text-align: center; }
+    .modal-close { position: absolute; top: 20px; right: 24px; background: none; border: none; font-size: 26px; color: #0f2b6e; cursor: pointer; padding: 0; line-height: 1; font-weight: 300;}
+    
+    .success-icon-wrap { position: relative; width: 90px; height: 90px; margin: 0 auto 20px auto; }
+    .success-circle { background: #22c55e; color: white; width: 100%; height: 100%; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 45px; position: relative; z-index: 2; box-shadow: 0 0 0 6px #dcfce7;}
+    .confetti { position: absolute; width: 100%; height: 100%; top: 0; left: 0; z-index: 1; }
+    .confetti::before, .confetti::after { content: ''; position: absolute; width: 8px; height: 8px; border-radius: 50%; }
+    .confetti::before { background: #eab308; top: -15px; left: -10px; box-shadow: 60px 10px 0 #22c55e, 100px 30px 0 #0033cc, -20px 50px 0 #ef4444; }
+    .confetti::after { background: #0033cc; bottom: -15px; right: -10px; box-shadow: -80px -10px 0 #ef4444, -100px -30px 0 #22c55e, 20px -50px 0 #eab308; }
+
+    .modal-title { color: #0033cc; margin: 0 0 15px 0; font-size: 24px; font-weight: 800; }
+    .modal-text { color: #64748b; font-size: 14px; line-height: 1.6; margin-bottom: 20px; font-weight: 500;}
+    .modal-text strong { color: #0033cc; font-weight: 700;}
+    
+    .reservation-id { color: #64748b; font-size: 16px; font-weight: 500; margin-bottom: 12px; }
+    .reservation-id strong { color: #0033cc; font-weight: 800;}
+    
+    .qr-box { border: 2px solid #0033cc; border-radius: 12px; padding: 15px; display: inline-block; margin-bottom: 12px; }
+    .qr-hint { color: #64748b; font-size: 11px; margin-bottom: 25px; font-weight: 600;}
+    
+    .btn-download { border: 1.5px solid #0033cc; color: #0033cc; background: white; padding: 14px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 15px; width: 100%; box-sizing: border-box; transition: 0.2s; }
+    .btn-download:hover { background: #f0f4ff; }
 
     @media (max-width: 768px) {
         .payment-grid { grid-template-columns: 1fr; }
         .gcash-details { flex-direction: column; align-items: flex-start; gap: 20px; }
-        .gcash-details img { align-self: center; margin-top: 10px; }
+        .btn-submit-container { justify-content: center; }
+        .btn-submit { width: 100%; }
     }
 </style>
 @endsection
@@ -77,7 +89,6 @@
 @section('content')
 <form action="{{ url('/reserve/process-payment') }}" method="POST" enctype="multipart/form-data" id="paymentForm" onsubmit="return validatePayment(event)">
     @csrf
-    
     <input type="hidden" name="court_id" value="{{ session('court_id') }}">
     <input type="hidden" name="sport" value="{{ session('sport') }}">
     <input type="hidden" name="start_time" value="{{ session('start_time') }}">
@@ -85,134 +96,150 @@
     <input type="hidden" name="total_amount" value="{{ session('total_price') }}">
 
     <div class="payment-grid">
-        <div class="panel" style="background: transparent; border: none; padding: 0;">
+        
+        <!-- Left Panel: Summary -->
+        <div>
             <div class="sport-title">
                 @if(session('sport') == 'Pickleball')
-                    <i class="fa-solid fa-table-tennis-paddle-ball" style="font-size: 30px;"></i>
+                    <svg width="40" height="40" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="32" cy="32" r="24" fill="#f97316" stroke="#ea580c" stroke-width="2"/>
+                        <circle cx="32" cy="18" r="3.2" fill="#ffffff"/><circle cx="21" cy="23" r="3.2" fill="#ffffff"/><circle cx="43" cy="23" r="3.2" fill="#ffffff"/><circle cx="16" cy="32" r="3.2" fill="#ffffff"/><circle cx="32" cy="32" r="3.5" fill="#ffffff"/><circle cx="48" cy="32" r="3.2" fill="#ffffff"/><circle cx="21" cy="41" r="3.2" fill="#ffffff"/><circle cx="43" cy="41" r="3.2" fill="#ffffff"/><circle cx="32" cy="46" r="3.2" fill="#ffffff"/>
+                    </svg>
                 @else
-                    <i class="fa-solid fa-shuttlecock" style="font-size: 30px; background: -webkit-linear-gradient(#0033cc, #001f7a); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                    <svg width="40" height="40" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g transform="translate(6, 6) rotate(-25 26 26)">
+                            <path d="M12 10C10 18 12 28 18 36L34 36C40 28 42 18 40 10C35 12 26 12 12 10Z" fill="#e0e7ff" fill-opacity="0.35" stroke="#0033cc" stroke-width="2.5" stroke-linejoin="round"/>
+                            <path d="M16 11C20 18 22 28 24 36" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M36 11C32 18 30 28 28 36" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M26 11L26 36" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M14 20C20 23 32 23 38 20" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M16 28C21 31 31 36 28" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
+                            <rect x="18" y="36" width="16" height="3" rx="1" fill="#0033cc"/>
+                            <path d="M18 39C18 44.5 21.5 48 26 48C30.5 48 34 44.5 34 39H18Z" fill="#0033cc"/>
+                        </g>
+                    </svg>
                 @endif
                 {{ session('sport', 'Badminton') }}
             </div>
             
-            <div style="border: 1px solid #eaeaea; border-radius: 12px; padding: 25px; background: white;">
+            <div class="amount-box">
                 <div class="amount-row">
                     <span class="amount-label">Total Amount</span>
                     <span class="amount-value">₱ {{ number_format(session('total_price', 230), 2) }}</span>
                 </div>
                 
                 <div class="gcash-details">
-                    <div class="gcash-info">
-                        <span style="color: #9ca3af; font-size: 13px; font-weight: 600; display: block; margin-bottom: 10px;">Payment Method</span>
-                        <div style="display: flex; align-items: center; gap: 15px;">
-                            <div style="background: #007bff; color: white; width: 45px; height: 45px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 22px;">G</div>
-                            <div>
+                    <div>
+                        <span style="color: #94a3b8; font-size: 12px; font-weight: 600; display: block; margin-bottom: 12px;">Payment Method</span>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="background: #007bff; color: white; width: 42px; height: 42px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 22px;">G</div>
+                            <div class="gcash-info">
                                 <h3>Gcash</h3>
                                 <p>09123456789</p>
                             </div>
                         </div>
                     </div>
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=GcashPayment" alt="GCash QR" style="border-radius: 8px; border: 1px solid #eaeaea; padding: 5px;" class="desktop-only-qr">
+                    <div class="gcash-qr-wrap">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=90x90&data=GcashPayment" alt="GCash QR">
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="panel">
-            <h3>Payment Option</h3>
-            <p class="sub">50% Down Payment Required to Confirm Reservation</p>
-            
-            <div class="radio-option">
-                <label class="radio-label">
-                    <input type="radio" name="payment_type" value="full" checked>
-                    Full Payment
-                </label>
-                <span class="price-text">₱ {{ number_format(session('total_price', 230), 2) }}</span>
-            </div>
-            
-            <div class="radio-option">
-                <label class="radio-label" style="align-items: flex-start;">
-                    <input type="radio" name="payment_type" value="half" style="margin-top: 3px;">
-                    <div style="display: flex; flex-direction: column;">
-                        50% Down Payment
-                        <span style="color: #9ca3af; font-size: 12px; font-weight: normal; margin-top: 5px; line-height: 1.4;">Please pay the remaining balance<br>before your playing time.</span>
+        <!-- Right Panel: Options & Upload -->
+        <div style="display: flex; flex-direction: column; gap: 24px;">
+            <div class="panel" style="padding: 24px;">
+                <h3 class="panel-title">Payment Option</h3>
+                <p class="panel-sub">50% Down Payment Required to<br>Confirm Reservation</p>
+                
+                <label class="radio-option">
+                    <div class="radio-label">
+                        <input type="radio" name="payment_type" value="full" checked>
+                        Full Payment
                     </div>
+                    <span class="price-text">₱ {{ number_format(session('total_price', 230), 2) }}</span>
                 </label>
-                <span class="price-text">₱ {{ number_format(session('total_price', 230) / 2, 2) }}</span>
+                
+                <label class="radio-option" style="margin-bottom: 0;">
+                    <div class="radio-label">
+                        <input type="radio" name="payment_type" value="half">
+                        <div>
+                            50% Down Payment
+                            <span class="radio-sub">Please pay the remaining balance<br>before your playing time.</span>
+                        </div>
+                    </div>
+                    <span class="price-text">₱ {{ number_format(session('total_price', 230) / 2, 2) }}</span>
+                </label>
+            </div>
+
+            <div class="panel" style="padding: 24px;">
+                <h3 class="panel-title" style="font-size: 18px;">Upload Receipt <span style="color: #94a3b8; font-size: 13px; font-weight: 500;">(Required)</span></h3>
+                <p class="panel-sub">Please upload the Gcash receipt</p>
+                
+                <label for="receipt" class="upload-area">
+                    <div class="upload-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                    <div class="upload-text">Drag and drop your file here<div class="upload-or">or</div></div>
+                    <div class="btn-outline">Choose File</div>
+                    <input type="file" name="receipt" id="receipt" style="position: absolute; opacity: 0; width: 1px; height: 1px;" accept="image/*">
+                </label>
+                <div class="upload-hint">Accepted file: JPG, PNG (Max.5MB)</div>
+                <div class="error-msg" id="receiptError"><i class="fa-solid fa-circle-exclamation"></i> Please upload a receipt.</div>
             </div>
         </div>
     </div>
-
-    <div class="panel upload-container">
-        <h3>Upload Receipt <span style="color: #9ca3af; font-size: 13px; font-weight: normal;">(Required)</span></h3>
-        <p class="sub">Please upload the Gcash receipt</p>
-        
-        <label for="receipt" class="upload-area">
-            <div class="upload-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
-            <div class="upload-text">Drag and drop your file here<div class="upload-or">or</div></div>
-            <button type="button" class="btn-outline">Choose File</button>
-            <input type="file" name="receipt" id="receipt" style="position: absolute; opacity: 0; width: 1px; height: 1px;" accept="image/*">
-        </label>
-        <div id="receiptError" style="color: var(--danger-red); font-size: 13px; display: none; margin-top: 10px; font-weight: 600;"><i class="fa-solid fa-circle-exclamation"></i> Please upload a GCash receipt before completing your payment.</div>
-        <div id="fileNameDisplay" style="color: var(--primary-blue); font-size: 14px; margin-top: 15px; font-weight: 600; text-align: center; display: none;"></div>
+    
+    <div class="btn-submit-container">
+        <button type="submit" class="btn-submit">Next</button>
     </div>
-    <div class="upload-hint upload-container">Accepted file: JPG, PNG (Max.5MB)</div>
-
-    <button type="submit" class="btn-submit">Complete Payment</button>
 </form>
 @endsection
 
 @section('modals')
-<div class="modal-overlay success-modal" id="successModal">
+<!-- Success Modal mapping exactly to 9.png -->
+<div class="modal-overlay" id="successModal">
     <div class="modal-content">
-        <!-- Confetti Decoration -->
-        <div class="confetti confetti-1"></div>
-        <div class="confetti confetti-2"></div>
-        <div class="confetti confetti-3"></div>
-        <div class="confetti confetti-4"></div>
-        <div class="confetti confetti-5"></div>
-        <div class="confetti confetti-6"></div>
-        <div class="confetti confetti-7"></div>
-        <div class="confetti confetti-8"></div>
-        
         <button class="modal-close" onclick="closeSuccessModal()">&times;</button>
         
-        <div class="success-circle">
-            <i class="fa-solid fa-check"></i>
+        <div class="success-icon-wrap">
+            <div class="confetti"></div>
+            <div class="success-circle">
+                <i class="fa-solid fa-check"></i>
+            </div>
         </div>
         
-        <h2 class="modal-title">Payment Successful!</h2>
+        <h2 class="modal-title">Reservation Confirmed!</h2>
         
         <p class="modal-text">
-            Your reservation for <strong>{{ session('flash_sport') }} Court {{ session('flash_court') }}</strong><br>
-            on <strong>{{ session('flash_start') ? \Carbon\Carbon::parse(session('flash_start'))->format('M j, Y') : '' }}</strong><br>
-            has been successfully booked.
+            Your reservation for<br>
+            <strong>{{ session('flash_sport') }} Court {{ session('flash_court') }}</strong><br>
+            on <strong>{{ session('flash_start') ? \Carbon\Carbon::parse(session('flash_start'))->format('M j, Y') : '' }} at {{ session('flash_start') ? \Carbon\Carbon::parse(session('flash_start'))->format('g:i A') : '' }}</strong><br>
+            has been confirmed
         </p>
         
         <div class="reservation-id">
-            Reservation ID: {{ session('reservation_code') }}
+            Reservation ID: <strong>{{ session('reservation_code') }}</strong>
         </div>
         
         <div class="qr-box">
             @if(session('reservation_code'))
-                <img id="qr-image" src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data={{ urlencode(session('reservation_code')) }}" alt="QR Code">
+                <img id="qr-image" src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data={{ urlencode(session('reservation_code')) }}" alt="QR Code" style="display: block;">
             @endif
         </div>
         
-        <div class="qr-hint">Scan this QR code at the entrance</div>
+        <div class="qr-hint">Please arrive 3-5 minutes before your schedule time.</div>
         
-        <button class="btn-download" onclick="downloadQR()">Download QR Code</button>
+        <button class="btn-download" onclick="downloadQR()">Download QR</button>
     </div>
 </div>
 @endsection
 
 @section('scripts')
 <script>
-    // File upload label update
     document.getElementById('receipt').addEventListener('change', function(e) {
         if(e.target.files.length > 0) {
             document.querySelector('.upload-text').innerText = e.target.files[0].name;
-            document.querySelector('.upload-text').style.color = 'var(--success-green)';
-            document.querySelector('.upload-icon').style.color = 'var(--success-green)';
+            document.querySelector('.upload-text').style.color = '#22c55e';
+            document.querySelector('.upload-icon').style.color = '#22c55e';
             document.getElementById('receiptError').style.display = 'none';
         }
     });
@@ -227,14 +254,12 @@
         return true;
     }
 
-    // Check if session has success message, then show modal
     @if(session('success'))
         document.getElementById('successModal').style.display = 'flex';
     @endif
 
     function closeSuccessModal() {
         document.getElementById('successModal').style.display = 'none';
-        // Redirect to reservation tab instead of reloading
         window.location.href = "{{ route('reservation.index') }}";
     }
 

@@ -115,7 +115,7 @@
             <div class="left-column">
                 
                 <div class="stats-container">
-                    <div class="stat-card">
+                    <div class="stat-card" onclick="window.location.href='{{ url('/admin/reservations') }}'" style="cursor: pointer; transition: 0.2s;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 15px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='none'; this.style.boxShadow='none';">
                         <div class="stat-icon icon-blue"><i class="fa-regular fa-calendar"></i></div>
                         <div class="stat-details">
                             <h3>Total Reserved</h3>
@@ -127,22 +127,20 @@
                         <div class="stat-details">
                             <h3>Total Walk - In</h3>
                             <p class="number">0</p>
-                            <span class="trend"><i class="fa-solid fa-minus"></i> No data yet</span>
                         </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-icon icon-blue"><i class="fa-solid fa-user-group"></i></div>
+                        <div class="stat-icon icon-green"><i class="fa-solid fa-users"></i></div>
                         <div class="stat-details">
-                            <h3>Total User</h3>
+                            <h3>Total Users</h3>
                             <p class="number">{{ $totalUsers ?? 0 }}</p>
-                            <span class="trend"><i class="fa-solid fa-minus"></i> Registered</span>
                         </div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon icon-indigo"><i class="fa-solid fa-file-invoice"></i></div>
+                    <div class="stat-card" onclick="window.location.href='{{ url('/admin/reservations?tab=pending') }}'" style="cursor: pointer; transition: 0.2s;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 15px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='none'; this.style.boxShadow='none';">
+                        <div class="stat-icon icon-orange"><i class="fa-solid fa-clock-rotate-left"></i></div>
                         <div class="stat-details">
                             <h3>Pending</h3>
-                            <p class="number">{{ $pending ?? 0 }}</p>
+                            <p class="number">{{ $pendingReservations ?? 0 }}</p>
                         </div>
                     </div>
                 </div>

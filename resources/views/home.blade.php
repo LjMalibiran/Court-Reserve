@@ -134,6 +134,7 @@
         .reservations-grid { display: flex !important; flex-direction: column !important; gap: 20px !important; }
         .panel { padding: 24px 20px !important; }
         .time-slot-grid { grid-template-columns: repeat(3, 1fr); }
+        .form-group-row { flex-direction: column; gap: 12px; }
     }
 </style>
 
@@ -188,91 +189,7 @@
                 @php
                     $badgeClass = $res->status == 'confirmed' ? 'badge-confirmed' : ($res->status == 'cancelled' ? 'badge-cancelled' : 'badge-pending');
                 @endphp
-                <div class="today-res-wrapper">
-                    <div class="today-res-top">
-                        <div class="today-res-title-group">
-                            <div>
-                                @if(($res->sport ?? 'Badminton') == 'Pickleball')
-                                    <svg width="44" height="44" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <circle cx="32" cy="32" r="24" fill="#f97316"/>
-                                        <circle cx="32" cy="32" r="24" stroke="#ea580c" stroke-width="2"/>
-                                        <circle cx="32" cy="18" r="3.2" fill="#ffffff"/>
-                                        <circle cx="21" cy="23" r="3.2" fill="#ffffff"/>
-                                        <circle cx="43" cy="23" r="3.2" fill="#ffffff"/>
-                                        <circle cx="16" cy="32" r="3.2" fill="#ffffff"/>
-                                        <circle cx="32" cy="32" r="3.5" fill="#ffffff"/>
-                                        <circle cx="48" cy="32" r="3.2" fill="#ffffff"/>
-                                        <circle cx="21" cy="41" r="3.2" fill="#ffffff"/>
-                                        <circle cx="43" cy="41" r="3.2" fill="#ffffff"/>
-                                        <circle cx="32" cy="46" r="3.2" fill="#ffffff"/>
-                                    </svg>
-                                @else
-                                    <svg width="44" height="44" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <g transform="translate(6, 6) rotate(-25 26 26)">
-                                            <path d="M12 10C10 18 12 28 18 36L34 36C40 28 42 18 40 10C35 12 26 12 12 10Z" fill="#e0e7ff" fill-opacity="0.35" stroke="#0033cc" stroke-width="2.5" stroke-linejoin="round"/>
-                                            <path d="M16 11C20 18 22 28 24 36" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
-                                            <path d="M36 11C32 18 30 28 28 36" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
-                                            <path d="M26 11L26 36" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
-                                            <path d="M14 20C20 23 32 23 38 20" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
-                                            <path d="M16 28C21 31 31 31 36 28" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
-                                            <rect x="18" y="36" width="16" height="3" rx="1" fill="#0033cc"/>
-                                            <path d="M18 39C18 44.5 21.5 48 26 48C30.5 48 34 44.5 34 39H18Z" fill="#0033cc"/>
-                                        </g>
-                                    </svg>
-                                @endif
-                            </div>
-                            <div class="today-res-title-text">
-                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
-                                    <h4 style="margin: 0;">{{ $res->sport ?? 'Badminton' }}</h4>
-                                    <span class="{{ $badgeClass }}" style="padding: 4px 10px; font-size: 11px; line-height: 1;">{{ ucfirst($res->status) }}</span>
-                                </div>
-                                <div style="margin-top: 0;">Court {{ $res->court_id }}</div>
-                            </div>
-                        </div>
-                        <div class="today-res-qr">
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data={{ urlencode($res->reservation_code) }}" alt="QR Code">
-                            <span>Tap to view QR</span>
-                        </div>
-                    </div>
-
-                    <div class="today-res-datetime">
-                        <div class="datetime-row">
-                            <i class="fa-regular fa-calendar"></i>
-                            <span>{{ \Carbon\Carbon::parse($res->start_time)->format('D, F j, Y') }}</span>
-                        </div>
-                        <div class="datetime-row">
-                            <i class="fa-regular fa-clock"></i>
-                            <span>{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }} | {{ max(1, \Carbon\Carbon::parse($res->start_time)->diffInHours(\Carbon\Carbon::parse($res->end_time))) }} hr</span>
-                        </div>
-                    </div>
-                    
-                    <div class="today-res-actions">
-                        @if($res->status != 'cancelled')
-                            <button class="btn-today-edit" onclick="openEditModal({{ $res->id }}, '{{ $res->sport ?? 'Badminton' }}', '{{ $res->court_id }}', '{{ $res->start_time }}', '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }}', '{{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}')">Edit Reservation</button>
-                            <button class="btn-today-cancel" onclick="openCancelModal({{ $res->id }}, '{{ $res->reservation_code }}', '{{ $res->sport ?? 'Badminton' }}', '{{ $res->court_id }}', '{{ $res->start_time }}', '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }}', '{{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}')">Cancel Reservation</button>
-                        @endif
-                    </div>
-                </div>
-                @if(!$loop->last) <hr class="divider"> @endif
-            @empty
-                <div class="empty-state">NO RESERVATION</div>
-            @endforelse
-        </div>
-    </div>
-
-    <!-- Upcoming Reservation Panel -->
-    <div class="panel">
-        <div class="panel-header">
-            <h3>Upcoming Reservation</h3>
-            <a href="{{ route('history.index') }}">View All</a>
-        </div>
-        
-        <div class="scrollable-list">
-            @forelse($upcomingReservations as $res)
-                @php
-                    $badgeClass = $res->status == 'confirmed' ? 'badge-confirmed' : ($res->status == 'cancelled' ? 'badge-cancelled' : 'badge-pending');
-                @endphp
-                <div class="compact-res-card">
+                <div class="compact-res-card" onclick="openResDetailsModal({{ $res->id }}, '{{ $res->sport ?? 'Badminton' }}', '{{ $res->court_id }}', '{{ $res->start_time }}', '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }}', '{{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}', '{{ $res->reservation_code }}', '{{ $res->status }}')">
                     <div class="crc-left">
                         <div class="crc-icon">
                             @if(($res->sport ?? 'Badminton') == 'Pickleball')
@@ -312,6 +229,68 @@
                     </div>
                     <div class="crc-right">
                         <span class="{{ $badgeClass }}">{{ ucfirst($res->status) }}</span>
+                        <i class="fa-solid fa-chevron-right crc-chevron"></i>
+                    </div>
+                </div>
+            @empty
+                <div class="empty-state">NO RESERVATION</div>
+            @endforelse
+        </div>
+    </div>
+
+    <!-- Upcoming Reservation Panel -->
+    <div class="panel">
+        <div class="panel-header">
+            <h3>Upcoming Reservation</h3>
+            <a href="{{ route('history.index') }}">View All</a>
+        </div>
+        
+        <div class="scrollable-list">
+            @forelse($upcomingReservations as $res)
+                @php
+                    $badgeClass = $res->status == 'confirmed' ? 'badge-confirmed' : ($res->status == 'cancelled' ? 'badge-cancelled' : 'badge-pending');
+                @endphp
+                <div class="compact-res-card" onclick="openResDetailsModal({{ $res->id }}, '{{ $res->sport ?? 'Badminton' }}', '{{ $res->court_id }}', '{{ $res->start_time }}', '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }}', '{{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}', '{{ $res->reservation_code }}', '{{ $res->status }}')">
+                    <div class="crc-left">
+                        <div class="crc-icon">
+                            @if(($res->sport ?? 'Badminton') == 'Pickleball')
+                                <svg width="36" height="36" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="32" cy="32" r="24" fill="#f97316"/>
+                                    <circle cx="32" cy="32" r="24" stroke="#ea580c" stroke-width="2"/>
+                                    <circle cx="32" cy="18" r="3.2" fill="#ffffff"/>
+                                    <circle cx="21" cy="23" r="3.2" fill="#ffffff"/>
+                                    <circle cx="43" cy="23" r="3.2" fill="#ffffff"/>
+                                    <circle cx="16" cy="32" r="3.2" fill="#ffffff"/>
+                                    <circle cx="32" cy="32" r="3.5" fill="#ffffff"/>
+                                    <circle cx="48" cy="32" r="3.2" fill="#ffffff"/>
+                                    <circle cx="21" cy="41" r="3.2" fill="#ffffff"/>
+                                    <circle cx="43" cy="41" r="3.2" fill="#ffffff"/>
+                                    <circle cx="32" cy="46" r="3.2" fill="#ffffff"/>
+                                </svg>
+                            @else
+                                <svg width="36" height="36" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <g transform="translate(6, 6) rotate(-25 26 26)">
+                                        <path d="M12 10C10 18 12 28 18 36L34 36C40 28 42 18 40 10C35 12 26 12 12 10Z" fill="#e0e7ff" fill-opacity="0.35" stroke="#0033cc" stroke-width="2.5" stroke-linejoin="round"/>
+                                        <path d="M16 11C20 18 22 28 24 36" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
+                                        <path d="M36 11C32 18 30 28 28 36" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
+                                        <path d="M26 11L26 36" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
+                                        <path d="M14 20C20 23 32 23 38 20" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
+                                        <path d="M16 28C21 31 31 31 36 28" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
+                                        <rect x="18" y="36" width="16" height="3" rx="1" fill="#0033cc"/>
+                                        <path d="M18 39C18 44.5 21.5 48 26 48C30.5 48 34 44.5 34 39H18Z" fill="#0033cc"/>
+                                    </g>
+                                </svg>
+                            @endif
+                        </div>
+                        <div class="crc-details">
+                            <h4>{{ $res->sport ?? 'Badminton' }}</h4>
+                            <div class="crc-court">Court {{ $res->court_id }}</div>
+                            <p>{{ \Carbon\Carbon::parse($res->start_time)->format('F j, Y | g:i A') }}</p>
+                        </div>
+                    </div>
+                    <div class="crc-right">
+                        <span class="{{ $badgeClass }}">{{ ucfirst($res->status) }}</span>
+                        <i class="fa-solid fa-chevron-right crc-chevron"></i>
                     </div>
                 </div>
             @empty
@@ -322,6 +301,52 @@
 </div>
 
 <!-- ================= MODALS ================= -->
+
+<!-- Reservation Details Modal -->
+<div class="modal-overlay" id="resDetailsModal">
+    <div class="modal-content">
+        <button type="button" class="modal-close" onclick="closeGlobalModal('resDetailsModal')">&times;</button>
+        <h2 class="modal-header-title" style="color: #0f2b6e;">Reservation Details</h2>
+        
+        <div class="res-brief-card">
+            <div class="res-brief-id" id="detail-res-code"></div>
+            <div class="res-brief-header">
+                <div class="res-brief-info">
+                    <svg width="28" height="28" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g transform="translate(6, 6) rotate(-25 26 26)">
+                            <path d="M12 10C10 18 12 28 18 36L34 36C40 28 42 18 40 10C35 12 26 12 12 10Z" fill="#e0e7ff" fill-opacity="0.35" stroke="#0033cc" stroke-width="2.5" stroke-linejoin="round"/>
+                            <path d="M16 11C20 18 22 28 24 36" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M36 11C32 18 30 28 28 36" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M26 11L26 36" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
+                        </g>
+                    </svg>
+                    <div>
+                        <h4 id="detail-res-sport">Badminton</h4>
+                        <div id="detail-res-court">Court 1</div>
+                    </div>
+                </div>
+                <span class="badge-confirmed" id="detail-res-badge">Confirmed</span>
+            </div>
+            <div class="res-brief-details">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-regular fa-calendar"></i> <span id="detail-res-date">Mon, June 1, 2026</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-regular fa-clock"></i> <span id="detail-res-time">4:00 - 5:00 PM | 1 hr</span>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-bottom: 20px;">
+            <img id="detail-res-qr" src="" style="width: 120px; height: 120px; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 8px;">
+            <div style="font-size: 11px; color: #94a3b8; margin-top: 6px;">Scan this QR code at the entrance</div>
+        </div>
+
+        <div id="detail-actions" style="display: flex; flex-direction: column; gap: 10px;">
+            <!-- Buttons injected by JS based on status -->
+        </div>
+    </div>
+</div>
 
 <!-- Edit Reservation Modal -->
 <div class="modal-overlay" id="editModal">
@@ -378,37 +403,20 @@
                 <!-- Filled by JS -->
             </div>
 
-            <label class="section-label">Rental Items</label>
-            <div class="rental-section">
-                <div class="rental-item">
-                    <div class="rental-info">
-                        <h5>Racket</h5>
-                        <span>₱50.00 / pc</span>
-                    </div>
-                    <div class="counter-widget">
-                        <button type="button" class="counter-btn" onclick="updateCounter('racket', -1)">-</button>
-                        <div class="counter-val" id="racket-count">1</div>
-                        <button type="button" class="counter-btn" onclick="updateCounter('racket', 1)">+</button>
-                    </div>
-                </div>
-                <div class="rental-item">
-                    <div class="rental-info">
-                        <h5>Shuttlecock</h5>
-                        <span>₱50.00 / pc</span>
-                    </div>
-                    <div class="counter-widget">
-                        <button type="button" class="counter-btn" onclick="updateCounter('shuttlecock', -1)">-</button>
-                        <div class="counter-val" id="shuttlecock-count">1</div>
-                        <button type="button" class="counter-btn" onclick="updateCounter('shuttlecock', 1)">+</button>
-                    </div>
+            <div class="form-group-row">
+                <div class="form-group">
+                    <label class="section-label" style="color: #64748b; font-weight:500;">Court</label>
+                    <select class="form-control" id="edit-court-select" onchange="changeEditCourt()">
+                        <option value="1">Court 1</option>
+                        <option value="2">Court 2</option>
+                        <option value="3">Court 3</option>
+                    </select>
                 </div>
             </div>
 
             <input type="hidden" id="edit-start-time" name="start_time" required>
             <input type="hidden" id="edit-end-time" name="end_time" required>
             <input type="hidden" id="edit-court-id" name="court_id">
-            <input type="hidden" id="racket-input" name="racket_qty" value="1">
-            <input type="hidden" id="shuttlecock-input" name="shuttlecock_qty" value="1">
 
             <button type="submit" class="btn-solid-blue">Save Changes</button>
         </form>
@@ -501,6 +509,52 @@
         document.getElementById(modalId).style.display = 'none';
     }
 
+    // Store current detail modal reservation data for passing to edit/cancel
+    let detailResData = {};
+
+    function openResDetailsModal(id, sport, courtId, date, startTime, endTime, code, status) {
+        detailResData = { id, sport, courtId, date, startTime, endTime, code, status };
+
+        document.getElementById('detail-res-code').innerText = code;
+        document.getElementById('detail-res-sport').innerText = sport;
+        document.getElementById('detail-res-court').innerText = 'Court ' + courtId;
+
+        const d = new Date(date);
+        const dateOptions = { weekday: 'short', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('detail-res-date').innerText = d.toLocaleDateString('en-US', dateOptions);
+        const s = new Date("1970/01/01 " + startTime);
+        const e = new Date("1970/01/01 " + endTime);
+        let diff = (e - s) / 3600000;
+        if (diff < 0) diff += 24;
+        const durText = diff + (diff > 1 ? ' hrs' : ' hr');
+        document.getElementById('detail-res-time').innerText = startTime + ' - ' + endTime + ' | ' + durText;
+
+        // QR Code
+        document.getElementById('detail-res-qr').src = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + encodeURIComponent(code);
+
+        // Badge
+        const badge = document.getElementById('detail-res-badge');
+        badge.innerText = status.charAt(0).toUpperCase() + status.slice(1);
+        badge.className = '';
+        if (status === 'confirmed') badge.className = 'badge-confirmed';
+        else if (status === 'cancelled') badge.className = 'badge-cancelled';
+        else badge.className = 'badge-pending';
+
+        // Action buttons - Edit only when confirmed, Cancel when not cancelled
+        const actionsDiv = document.getElementById('detail-actions');
+        actionsDiv.innerHTML = '';
+
+        if (status === 'confirmed') {
+            actionsDiv.innerHTML += `<button class="btn-solid-blue" onclick="closeGlobalModal('resDetailsModal'); openEditModal(${id}, '${sport}', '${courtId}', '${date}', '${startTime}', '${endTime}')">Edit Reservation</button>`;
+            actionsDiv.innerHTML += `<button class="btn-solid-red" onclick="closeGlobalModal('resDetailsModal'); openCancelModal(${id}, '${code}', '${sport}', '${courtId}', '${date}', '${startTime}', '${endTime}')">Cancel Reservation</button>`;
+        } else if (status === 'pending') {
+            actionsDiv.innerHTML += `<button class="btn-solid-red" onclick="closeGlobalModal('resDetailsModal'); openCancelModal(${id}, '${code}', '${sport}', '${courtId}', '${date}', '${startTime}', '${endTime}')">Cancel Reservation</button>`;
+        }
+        // If cancelled, no action buttons shown
+
+        document.getElementById('resDetailsModal').style.display = 'flex';
+    }
+
     function updateCounter(id, delta) {
         const span = document.getElementById(id + '-count');
         const input = document.getElementById(id + '-input');
@@ -514,6 +568,13 @@
     let currentEditCourtId = null;
     let currentEditStartTimeStr = null;
 
+    function changeEditCourt() {
+        currentEditCourtId = document.getElementById('edit-court-select').value;
+        document.getElementById('edit-court-id').value = currentEditCourtId;
+        document.getElementById('edit-res-court').innerText = 'Court ' + currentEditCourtId;
+        checkAvailability();
+    }
+
     function openEditModal(id, sport, courtId, date, startTime, endTime) {
         document.getElementById('editForm').action = '/reservations/' + id + '/edit-user';
         document.getElementById('edit-res-sport').innerText = sport;
@@ -522,16 +583,35 @@
         const d = new Date(date);
         const dateOptions = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
         document.getElementById('edit-res-date-display').innerText = d.toLocaleDateString('en-US', dateOptions);
-        document.getElementById('edit-res-time-display').innerText = startTime + ' - ' + endTime + ' | 1 hr';
+        const s = new Date("1970/01/01 " + startTime);
+        const e = new Date("1970/01/01 " + endTime);
+        let diff = (e - s) / 3600000;
+        if (diff < 0) diff += 24;
+        const durText = diff + (diff > 1 ? ' hrs' : ' hr');
+        document.getElementById('edit-res-time-display').innerText = startTime + ' - ' + endTime + ' | ' + durText;
         
         const yyyy = d.getFullYear();
         const mm = String(d.getMonth() + 1).padStart(2, '0');
         const dd = String(d.getDate()).padStart(2, '0');
         document.getElementById('edit-date').value = `${yyyy}-${mm}-${dd}`;
-        document.getElementById('edit-date').min = new Date().toISOString().split('T')[0];
+        
+        const nowTz = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
+        const minYYYY = nowTz.getFullYear();
+        const minMM = String(nowTz.getMonth() + 1).padStart(2, '0');
+        const minDD = String(nowTz.getDate()).padStart(2, '0');
+        document.getElementById('edit-date').min = `${minYYYY}-${minMM}-${minDD}`;
+        
         document.getElementById('edit-court-id').value = courtId;
         
         currentEditCourtId = courtId;
+        
+        const courtSelect = document.getElementById('edit-court-select');
+        courtSelect.innerHTML = `
+            <option value="1">Court 1</option>
+            <option value="2">Court 2</option>
+            <option value="3">Court 3</option>
+        `;
+        courtSelect.value = courtId;
         
         let match = startTime.match(/(\d+):(\d+) (AM|PM)/);
         if(match) {
@@ -562,7 +642,17 @@
         const container = document.getElementById('edit-time-slots');
         container.innerHTML = '';
         
-        for(let hour = 8; hour < 21; hour++) {
+        const selectedDate = document.getElementById('edit-date').value;
+        const now = new Date();
+        const manilaTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
+        const todayStr = manilaTime.getFullYear() + '-' + String(manilaTime.getMonth() + 1).padStart(2, '0') + '-' + String(manilaTime.getDate()).padStart(2, '0');
+        const currentHour = manilaTime.getHours();
+
+        const dObj = new Date(selectedDate);
+        const dayOfWeek = dObj.getDay(); 
+        const endHour = (dayOfWeek === 0) ? 14 : 21; 
+
+        for(let hour = 7; hour <= endHour; hour++) {
             let timeString24 = (hour < 10 ? '0' + hour : hour) + ':00';
             let suffix = hour >= 12 ? 'PM' : 'AM';
             let hour12 = hour > 12 ? hour - 12 : (hour === 0 ? 12 : hour);
@@ -573,7 +663,9 @@
             btn.innerText = timeString12;
             btn.dataset.time24 = timeString24;
 
-            if(bookedSlots.includes(timeString12) && timeString24 !== currentEditStartTimeStr) {
+            let isPast = (selectedDate === todayStr) && (hour <= currentHour);
+
+            if((bookedSlots.includes(timeString12) || isPast) && timeString24 !== currentEditStartTimeStr) {
                 btn.classList.add('disabled');
             } else {
                 btn.onclick = function() {
@@ -606,7 +698,12 @@
         const d = new Date(date);
         const dateOptions = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
         document.getElementById('cancel-res-date').innerText = d.toLocaleDateString('en-US', dateOptions);
-        document.getElementById('cancel-res-time').innerText = startTime + ' - ' + endTime + ' | 1 hr';
+        const s = new Date("1970/01/01 " + startTime);
+        const e = new Date("1970/01/01 " + endTime);
+        let diff = (e - s) / 3600000;
+        if (diff < 0) diff += 24;
+        const durText = diff + (diff > 1 ? ' hrs' : ' hr');
+        document.getElementById('cancel-res-time').innerText = startTime + ' - ' + endTime + ' | ' + durText;
         
         document.getElementById('success-cancel-title').innerText = sport + ' Court ' + courtId;
         document.getElementById('success-cancel-datetime').innerText = d.toLocaleDateString('en-US', {month: 'long', day:'numeric', year:'numeric'}) + ' at ' + startTime;
@@ -629,5 +726,43 @@
             }
         });
     }
+
+    // Real-time auto-refresh for reservations grid
+    setInterval(() => {
+        fetch('/home')
+            .then(res => res.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newGrid = doc.querySelector('.reservations-grid');
+                if (newGrid) {
+                    document.querySelector('.reservations-grid').innerHTML = newGrid.innerHTML;
+                    
+                    // If details modal is open, refresh its data too
+                    if (detailResData && detailResData.id && document.getElementById('resDetailsModal').style.display === 'flex') {
+                        const updatedCard = newGrid.querySelector(`.compact-res-card[data-id="${detailResData.id}"]`);
+                        if (updatedCard) {
+                            const onclickStr = updatedCard.getAttribute('onclick');
+                            if (onclickStr) {
+                                // Extract the arguments from openResDetailsModal(...)
+                                const argsMatch = onclickStr.match(/openResDetailsModal\((.*)\)/);
+                                if (argsMatch && argsMatch[1]) {
+                                    // Evaluate the arguments to pass them safely
+                                    const args = new Function(`return [${argsMatch[1]}]`)();
+                                    // If status changed, update the modal UI
+                                    if (args[7] !== detailResData.status) {
+                                        openResDetailsModal(...args);
+                                    }
+                                }
+                            }
+                        } else {
+                            // If card no longer exists (e.g. cancelled and removed from today/upcoming), close modal
+                            closeGlobalModal('resDetailsModal');
+                        }
+                    }
+                }
+            })
+            .catch(err => console.error('Error auto-refreshing reservations:', err));
+    }, 5000);
 </script>
 @endsection

@@ -108,15 +108,17 @@
 
         <div class="dashboard-grid">
             
-            <!-- KPI Row -->
+                                    <!-- KPI Row -->
             <div class="kpi-row">
-                <div class="card kpi-card">
-                    <i class="fa-solid fa-calendar-days kpi-icon"></i>
-                    <div class="kpi-data">
-                        <div class="kpi-label">Total Reserved</div>
-                        <div class="kpi-value">0</div>
+                <a href="{{ url('/cashier/reservations') }}" style="text-decoration: none; color: inherit; display: block;">
+                    <div class="card kpi-card" style="cursor: pointer;">
+                        <i class="fa-solid fa-calendar-days kpi-icon"></i>
+                        <div class="kpi-data">
+                            <div class="kpi-label">Total Reserved</div>
+                            <div class="kpi-value">{{ $totalReserved ?? 0 }}</div>
+                        </div>
                     </div>
-                </div>
+                </a>
                 <div class="card kpi-card">
                     <i class="fa-solid fa-shoe-prints kpi-icon" style="color: #67e8f9;"></i>
                     <div class="kpi-data">
@@ -125,17 +127,17 @@
                     </div>
                 </div>
                 <div class="card kpi-card">
-                    <i class="fa-solid fa-wallet kpi-icon" style="color: #93c5fd;"></i>
-                    <div class="kpi-data">
-                        <div class="kpi-label">Total User</div>
-                        <div class="kpi-value">0</div>
+                        <i class="fa-solid fa-users kpi-icon"></i>
+                        <div class="kpi-data">
+                            <div class="kpi-label">Total Users</div>
+                        <div class="kpi-value">{{ $totalUsers ?? 0 }}</div>
                     </div>
                 </div>
-                <div class="card kpi-card">
-                    <i class="fa-solid fa-file-invoice kpi-icon" style="color: #93c5fd;"></i>
+                <div class="card kpi-card" onclick="window.location.href='{{ url('/cashier/reservations?tab=pending') }}'" style="cursor: pointer; transition: 0.2s;" onmouseover="this.style.transform='translateY(-3px)';" onmouseout="this.style.transform='none';">
+                    <i class="fa-solid fa-clock-rotate-left kpi-icon"></i>
                     <div class="kpi-data">
                         <div class="kpi-label">Pending</div>
-                        <div class="kpi-value">0</div>
+                        <div class="kpi-value">{{ $pendingReservations ?? 0 }}</div>
                     </div>
                 </div>
             </div>
@@ -211,3 +213,6 @@
 
 </body>
 </html>
+
+
+

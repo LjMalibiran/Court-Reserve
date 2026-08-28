@@ -9,6 +9,23 @@ use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
+    // ==========================================
+    // DASHBOARD METRICS
+    // ==========================================
+    public function dashboard()
+    {
+        // 1. Exact same calculation as Cashier
+        $totalReserved = Reservation::where('status', '!=', 'cancelled')->count();
+        $pendingReservations = Reservation::where('status', 'pending')->count();
+        // This counts everyone EXCEPT the admin (1) and cashier (2)
+        $totalUsers = User::whereNotIn('role', [1, 2, 'admin', 'cashier'])->count();
+
+        return view('admin.dashboard', compact('totalReserved', 'pendingReservations', 'totalUsers'));
+    }
+
+    // ==========================================
+    // EXISTING LOGIC
+    // ==========================================
     public function qrIndex()
     {
         return view('admin.qr-verification', [
