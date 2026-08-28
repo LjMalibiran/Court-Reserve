@@ -70,39 +70,70 @@
     .crc-right { display: flex; align-items: center; gap: 14px; }
     .crc-chevron { color: #94a3b8; font-size: 14px; }
 
-    /* ==========================================
-       MOBILE FIXES FOR BUTTONS AND LAYOUT
-       ========================================== */
+    /* MODAL CSS */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 9999; padding: 20px; }
+    .modal-content { background: white; border-radius: 20px; padding: 32px; width: 100%; max-width: 480px; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.15); }
+    .modal-close { position: absolute; top: 24px; right: 24px; background: none; border: none; font-size: 24px; color: #64748b; cursor: pointer; padding: 0; line-height: 1; }
+    .modal-header-title { text-align: center; font-size: 22px; font-weight: 700; margin: 0 0 24px 0; }
+    
+    .res-brief-card { border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 18px; margin-bottom: 24px; }
+    .res-brief-id { color: #0033cc; font-size: 13px; font-weight: 700; margin-bottom: 12px; }
+    .res-brief-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+    .res-brief-info { display: flex; gap: 14px; align-items: center; }
+    .res-brief-info h4 { margin: 0; color: #0f2b6e; font-size: 18px; font-weight: 700; }
+    .res-brief-info div { color: #0f2b6e; font-size: 15px; font-weight: 500; margin-top: 2px;}
+    .res-brief-details { color: #64748b; font-size: 13px; display: flex; flex-direction: column; gap: 8px; font-weight: 500;}
+    
+    .form-group-row { display: flex; gap: 16px; margin-bottom: 24px; }
+    .form-group { flex: 1; }
+    .section-label { display: block; font-size: 13px; color: #0f2b6e; margin-bottom: 8px; font-weight: 600; }
+    .form-control { width: 100%; padding: 14px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-family: inherit; font-size: 15px; outline: none; color: #0f2b6e; font-weight: 600; box-sizing: border-box;}
+    
+    .time-slot-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 24px; }
+    .ts-btn { background: white; border: 1.5px solid #e2e8f0; padding: 12px 0; border-radius: 8px; color: #0033cc; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; text-align: center;}
+    .ts-btn.active { background: #0033cc; color: white; border-color: #0033cc; }
+    .ts-btn.disabled { color: #cbd5e1; border-color: #f1f5f9; background: #f8fafc; pointer-events: none; }
+    
+    .rental-section { display: flex; justify-content: space-between; margin-bottom: 30px; }
+    .rental-item { display: flex; align-items: center; justify-content: space-between; flex: 1; }
+    .rental-item:first-child { margin-right: 24px; }
+    .rental-info h5 { margin: 0 0 2px 0; font-size: 15px; color: #0f2b6e; font-weight: 700; }
+    .rental-info span { font-size: 10px; color: #94a3b8; font-weight: 600;}
+    .counter-widget { display: flex; align-items: center; border: 1.5px solid #e2e8f0; border-radius: 6px; overflow: hidden; }
+    .counter-btn { background: white; border: none; padding: 6px 12px; font-size: 16px; color: #0f2b6e; cursor: pointer; font-weight: 600;}
+    .counter-val { padding: 6px 14px; font-size: 14px; font-weight: 600; color: #0f2b6e; border-left: 1.5px solid #e2e8f0; border-right: 1.5px solid #e2e8f0; min-width: 12px; text-align: center;}
+    
+    .refund-policy-box { background: #fef2f2; border-radius: 8px; padding: 18px; margin-bottom: 24px; }
+    .refund-policy-box h4 { color: #b91c1c; margin: 0 0 8px 0; font-size: 16px; font-weight: 700;}
+    .refund-policy-box p { color: #0f2b6e; margin: 0; font-size: 13px; line-height: 1.5; font-weight: 500;}
+    .refund-policy-box p.no-refund { color: #0033cc; font-weight: 600; margin-top: 6px; }
+    
+    .btn-solid-blue { background: #0033cc; color: white; border: none; border-radius: 8px; padding: 14px; font-size: 15px; font-weight: 600; width: 100%; cursor: pointer; transition: 0.2s;}
+    .btn-solid-blue:hover { background: #002299; }
+    .btn-solid-red { background: #b91c1c; color: white; border: none; border-radius: 8px; padding: 14px; font-size: 15px; font-weight: 600; width: 100%; cursor: pointer; transition: 0.2s;}
+    .btn-solid-red:hover { background: #991b1b; }
+    .btn-outline-blue { background: white; color: #0033cc; border: 1.5px solid #0033cc; border-radius: 8px; padding: 14px; font-size: 15px; font-weight: 600; width: 100%; cursor: pointer; transition: 0.2s; box-sizing: border-box;}
+    .btn-outline-blue:hover { background: #f0f4ff; }
+    .btn-group { display: flex; gap: 14px; }
+
+    .success-icon-wrap { position: relative; width: 90px; height: 90px; margin: 0 auto 24px auto; }
+    .cancel-circle { background: #dc2626; color: white; width: 100%; height: 100%; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 40px; position: relative; z-index: 2; box-shadow: 0 0 0 6px #fee2e2;}
+    .confetti { position: absolute; width: 100%; height: 100%; top: 0; left: 0; z-index: 1; }
+    .confetti::before, .confetti::after { content: ''; position: absolute; width: 6px; height: 6px; border-radius: 50%; }
+    .confetti::before { background: #d97706; top: -10px; left: 10px; box-shadow: 60px 10px 0 #15803d, 80px 40px 0 #0033cc, -20px 40px 0 #ea580c; }
+    .confetti::after { background: #0033cc; bottom: -10px; right: 10px; box-shadow: -60px -10px 0 #b91c1c, -80px -40px 0 #15803d, 20px -40px 0 #d97706; }
+
     @media (max-width: 768px) {
-        /* Container adjustments */
-        .welcome-card { 
-            flex-direction: column !important; 
-            text-align: center !important; 
-            gap: 20px !important; 
-            padding: 24px 20px !important; 
-            height: auto !important;
-        }
-        
+        .welcome-card { flex-direction: column !important; text-align: center !important; gap: 20px !important; padding: 24px 20px !important; height: auto !important;}
         .welcome-text h2 { font-size: 20px !important; }
         .welcome-text h2 strong { font-size: 32px !important; }
-        
-        /* Box sports buttons perfectly side-by-side */
-        .sport-buttons { 
-            width: 100% !important; 
-            gap: 12px !important; /* Slightly smaller gap to save space */
-        }
-        .sport-btn { 
-            min-width: 0 !important; /* Removes the fixed width that causes overflow */
-            flex: 1 !important; /* Forces both buttons to perfectly share 50% width */
-            padding: 16px 10px !important; 
-        }
-        
-        /* Adjust icons and fonts to fit perfectly in the new button sizes */
+        .sport-buttons { width: 100% !important; gap: 12px !important; }
+        .sport-btn { min-width: 0 !important; flex: 1 !important; padding: 16px 10px !important; }
         .sport-btn span { font-size: 16px !important; margin-top: 8px !important; }
         .sport-btn svg { width: 42px !important; height: 42px !important; }
-
         .reservations-grid { display: flex !important; flex-direction: column !important; gap: 20px !important; }
         .panel { padding: 24px 20px !important; }
+        .time-slot-grid { grid-template-columns: repeat(3, 1fr); }
     }
 </style>
 
@@ -147,7 +178,6 @@
 </div>
 
 <div class="reservations-grid">
-    <!-- Today's Reservation Panel -->
     <div class="panel">
         <div class="panel-header">
             <h3>Today's Reservation</h3>
@@ -200,7 +230,7 @@
                                 <div>Court {{ $res->court_id }}</div>
                             </div>
                         </div>
-                        <div class="today-res-qr" onclick="openResDetails({{ $res->id }}, '{{ $res->court_id }}', '{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}', '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }}', '{{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}', '{{ $res->sport ?? 'Badminton' }}', '{{ $res->reservation_code }}', '{{ $res->status }}')">
+                        <div class="today-res-qr">
                             <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data={{ urlencode($res->reservation_code) }}" alt="QR Code">
                             <span>Tap to view QR</span>
                         </div>
@@ -218,17 +248,15 @@
                     </div>
                     
                     <div class="today-res-actions">
-                        <button class="btn-today-edit" onclick="openEditModal({{ $res->id }}, '{{ $res->sport ?? 'Badminton' }}')">Edit Reservation</button>
                         @if($res->status != 'cancelled')
-                            <button class="btn-today-cancel" onclick="openCancelModal({{ $res->id }}, '{{ $res->reservation_code }}')">Cancel Reservation</button>
+                            <button class="btn-today-edit" onclick="openEditModal({{ $res->id }}, '{{ $res->sport ?? 'Badminton' }}', '{{ $res->court_id }}', '{{ $res->start_time }}', '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }}', '{{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}')">Edit Reservation</button>
+                            <button class="btn-today-cancel" onclick="openCancelModal({{ $res->id }}, '{{ $res->reservation_code }}', '{{ $res->sport ?? 'Badminton' }}', '{{ $res->court_id }}', '{{ $res->start_time }}', '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }}', '{{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}')">Cancel Reservation</button>
                         @endif
                     </div>
                 </div>
                 @if(!$loop->last) <hr class="divider"> @endif
             @empty
-                <div class="empty-state">
-                    NO RESERVATION
-                </div>
+                <div class="empty-state">NO RESERVATION</div>
             @endforelse
         </div>
     </div>
@@ -245,7 +273,7 @@
                 @php
                     $badgeClass = $res->status == 'confirmed' ? 'badge-confirmed' : ($res->status == 'cancelled' ? 'badge-cancelled' : 'badge-pending');
                 @endphp
-                <div class="compact-res-card" onclick="openResDetails({{ $res->id }}, '{{ $res->court_id }}', '{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}', '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }}', '{{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}', '{{ $res->sport ?? 'Badminton' }}', '{{ $res->reservation_code }}', '{{ $res->status }}')">
+                <div class="compact-res-card">
                     <div class="crc-left">
                         <div class="crc-icon">
                             @if(($res->sport ?? 'Badminton') == 'Pickleball')
@@ -285,15 +313,322 @@
                     </div>
                     <div class="crc-right">
                         <span class="{{ $badgeClass }}">{{ ucfirst($res->status) }}</span>
-                        <i class="fa-solid fa-chevron-right crc-chevron"></i>
                     </div>
                 </div>
             @empty
-                <div class="empty-state">
-                    NO RESERVATION
-                </div>
+                <div class="empty-state">NO RESERVATION</div>
             @endforelse
         </div>
     </div>
 </div>
+
+<!-- ================= MODALS ================= -->
+
+<!-- Edit Reservation Modal -->
+<div class="modal-overlay" id="editModal">
+    <div class="modal-content">
+        <button type="button" class="modal-close" onclick="closeGlobalModal('editModal')">&times;</button>
+        <h2 class="modal-header-title" style="color: #0f2b6e;">Edit Reservation</h2>
+        
+        <div class="res-brief-card">
+            <div class="res-brief-header">
+                <div class="res-brief-info">
+                    <svg width="28" height="28" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g transform="translate(6, 6) rotate(-25 26 26)">
+                            <path d="M12 10C10 18 12 28 18 36L34 36C40 28 42 18 40 10C35 12 26 12 12 10Z" fill="#e0e7ff" fill-opacity="0.35" stroke="#0033cc" stroke-width="2.5" stroke-linejoin="round"/>
+                            <path d="M16 11C20 18 22 28 24 36" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M36 11C32 18 30 28 28 36" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M26 11L26 36" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
+                        </g>
+                    </svg>
+                    <div>
+                        <h4 id="edit-res-sport">Badminton</h4>
+                        <div id="edit-res-court">Court 1</div>
+                    </div>
+                </div>
+                <span class="badge-confirmed" id="edit-res-badge">Confirmed</span>
+            </div>
+            <div class="res-brief-details">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-regular fa-calendar"></i> <span id="edit-res-date-display">Mon, June 1, 2026</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-regular fa-clock"></i> <span id="edit-res-time-display">4:00 - 5:00 PM | 1 hr</span>
+                </div>
+            </div>
+        </div>
+
+        <form id="editForm" method="POST" action="">
+            @csrf
+            <h4 class="section-label" style="font-size: 15px;">Details</h4>
+            <div class="form-group-row">
+                <div class="form-group">
+                    <label class="section-label" style="color: #64748b; font-weight:500;">Date</label>
+                    <input type="date" id="edit-date" name="reservation_date" class="form-control" required onchange="checkAvailability()">
+                </div>
+                <div class="form-group">
+                    <label class="section-label" style="color: #64748b; font-weight:500;">Duration</label>
+                    <select class="form-control" style="background: #f8fafc; cursor: not-allowed; color: #64748b;" disabled>
+                        <option>1 Hour</option>
+                    </select>
+                </div>
+            </div>
+
+            <label class="section-label">Available Time Slot</label>
+            <div class="time-slot-grid" id="edit-time-slots">
+                <!-- Filled by JS -->
+            </div>
+
+            <label class="section-label">Rental Items</label>
+            <div class="rental-section">
+                <div class="rental-item">
+                    <div class="rental-info">
+                        <h5>Racket</h5>
+                        <span>₱50.00 / pc</span>
+                    </div>
+                    <div class="counter-widget">
+                        <button type="button" class="counter-btn" onclick="updateCounter('racket', -1)">-</button>
+                        <div class="counter-val" id="racket-count">1</div>
+                        <button type="button" class="counter-btn" onclick="updateCounter('racket', 1)">+</button>
+                    </div>
+                </div>
+                <div class="rental-item">
+                    <div class="rental-info">
+                        <h5>Shuttlecock</h5>
+                        <span>₱50.00 / pc</span>
+                    </div>
+                    <div class="counter-widget">
+                        <button type="button" class="counter-btn" onclick="updateCounter('shuttlecock', -1)">-</button>
+                        <div class="counter-val" id="shuttlecock-count">1</div>
+                        <button type="button" class="counter-btn" onclick="updateCounter('shuttlecock', 1)">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <input type="hidden" id="edit-start-time" name="start_time" required>
+            <input type="hidden" id="edit-end-time" name="end_time" required>
+            <input type="hidden" id="edit-court-id" name="court_id">
+            <input type="hidden" id="racket-input" name="racket_qty" value="1">
+            <input type="hidden" id="shuttlecock-input" name="shuttlecock_qty" value="1">
+
+            <button type="submit" class="btn-solid-blue">Save Changes</button>
+        </form>
+    </div>
+</div>
+
+<!-- Cancel Reservation Modal -->
+<div class="modal-overlay" id="cancelModal">
+    <div class="modal-content">
+        <button type="button" class="modal-close" onclick="closeGlobalModal('cancelModal')">&times;</button>
+        <h2 class="modal-header-title" style="color: #b91c1c;">Cancel Reservation</h2>
+        
+        <div class="res-brief-card">
+            <div class="res-brief-id" id="cancel-res-code">BC26-02</div>
+            <div class="res-brief-header">
+                <div class="res-brief-info">
+                    <svg width="28" height="28" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g transform="translate(6, 6) rotate(-25 26 26)">
+                            <path d="M12 10C10 18 12 28 18 36L34 36C40 28 42 18 40 10C35 12 26 12 12 10Z" fill="#e0e7ff" fill-opacity="0.35" stroke="#0033cc" stroke-width="2.5" stroke-linejoin="round"/>
+                            <path d="M16 11C20 18 22 28 24 36" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M36 11C32 18 30 28 28 36" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M26 11L26 36" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
+                        </g>
+                    </svg>
+                    <div>
+                        <h4 id="cancel-res-sport">Badminton</h4>
+                        <div id="cancel-res-court">Court 1</div>
+                    </div>
+                </div>
+                <span class="badge-confirmed" id="cancel-res-badge">Confirmed</span>
+            </div>
+            <div class="res-brief-details">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-regular fa-calendar"></i> <span id="cancel-res-date">Mon, June 1, 2026</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-regular fa-clock"></i> <span id="cancel-res-time">4:00 - 5:00 PM | 1 Hour</span>
+                </div>
+            </div>
+        </div>
+
+        <form id="cancelForm" method="POST" action="">
+            @csrf
+            <label class="section-label" style="color: #64748b; font-weight: 500;">Please select a reason for cancellation</label>
+            <select name="reason" class="form-control" style="margin-bottom: 24px;">
+                <option>Schedule Conflict</option>
+                <option>Weather Conditions</option>
+                <option>Personal Emergency</option>
+                <option>Other</option>
+            </select>
+
+            <div class="refund-policy-box">
+                <h4>Refund Policy</h4>
+                <p>Payment will only be refunded if you cancel at least 5 hours before your reservation.</p>
+                <p class="no-refund">No refund for late cancellation.</p>
+            </div>
+
+            <div class="btn-group">
+                <button type="button" class="btn-outline-blue" onclick="closeGlobalModal('cancelModal')">Keep Reservation</button>
+                <button type="button" class="btn-solid-red" onclick="submitCancel()">Confirm Cancellation</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Success Cancel Modal -->
+<div class="modal-overlay" id="successCancelModal">
+    <div class="modal-content" style="text-align: center; max-width: 400px;">
+        <div class="success-icon-wrap">
+            <div class="confetti"></div>
+            <div class="cancel-circle">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+        </div>
+        
+        <h2 class="modal-header-title" style="color: #b91c1c; margin-bottom: 12px;">Reservation Cancelled</h2>
+        <p style="color: #0f2b6e; font-size: 15px; line-height: 1.5; font-weight: 500; margin-bottom: 24px;">
+            Your reservation for<br>
+            <strong style="color: #0033cc; font-size: 16px;" id="success-cancel-title">Badminton Court 1</strong><br>
+            on <strong style="color: #0033cc; font-size: 16px;" id="success-cancel-datetime">June 1, 2026 at 4:00 PM</strong><br>
+            has been cancelled.
+        </p>
+        <p style="font-size: 13px; color: #64748b; margin-bottom: 24px; font-weight: 500;">A cancellation receipt has been sent to your email.</p>
+        <button class="btn-solid-blue" onclick="location.reload()">Done</button>
+    </div>
+</div>
+
+<script>
+    function closeGlobalModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+
+    function updateCounter(id, delta) {
+        const span = document.getElementById(id + '-count');
+        const input = document.getElementById(id + '-input');
+        let val = parseInt(span.innerText) + delta;
+        if(val < 0) val = 0;
+        if(val > 10) val = 10;
+        span.innerText = val;
+        input.value = val;
+    }
+
+    let currentEditCourtId = null;
+    let currentEditStartTimeStr = null;
+
+    function openEditModal(id, sport, courtId, date, startTime, endTime) {
+        document.getElementById('editForm').action = '/reservations/' + id + '/edit-user';
+        document.getElementById('edit-res-sport').innerText = sport;
+        document.getElementById('edit-res-court').innerText = 'Court ' + courtId;
+        
+        const d = new Date(date);
+        const dateOptions = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+        document.getElementById('edit-res-date-display').innerText = d.toLocaleDateString('en-US', dateOptions);
+        document.getElementById('edit-res-time-display').innerText = startTime + ' - ' + endTime + ' | 1 hr';
+        
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        document.getElementById('edit-date').value = `${yyyy}-${mm}-${dd}`;
+        document.getElementById('edit-date').min = new Date().toISOString().split('T')[0];
+        document.getElementById('edit-court-id').value = courtId;
+        
+        currentEditCourtId = courtId;
+        
+        let match = startTime.match(/(\d+):(\d+) (AM|PM)/);
+        if(match) {
+            let h = parseInt(match[1]);
+            if(match[3] === 'PM' && h !== 12) h += 12;
+            if(match[3] === 'AM' && h === 12) h = 0;
+            currentEditStartTimeStr = (h < 10 ? '0' + h : h) + ':00';
+        }
+
+        checkAvailability();
+        document.getElementById('editModal').style.display = 'flex';
+    }
+
+    function checkAvailability() {
+        let date = document.getElementById('edit-date').value;
+        let courtId = currentEditCourtId;
+
+        if(!date || !courtId) return;
+
+        fetch(`/api/check-availability?date=${date}&court_id=${courtId}`)
+            .then(response => response.json())
+            .then(data => {
+                renderTimeSlots(data.booked_slots || []);
+            });
+    }
+
+    function renderTimeSlots(bookedSlots) {
+        const container = document.getElementById('edit-time-slots');
+        container.innerHTML = '';
+        
+        for(let hour = 8; hour < 21; hour++) {
+            let timeString24 = (hour < 10 ? '0' + hour : hour) + ':00';
+            let suffix = hour >= 12 ? 'PM' : 'AM';
+            let hour12 = hour > 12 ? hour - 12 : (hour === 0 ? 12 : hour);
+            let timeString12 = `${hour12}:00 ${suffix}`;
+
+            let btn = document.createElement('div');
+            btn.className = 'ts-btn';
+            btn.innerText = timeString12;
+            btn.dataset.time24 = timeString24;
+
+            if(bookedSlots.includes(timeString12) && timeString24 !== currentEditStartTimeStr) {
+                btn.classList.add('disabled');
+            } else {
+                btn.onclick = function() {
+                    document.querySelectorAll('#edit-time-slots .ts-btn').forEach(el => el.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    document.getElementById('edit-start-time').value = this.dataset.time24 + ':00';
+                    let endH = parseInt(this.dataset.time24.split(':')[0]) + 1;
+                    document.getElementById('edit-end-time').value = (endH < 10 ? '0' + endH : endH) + ':00:00';
+                };
+            }
+
+            if(timeString24 === currentEditStartTimeStr) {
+                btn.classList.add('active');
+                document.getElementById('edit-start-time').value = timeString24 + ':00';
+                let endH = parseInt(timeString24.split(':')[0]) + 1;
+                document.getElementById('edit-end-time').value = (endH < 10 ? '0' + endH : endH) + ':00:00';
+            }
+
+            container.appendChild(btn);
+        }
+    }
+
+    function openCancelModal(id, code, sport, courtId, date, startTime, endTime) {
+        document.getElementById('cancelForm').action = '/reservations/' + id + '/cancel-user';
+        document.getElementById('cancel-res-code').innerText = code;
+        document.getElementById('cancel-res-sport').innerText = sport;
+        document.getElementById('cancel-res-court').innerText = 'Court ' + courtId;
+        
+        const d = new Date(date);
+        const dateOptions = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+        document.getElementById('cancel-res-date').innerText = d.toLocaleDateString('en-US', dateOptions);
+        document.getElementById('cancel-res-time').innerText = startTime + ' - ' + endTime + ' | 1 hr';
+        
+        document.getElementById('success-cancel-title').innerText = sport + ' Court ' + courtId;
+        document.getElementById('success-cancel-datetime').innerText = d.toLocaleDateString('en-US', {month: 'long', day:'numeric', year:'numeric'}) + ' at ' + startTime;
+
+        document.getElementById('cancelModal').style.display = 'flex';
+    }
+
+    function submitCancel() {
+        document.getElementById('cancelModal').style.display = 'none';
+        
+        fetch(document.getElementById('cancelForm').action, {
+            method: 'POST',
+            body: new FormData(document.getElementById('cancelForm'))
+        }).then(response => {
+            if(response.ok) {
+                document.getElementById('successCancelModal').style.display = 'flex';
+            } else {
+                alert('Error cancelling reservation.');
+                location.reload();
+            }
+        });
+    }
+</script>
 @endsection

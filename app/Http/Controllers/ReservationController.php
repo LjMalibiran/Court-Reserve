@@ -11,9 +11,6 @@ use Illuminate\Support\Str;
 
 class ReservationController extends Controller
 {
-    /**
-     * Handle checking availability and redirecting to the payment screen.
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -21,7 +18,7 @@ class ReservationController extends Controller
             'reservation_date' => 'required|date|after_or_equal:today',
             'start_time' => 'required',
             'end_time' => 'required',
-            'sport' => 'nullable|string' // Catch the sport from the frontend!
+            'sport' => 'nullable|string' 
         ]);
 
         $start = Carbon::parse($request->reservation_date . ' ' . $request->start_time);
@@ -31,10 +28,6 @@ class ReservationController extends Controller
             return back()->withErrors(['start_time' => 'You cannot book a time slot that has already passed.']);
         }
 
-        if ($end->lessThanOrEqualTo($start)) {
-            return back()->withErrors(['end_time' => 'The end time must be after the start time.']);
-        }
-        
         if ($end->lessThanOrEqualTo($start)) {
             return back()->withErrors(['end_time' => 'The end time must be after the start time.']);
         }
@@ -57,10 +50,8 @@ class ReservationController extends Controller
         $durationInHours = $start->diffInMinutes($end) / 60;
         $totalPrice = $durationInHours * ($court->price_per_hour ?? 230); 
 
-        // 1. Grab the sport from the request (defaults to Badminton if empty)
         $sport = $request->sport ?? 'Badminton';
 
-        // 2. Use PUT to lock the data into the session so it survives page refreshes!
         session()->put([
             'court_id' => $courtId,
             'sport' => $sport,
@@ -72,15 +63,11 @@ class ReservationController extends Controller
         return redirect()->route('payment.index');
     }
 
-    /**
-     * Fetch booked time slots for the frontend AJAX check.
-     */
     public function checkAvailability(\Illuminate\Http\Request $request)
     {
         $date = $request->date;
         $courtId = $request->court_id;
 
-        // Find all active reservations for this specific date and court
         $reservations = Reservation::where('court_id', $courtId)
             ->whereDate('start_time', $date)
             ->whereIn('status', ['pending', 'confirmed'])
@@ -88,31 +75,26 @@ class ReservationController extends Controller
 
         $bookedSlots = [];
 
-        // Loop through them and mark every hour they take up as "booked"
         foreach ($reservations as $res) {
             $start = Carbon::parse($res->start_time);
             $end = Carbon::parse($res->end_time);
 
             while ($start->lt($end)) {
-                $bookedSlots[] = $start->format('g:i A'); // e.g., "8:00 AM"
-                $start->addHour(); // Move to the next hour
+                $bookedSlots[] = $start->format('g:i A'); 
+                $start->addHour(); 
             }
         }
 
-        // Send the list of booked hours back to the browser
         return response()->json(['booked_slots' => $bookedSlots]);
     }
 
-    /**
-     * Handle final payment submission and save to the database.
-     */
     public function processPayment(Request $request)
     {
         $request->validate([
             'payment_type' => 'required|in:full,half',
             'receipt'      => 'required|image|mimes:jpeg,png,jpg|max:5120',
             'court_id'     => 'required',
-            'sport'        => 'required', // Validate the sport
+            'sport'        => 'required', 
             'start_time'   => 'required',
             'end_time'     => 'required',
             'total_amount' => 'required',
@@ -123,14 +105,13 @@ class ReservationController extends Controller
             $imagePath = $request->file('receipt')->store('receipts', 'public');
         }
 
-        // 3. Dynamically build the prefix: PC for Pickleball, BC for Badminton!
         $prefix = ($request->sport == 'Pickleball') ? 'PC' : 'BC';
         $reservationCode = $prefix . date('y') . '-' . strtoupper(Str::random(4));
 
         $reservation = new Reservation();
         $reservation->user_id = Auth::id();
         $reservation->court_id = $request->court_id;
-        $reservation->sport = $request->sport; // Save the sport to the DB
+        $reservation->sport = $request->sport; 
         $reservation->start_time = $request->start_time;
         $reservation->end_time = $request->end_time;
         $reservation->total_price = $request->total_amount;
@@ -140,7 +121,6 @@ class ReservationController extends Controller
         $reservation->reservation_code = $reservationCode;
         $reservation->save();
 
-        // 4. Clear the temporary session data safely
         session()->forget(['court_id', 'sport', 'start_time', 'end_time', 'total_price']);
 
         return back()->with('success', true)
@@ -182,7 +162,8 @@ class ReservationController extends Controller
 
         $reservation->start_time = $start;
         $reservation->end_time = $end;
-        $reservation->status = 'pending'; // Requires re-approval
+        // REQUIRED: Force status back to pending so Admin confirms the new time!
+        $reservation->status = 'pending'; 
         $reservation->save();
 
         return back()->with('success', 'Reservation updated successfully. It is now awaiting approval.');
@@ -191,7 +172,6 @@ class ReservationController extends Controller
     public function cancelUserReservation(Request $request, $id)
     {
         $reservation = Reservation::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
-        
         $reservation->status = 'cancelled';
         $reservation->save();
 
