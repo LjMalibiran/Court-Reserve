@@ -101,8 +101,8 @@
         <header class="top-header">
             <h1>Dashboard</h1>
             <div class="header-right">
-                <span>Wednesday, February 25, 2026</span>
-                <i class="fa-regular fa-bell" style="font-size: 20px;"></i>
+                <span>{{ now()->timezone('Asia/Manila')->format('l, F j, Y') }}</span>
+                <i class="fa-regular fa-bell"></i>
             </div>
         </header>
 
@@ -111,11 +111,11 @@
                                     <!-- KPI Row -->
             <div class="kpi-row">
                 <a href="{{ url('/cashier/reservations') }}" style="text-decoration: none; color: inherit; display: block;">
-                    <div class="card kpi-card" style="cursor: pointer;">
+                    <div class="card kpi-card" onclick="window.location.href='{{ url('/cashier/reservations') }}'" style="cursor: pointer; transition: 0.2s;" onmouseover="this.style.transform='translateY(-3px)';" onmouseout="this.style.transform='none';">
                         <i class="fa-solid fa-calendar-days kpi-icon"></i>
                         <div class="kpi-data">
                             <div class="kpi-label">Total Reserved</div>
-                            <div class="kpi-value">{{ $totalReserved ?? 0 }}</div>
+                            <div class="kpi-value" id="realtime-reserved">{{ $totalReserved ?? 0 }}</div>
                         </div>
                     </div>
                 </a>
@@ -127,17 +127,17 @@
                     </div>
                 </div>
                 <div class="card kpi-card">
-                        <i class="fa-solid fa-users kpi-icon"></i>
-                        <div class="kpi-data">
-                            <div class="kpi-label">Total Users</div>
-                        <div class="kpi-value">{{ $totalUsers ?? 0 }}</div>
+                    <i class="fa-solid fa-users kpi-icon"></i>
+                    <div class="kpi-data">
+                        <div class="kpi-label">Total Users</div>
+                        <div class="kpi-value" id="realtime-users">{{ $totalUsers ?? 0 }}</div>
                     </div>
                 </div>
                 <div class="card kpi-card" onclick="window.location.href='{{ url('/cashier/reservations?tab=pending') }}'" style="cursor: pointer; transition: 0.2s;" onmouseover="this.style.transform='translateY(-3px)';" onmouseout="this.style.transform='none';">
                     <i class="fa-solid fa-clock-rotate-left kpi-icon"></i>
                     <div class="kpi-data">
                         <div class="kpi-label">Pending</div>
-                        <div class="kpi-value">{{ $pendingReservations ?? 0 }}</div>
+                        <div class="kpi-value" id="realtime-pending">{{ $pendingReservations ?? 0 }}</div>
                     </div>
                 </div>
             </div>
@@ -210,6 +210,34 @@
 
         </div>
     </main>
+    <script>
+    // Real-Time Dashboard Metrics (Updates every 3 seconds)
+    setInterval(function() {
+        let currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('t', new Date().getTime()); // Cache buster
+        
+        fetch(currentUrl.toString())
+            .then(response => response.text())
+            .then(html => {
+                let parser = new DOMParser();
+                let doc = parser.parseFromString(html, 'text/html');
+                
+                // The exact IDs we assigned to the numbers
+                const metrics = ['realtime-reserved', 'realtime-users', 'realtime-pending'];
+                
+                metrics.forEach(id => {
+                    let newElement = doc.getElementById(id);
+                    let currentElement = document.getElementById(id);
+                    
+                    // If the number changed in the database, smoothly update the screen
+                    if (newElement && currentElement && currentElement.innerHTML !== newElement.innerHTML) {
+                        currentElement.innerHTML = newElement.innerHTML;
+                    }
+                });
+            })
+            .catch(error => console.log('Polling error, waiting for next cycle...'));
+    }, 3000); 
+</script>
 
 </body>
 </html>

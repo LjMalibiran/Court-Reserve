@@ -59,6 +59,9 @@ Route::get('/terms', function () {
     return view('terms');
 })->name('terms');
 
+// Live Availability Check (Accessible to Users, Admins, and Cashiers)
+Route::get('/api/check-availability', [ReservationController::class, 'checkAvailability']);
+
 
 // ==========================================
 // 2. STAFF GATEWAY & LOGINS 
@@ -144,12 +147,9 @@ Route::middleware(['auth', 'verified.phone'])->group(function () {
     Route::post('/reserve/process-payment', [ReservationController::class, 'processPayment']);
 
     // User Reservation Management
-    Route::post('/reservations/{id}/edit-user', [ReservationController::class, 'updateUserReservation']);
+    Route::post('/reservations/{id}/edit-user', [ReservationController::class, 'editUserReservation']);
     Route::post('/reservations/{id}/cancel-user', [ReservationController::class, 'cancelUserReservation']);
-    Route::post('/notifications/mark-read', [ReservationController::class, 'markNotificationsRead']);
-
-    // Live Availability Check
-    Route::get('/api/check-availability', [ReservationController::class, 'checkAvailability']);
+    Route::post('/notifications/{id}/mark-read', [App\Http\Controllers\ReservationController::class, 'markSingleNotificationRead']);
 });
 
 
@@ -159,7 +159,6 @@ Route::middleware(['auth', 'verified.phone'])->group(function () {
 
 Route::middleware([\App\Http\Middleware\AdminMiddleware::class])->group(function () {
 
-    // IMPORTANT: Now using the controller to fetch identical data!
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 
     // QR Verification Routes
@@ -167,11 +166,15 @@ Route::middleware([\App\Http\Middleware\AdminMiddleware::class])->group(function
     Route::post('/admin/qr-verification/search', [AdminController::class, 'qrSearch']);
     Route::post('/admin/qr-verification/verify/{id}', [AdminController::class, 'qrVerify']);
 
-    // Reservations & Walk-Ins
+    // Reservations
     Route::get('/admin/reservations', [AdminController::class, 'reservationsIndex']);
     Route::post('/admin/reservations/{id}/confirm', [AdminController::class, 'confirmReservation']);
     Route::post('/admin/reservations/{id}/cancel', [AdminController::class, 'cancelReservation']);
-    Route::get('/admin/walk-in', [AdminController::class, 'walkInIndex']);
+
+    // Admin Walk-Ins
+    Route::get('/admin/walk-in', [ReservationController::class, 'walkInIndex']);
+    Route::post('/admin/walk-in/store', [ReservationController::class, 'storeWalkIn']);
+    Route::post('/admin/walk-in/{id}/{status}', [ReservationController::class, 'updateWalkInStatus']);
 
     // Sales & Reports
     Route::get('/admin/sales-report', [AdminController::class, 'salesReportIndex']);
@@ -194,7 +197,6 @@ Route::middleware([\App\Http\Middleware\AdminMiddleware::class])->group(function
 
 Route::middleware([\App\Http\Middleware\CashierMiddleware::class])->group(function () {
 
-    // IMPORTANT: Now using the controller to fetch identical data!
     Route::get('/cashier/dashboard', [CashierController::class, 'dashboard'])->name('cashier.dashboard');
 
     Route::get('/cashier/qr-verification', [CashierController::class, 'qrIndex']);
@@ -205,7 +207,11 @@ Route::middleware([\App\Http\Middleware\CashierMiddleware::class])->group(functi
     Route::post('/cashier/reservations/{id}/confirm', [CashierController::class, 'confirmReservation']);
     Route::post('/cashier/reservations/{id}/cancel', [CashierController::class, 'cancelReservation']);
 
-    Route::get('/cashier/walk-in', function () { return view('cashier.walk-in'); });
+    // Cashier Walk-Ins
+    Route::get('/cashier/walk-in', [ReservationController::class, 'walkInIndex']);
+    Route::post('/cashier/walk-in/store', [ReservationController::class, 'storeWalkIn']);
+    Route::post('/cashier/walk-in/{id}/{status}', [ReservationController::class, 'updateWalkInStatus']);
+
     Route::get('/cashier/sales/transactions', function () { return view('cashier.transactions'); });
     Route::get('/cashier/sales/refunds', function () { return view('cashier.refunds'); });
     Route::get('/cashier/profile', function () { return view('cashier.profile'); })->name('cashier.profile');

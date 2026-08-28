@@ -3,6 +3,25 @@
 @section('title', 'Payment | Court Reserve')
 @section('header_title', 'Payment')
 
+@php
+    // Strictly calculate the total to ensure the updated ₱250/hr Pickleball price 
+    // and correct hours are applied perfectly before the user pays.
+    $sport = session('sport', 'Badminton');
+    $courtPrice = ($sport === 'Pickleball') ? 250 : 230;
+    
+    $startTime = session('start_time') ? \Carbon\Carbon::parse(session('start_time')) : now();
+    $endTime = session('end_time') ? \Carbon\Carbon::parse(session('end_time')) : now()->addHour();
+    $hours = $startTime->diffInHours($endTime);
+    if ($hours < 1) $hours = 1;
+
+    $rackets = session('rackets', 0);
+    $shuttles = session('shuttles', 0);
+    $rentals = ($rackets * 50) + ($shuttles * 50);
+
+    $totalAmount = ($hours * $courtPrice) + $rentals;
+    $halfAmount = $totalAmount / 2;
+@endphp
+
 @section('styles')
 <style>
     .payment-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 30px; margin-top: 10px; max-width: 1000px; }
@@ -44,15 +63,13 @@
     .btn-outline:hover { background: #f0f4ff; }
     .upload-hint { text-align: center; color: #94a3b8; font-size: 12px; font-weight: 600;}
     
-    /* Submit Button (outside panels, full width of container) */
+    /* Submit Button */
     .btn-submit-container { max-width: 1000px; display: flex; justify-content: flex-end; margin-top: 10px;}
     .btn-submit { background: #0033cc; color: white; border: none; padding: 16px 40px; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.2s; min-width: 200px;}
     .btn-submit:hover { background: #002299; }
-
-    /* ERROR */
     .error-msg { color: #dc2626; font-size: 13px; display: none; margin-top: 10px; font-weight: 600; text-align: center;}
 
-    /* MODAL: Match 9.png exactly */
+    /* MODAL */
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 9999; padding: 20px; }
     .modal-content { background: white; border-radius: 20px; padding: 40px; width: 100%; max-width: 450px; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.15); text-align: center; }
     .modal-close { position: absolute; top: 20px; right: 24px; background: none; border: none; font-size: 26px; color: #0f2b6e; cursor: pointer; padding: 0; line-height: 1; font-weight: 300;}
@@ -93,14 +110,13 @@
     <input type="hidden" name="sport" value="{{ session('sport') }}">
     <input type="hidden" name="start_time" value="{{ session('start_time') }}">
     <input type="hidden" name="end_time" value="{{ session('end_time') }}">
-    <input type="hidden" name="total_amount" value="{{ session('total_price') }}">
+    <input type="hidden" name="total_amount" value="{{ $totalAmount }}">
 
     <div class="payment-grid">
-        
         <!-- Left Panel: Summary -->
         <div>
             <div class="sport-title">
-                @if(session('sport') == 'Pickleball')
+                @if($sport == 'Pickleball')
                     <svg width="40" height="40" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="32" cy="32" r="24" fill="#f97316" stroke="#ea580c" stroke-width="2"/>
                         <circle cx="32" cy="18" r="3.2" fill="#ffffff"/><circle cx="21" cy="23" r="3.2" fill="#ffffff"/><circle cx="43" cy="23" r="3.2" fill="#ffffff"/><circle cx="16" cy="32" r="3.2" fill="#ffffff"/><circle cx="32" cy="32" r="3.5" fill="#ffffff"/><circle cx="48" cy="32" r="3.2" fill="#ffffff"/><circle cx="21" cy="41" r="3.2" fill="#ffffff"/><circle cx="43" cy="41" r="3.2" fill="#ffffff"/><circle cx="32" cy="46" r="3.2" fill="#ffffff"/>
@@ -113,19 +129,19 @@
                             <path d="M36 11C32 18 30 28 28 36" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
                             <path d="M26 11L26 36" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
                             <path d="M14 20C20 23 32 23 38 20" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
-                            <path d="M16 28C21 31 31 36 28" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M16 28C21 31 36 28" stroke="#0033cc" stroke-width="2" stroke-linecap="round"/>
                             <rect x="18" y="36" width="16" height="3" rx="1" fill="#0033cc"/>
                             <path d="M18 39C18 44.5 21.5 48 26 48C30.5 48 34 44.5 34 39H18Z" fill="#0033cc"/>
                         </g>
                     </svg>
                 @endif
-                {{ session('sport', 'Badminton') }}
+                {{ $sport }}
             </div>
             
             <div class="amount-box">
                 <div class="amount-row">
                     <span class="amount-label">Total Amount</span>
-                    <span class="amount-value">₱ {{ number_format(session('total_price', 230), 2) }}</span>
+                    <span class="amount-value">₱ {{ number_format($totalAmount, 2) }}</span>
                 </div>
                 
                 <div class="gcash-details">
@@ -157,7 +173,7 @@
                         <input type="radio" name="payment_type" value="full" checked>
                         Full Payment
                     </div>
-                    <span class="price-text">₱ {{ number_format(session('total_price', 230), 2) }}</span>
+                    <span class="price-text">₱ {{ number_format($totalAmount, 2) }}</span>
                 </label>
                 
                 <label class="radio-option" style="margin-bottom: 0;">
@@ -168,7 +184,7 @@
                             <span class="radio-sub">Please pay the remaining balance<br>before your playing time.</span>
                         </div>
                     </div>
-                    <span class="price-text">₱ {{ number_format(session('total_price', 230) / 2, 2) }}</span>
+                    <span class="price-text">₱ {{ number_format($halfAmount, 2) }}</span>
                 </label>
             </div>
 
@@ -195,7 +211,6 @@
 @endsection
 
 @section('modals')
-<!-- Success Modal mapping exactly to 9.png -->
 <div class="modal-overlay" id="successModal">
     <div class="modal-content">
         <button class="modal-close" onclick="closeSuccessModal()">&times;</button>
@@ -207,13 +222,13 @@
             </div>
         </div>
         
-        <h2 class="modal-title">Reservation Confirmed!</h2>
+        <h2 class="modal-title">Reservation Done!</h2>
         
         <p class="modal-text">
             Your reservation for<br>
             <strong>{{ session('flash_sport') }} Court {{ session('flash_court') }}</strong><br>
             on <strong>{{ session('flash_start') ? \Carbon\Carbon::parse(session('flash_start'))->format('M j, Y') : '' }} at {{ session('flash_start') ? \Carbon\Carbon::parse(session('flash_start'))->format('g:i A') : '' }}</strong><br>
-            has been confirmed
+            is waiting for confirmation.
         </p>
         
         <div class="reservation-id">

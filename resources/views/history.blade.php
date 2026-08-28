@@ -49,6 +49,8 @@
     <a class="tab-link">Cancelled</a>
 </div>
 
+<hr style="border: none; border-top: 1.5px solid #e2e8f0; margin: 10px 0 20px 0;">
+
 <div class="search-container">
     <input type="text" class="search-bar" id="searchBar" placeholder="Search reservations...">
     <button class="filter-btn"><i class="fa-solid fa-filter"></i></button>

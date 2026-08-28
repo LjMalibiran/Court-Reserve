@@ -348,7 +348,6 @@
     </div>
 </div>
 
-<!-- Edit Reservation Modal -->
 <div class="modal-overlay" id="editModal">
     <div class="modal-content">
         <button type="button" class="modal-close" onclick="closeGlobalModal('editModal')">&times;</button>
@@ -382,24 +381,24 @@
             </div>
         </div>
 
-        <form id="editForm" method="POST" action="">
+        <form id="editForm" method="POST" action="" onsubmit="return validateEditForm(event)">
             @csrf
             <h4 class="section-label" style="font-size: 15px;">Details</h4>
             <div class="form-group-row">
                 <div class="form-group">
                     <label class="section-label" style="color: #64748b; font-weight:500;">Date</label>
-                    <input type="date" id="edit-date" name="reservation_date" class="form-control" required onchange="checkAvailability()">
+                    <input type="date" id="edit-date" name="reservation_date" class="form-control" required onchange="checkEditAvailability()">
                 </div>
                 <div class="form-group">
                     <label class="section-label" style="color: #64748b; font-weight:500;">Duration</label>
-                    <select class="form-control" style="background: #f8fafc; cursor: not-allowed; color: #64748b;" disabled>
+                    <select id="edit-duration-display" class="form-control" style="background: #f8fafc; cursor: not-allowed; color: #64748b;" disabled>
                         <option>1 Hour</option>
                     </select>
                 </div>
             </div>
 
             <label class="section-label">Available Time Slot</label>
-            <div class="time-slot-grid" id="edit-time-slots">
+            <div class="time-slot-grid time-grid" id="edit-time-slots" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 12px; margin-bottom: 20px;">
                 <!-- Filled by JS -->
             </div>
 
@@ -418,7 +417,7 @@
             <input type="hidden" id="edit-end-time" name="end_time" required>
             <input type="hidden" id="edit-court-id" name="court_id">
 
-            <button type="submit" class="btn-solid-blue">Save Changes</button>
+            <button type="submit" class="btn-solid-blue" style="width: 100%; padding: 14px; border-radius: 8px; font-weight: bold; background: #0033cc; color: white; border: none; cursor: pointer; margin-top: 10px;">Save Changes</button>
         </form>
     </div>
 </div>
@@ -509,8 +508,12 @@
         document.getElementById(modalId).style.display = 'none';
     }
 
-    // Store current detail modal reservation data for passing to edit/cancel
     let detailResData = {};
+    let currentEditReservationId = null; // We now track the ID being edited
+    let currentEditCourtId = null;
+    let currentEditStartTimeStr = null;
+    let originalEditDateStr = null; 
+    let currentEditDuration = 1;
 
     function openResDetailsModal(id, sport, courtId, date, startTime, endTime, code, status) {
         detailResData = { id, sport, courtId, date, startTime, endTime, code, status };
@@ -522,17 +525,17 @@
         const d = new Date(date);
         const dateOptions = { weekday: 'short', year: 'numeric', month: 'long', day: 'numeric' };
         document.getElementById('detail-res-date').innerText = d.toLocaleDateString('en-US', dateOptions);
+        
         const s = new Date("1970/01/01 " + startTime);
         const e = new Date("1970/01/01 " + endTime);
         let diff = (e - s) / 3600000;
         if (diff < 0) diff += 24;
+        
         const durText = diff + (diff > 1 ? ' hrs' : ' hr');
         document.getElementById('detail-res-time').innerText = startTime + ' - ' + endTime + ' | ' + durText;
 
-        // QR Code
         document.getElementById('detail-res-qr').src = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + encodeURIComponent(code);
 
-        // Badge
         const badge = document.getElementById('detail-res-badge');
         badge.innerText = status.charAt(0).toUpperCase() + status.slice(1);
         badge.className = '';
@@ -540,7 +543,6 @@
         else if (status === 'cancelled') badge.className = 'badge-cancelled';
         else badge.className = 'badge-pending';
 
-        // Action buttons - Edit only when confirmed, Cancel when not cancelled
         const actionsDiv = document.getElementById('detail-actions');
         actionsDiv.innerHTML = '';
 
@@ -550,32 +552,13 @@
         } else if (status === 'pending') {
             actionsDiv.innerHTML += `<button class="btn-solid-red" onclick="closeGlobalModal('resDetailsModal'); openCancelModal(${id}, '${code}', '${sport}', '${courtId}', '${date}', '${startTime}', '${endTime}')">Cancel Reservation</button>`;
         }
-        // If cancelled, no action buttons shown
 
         document.getElementById('resDetailsModal').style.display = 'flex';
     }
 
-    function updateCounter(id, delta) {
-        const span = document.getElementById(id + '-count');
-        const input = document.getElementById(id + '-input');
-        let val = parseInt(span.innerText) + delta;
-        if(val < 0) val = 0;
-        if(val > 10) val = 10;
-        span.innerText = val;
-        input.value = val;
-    }
-
-    let currentEditCourtId = null;
-    let currentEditStartTimeStr = null;
-
-    function changeEditCourt() {
-        currentEditCourtId = document.getElementById('edit-court-select').value;
-        document.getElementById('edit-court-id').value = currentEditCourtId;
-        document.getElementById('edit-res-court').innerText = 'Court ' + currentEditCourtId;
-        checkAvailability();
-    }
-
     function openEditModal(id, sport, courtId, date, startTime, endTime) {
+        currentEditReservationId = id; // Store the ID to ignore during API fetch
+        
         document.getElementById('editForm').action = '/reservations/' + id + '/edit-user';
         document.getElementById('edit-res-sport').innerText = sport;
         document.getElementById('edit-res-court').innerText = 'Court ' + courtId;
@@ -583,17 +566,24 @@
         const d = new Date(date);
         const dateOptions = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
         document.getElementById('edit-res-date-display').innerText = d.toLocaleDateString('en-US', dateOptions);
+        
         const s = new Date("1970/01/01 " + startTime);
         const e = new Date("1970/01/01 " + endTime);
         let diff = (e - s) / 3600000;
         if (diff < 0) diff += 24;
-        const durText = diff + (diff > 1 ? ' hrs' : ' hr');
+        currentEditDuration = diff; 
+        
+        const durText = currentEditDuration + (currentEditDuration > 1 ? ' hrs' : ' hr');
         document.getElementById('edit-res-time-display').innerText = startTime + ' - ' + endTime + ' | ' + durText;
+        
+        document.getElementById('edit-duration-display').innerHTML = `<option>${currentEditDuration} ${currentEditDuration > 1 ? 'Hours' : 'Hour'}</option>`;
         
         const yyyy = d.getFullYear();
         const mm = String(d.getMonth() + 1).padStart(2, '0');
         const dd = String(d.getDate()).padStart(2, '0');
-        document.getElementById('edit-date').value = `${yyyy}-${mm}-${dd}`;
+        
+        originalEditDateStr = `${yyyy}-${mm}-${dd}`;
+        document.getElementById('edit-date').value = originalEditDateStr;
         
         const nowTz = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
         const minYYYY = nowTz.getFullYear();
@@ -601,9 +591,8 @@
         const minDD = String(nowTz.getDate()).padStart(2, '0');
         document.getElementById('edit-date').min = `${minYYYY}-${minMM}-${minDD}`;
         
-        document.getElementById('edit-court-id').value = courtId;
-        
         currentEditCourtId = courtId;
+        document.getElementById('edit-court-id').value = courtId;
         
         const courtSelect = document.getElementById('edit-court-select');
         courtSelect.innerHTML = `
@@ -625,67 +614,135 @@
         document.getElementById('editModal').style.display = 'flex';
     }
 
+    function changeEditCourt() {
+        currentEditCourtId = document.getElementById('edit-court-select').value;
+        document.getElementById('edit-court-id').value = currentEditCourtId;
+        document.getElementById('edit-res-court').innerText = 'Court ' + currentEditCourtId;
+        checkAvailability();
+    }
+
     function checkAvailability() {
         let date = document.getElementById('edit-date').value;
-        let courtId = currentEditCourtId;
+        let courtId = document.getElementById('edit-court-select').value;
 
         if(!date || !courtId) return;
 
-        fetch(`/api/check-availability?date=${date}&court_id=${courtId}`)
+        // Fetch availability but specifically ignore the current reservation!
+        fetch(`/api/check-availability?date=${date}&court_id=${courtId}&exclude_id=${currentEditReservationId}`)
             .then(response => response.json())
             .then(data => {
                 renderTimeSlots(data.booked_slots || []);
-            });
+            })
+            .catch(error => console.error('Availability fetch error:', error));
     }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const editDateInput = document.getElementById('edit-date');
+        if (editDateInput) {
+            editDateInput.addEventListener('change', checkAvailability);
+        }
+    });
 
     function renderTimeSlots(bookedSlots) {
         const container = document.getElementById('edit-time-slots');
         container.innerHTML = '';
         
         const selectedDate = document.getElementById('edit-date').value;
+        if (!selectedDate) return;
+
+        const dObj = new Date(selectedDate + "T00:00:00");
+        const dayOfWeek = dObj.getDay(); 
+
         const now = new Date();
         const manilaTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
         const todayStr = manilaTime.getFullYear() + '-' + String(manilaTime.getMonth() + 1).padStart(2, '0') + '-' + String(manilaTime.getDate()).padStart(2, '0');
         const currentHour = manilaTime.getHours();
 
-        const dObj = new Date(selectedDate);
-        const dayOfWeek = dObj.getDay(); 
-        const endHour = (dayOfWeek === 0) ? 14 : 21; 
+        let startHour = (dayOfWeek === 6 || dayOfWeek === 0) ? 7 : 8; 
+        let endHour = 21; 
+        if (dayOfWeek === 0) endHour = 14; 
 
-        for(let hour = 7; hour <= endHour; hour++) {
+        let isOriginalDate = (selectedDate === originalEditDateStr);
+        let timeFound = false;
+
+        for(let hour = startHour; hour < endHour; hour++) {
             let timeString24 = (hour < 10 ? '0' + hour : hour) + ':00';
             let suffix = hour >= 12 ? 'PM' : 'AM';
             let hour12 = hour > 12 ? hour - 12 : (hour === 0 ? 12 : hour);
             let timeString12 = `${hour12}:00 ${suffix}`;
 
             let btn = document.createElement('div');
-            btn.className = 'ts-btn';
+            btn.className = 'ts-btn time-slot';
+            btn.style.cssText = 'padding: 12px 10px; border: 1.5px solid #e2e8f0; border-radius: 6px; text-align: center; font-size: 13px; cursor: pointer; transition: 0.2s; color: #0033cc; font-weight: 600;';
             btn.innerText = timeString12;
             btn.dataset.time24 = timeString24;
 
-            let isPast = (selectedDate === todayStr) && (hour <= currentHour);
+            let isOriginalStartTime = (isOriginalDate && timeString24 === currentEditStartTimeStr && currentEditCourtId == document.getElementById('edit-court-select').value);
+            let isAvailable = true;
 
-            if((bookedSlots.includes(timeString12) || isPast) && timeString24 !== currentEditStartTimeStr) {
+            // Does the required duration fit within closing hours?
+            if (hour + currentEditDuration > endHour) {
+                isAvailable = false;
+            } else {
+                // Look ahead to make sure NO required hours are booked by someone else
+                for (let d = 0; d < currentEditDuration; d++) {
+                    let checkHour = hour + d;
+                    let checkSuffix = checkHour >= 12 ? 'PM' : 'AM';
+                    let checkHour12 = checkHour > 12 ? checkHour - 12 : (checkHour === 0 ? 12 : checkHour);
+                    let checkTimeString12 = `${checkHour12}:00 ${checkSuffix}`;
+                    
+                    let checkIsPast = (selectedDate === todayStr) && (checkHour <= currentHour);
+
+                    if (bookedSlots.includes(checkTimeString12) || checkIsPast) {
+                        isAvailable = false;
+                        break;
+                    }
+                }
+            }
+
+            // Since the API ignores the current reservation, we only disable slots taken by OTHERS or the past
+            if(!isAvailable && !isOriginalStartTime) {
                 btn.classList.add('disabled');
+                btn.style.background = '#f9fafb';
+                btn.style.color = '#cbd5e1';
+                btn.style.textDecoration = 'line-through';
+                btn.style.cursor = 'not-allowed';
+                btn.style.borderColor = '#f1f5f9';
             } else {
                 btn.onclick = function() {
-                    document.querySelectorAll('#edit-time-slots .ts-btn').forEach(el => el.classList.remove('active'));
+                    document.querySelectorAll('#edit-time-slots .ts-btn').forEach(el => {
+                        el.classList.remove('active');
+                        if (!el.classList.contains('disabled')) {
+                            el.style.background = 'white';
+                            el.style.color = '#0033cc';
+                        }
+                    });
                     this.classList.add('active');
+                    this.style.background = '#0033cc';
+                    this.style.color = 'white';
                     
                     document.getElementById('edit-start-time').value = this.dataset.time24 + ':00';
-                    let endH = parseInt(this.dataset.time24.split(':')[0]) + 1;
+                    let endH = parseInt(this.dataset.time24.split(':')[0]) + currentEditDuration;
                     document.getElementById('edit-end-time').value = (endH < 10 ? '0' + endH : endH) + ':00:00';
                 };
             }
 
-            if(timeString24 === currentEditStartTimeStr) {
+            if(isOriginalStartTime) {
                 btn.classList.add('active');
+                btn.style.background = '#0033cc';
+                btn.style.color = 'white';
                 document.getElementById('edit-start-time').value = timeString24 + ':00';
-                let endH = parseInt(timeString24.split(':')[0]) + 1;
+                let endH = parseInt(timeString24.split(':')[0]) + currentEditDuration;
                 document.getElementById('edit-end-time').value = (endH < 10 ? '0' + endH : endH) + ':00:00';
+                timeFound = true;
             }
 
             container.appendChild(btn);
+        }
+
+        if (!timeFound) {
+            document.getElementById('edit-start-time').value = "";
+            document.getElementById('edit-end-time').value = "";
         }
     }
 
@@ -727,7 +784,6 @@
         });
     }
 
-    // Real-time auto-refresh for reservations grid
     setInterval(() => {
         fetch('/home')
             .then(res => res.text())
@@ -738,25 +794,20 @@
                 if (newGrid) {
                     document.querySelector('.reservations-grid').innerHTML = newGrid.innerHTML;
                     
-                    // If details modal is open, refresh its data too
                     if (detailResData && detailResData.id && document.getElementById('resDetailsModal').style.display === 'flex') {
                         const updatedCard = newGrid.querySelector(`.compact-res-card[data-id="${detailResData.id}"]`);
                         if (updatedCard) {
                             const onclickStr = updatedCard.getAttribute('onclick');
                             if (onclickStr) {
-                                // Extract the arguments from openResDetailsModal(...)
                                 const argsMatch = onclickStr.match(/openResDetailsModal\((.*)\)/);
                                 if (argsMatch && argsMatch[1]) {
-                                    // Evaluate the arguments to pass them safely
                                     const args = new Function(`return [${argsMatch[1]}]`)();
-                                    // If status changed, update the modal UI
                                     if (args[7] !== detailResData.status) {
                                         openResDetailsModal(...args);
                                     }
                                 }
                             }
                         } else {
-                            // If card no longer exists (e.g. cancelled and removed from today/upcoming), close modal
                             closeGlobalModal('resDetailsModal');
                         }
                     }

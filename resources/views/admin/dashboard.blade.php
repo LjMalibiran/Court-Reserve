@@ -119,7 +119,7 @@
                         <div class="stat-icon icon-blue"><i class="fa-regular fa-calendar"></i></div>
                         <div class="stat-details">
                             <h3>Total Reserved</h3>
-                            <p class="number">{{ $totalReserved ?? 0 }}</p>
+                            <p class="number" id="realtime-reserved">{{ $totalReserved ?? 0 }}</p>
                         </div>
                     </div>
                     <div class="stat-card">
@@ -133,14 +133,14 @@
                         <div class="stat-icon icon-green"><i class="fa-solid fa-users"></i></div>
                         <div class="stat-details">
                             <h3>Total Users</h3>
-                            <p class="number">{{ $totalUsers ?? 0 }}</p>
+                            <p class="number" id="realtime-users">{{ $totalUsers ?? 0 }}</p>
                         </div>
                     </div>
                     <div class="stat-card" onclick="window.location.href='{{ url('/admin/reservations?tab=pending') }}'" style="cursor: pointer; transition: 0.2s;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 15px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='none'; this.style.boxShadow='none';">
                         <div class="stat-icon icon-orange"><i class="fa-solid fa-clock-rotate-left"></i></div>
                         <div class="stat-details">
                             <h3>Pending</h3>
-                            <p class="number">{{ $pendingReservations ?? 0 }}</p>
+                            <p class="number" id="realtime-pending">{{ $pendingReservations ?? 0 }}</p>
                         </div>
                     </div>
                 </div>
@@ -257,5 +257,33 @@
 
         </div>
     </main>
+    <script>
+    // Real-Time Dashboard Metrics (Updates every 3 seconds)
+    setInterval(function() {
+        let currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('t', new Date().getTime()); // Cache buster
+        
+        fetch(currentUrl.toString())
+            .then(response => response.text())
+            .then(html => {
+                let parser = new DOMParser();
+                let doc = parser.parseFromString(html, 'text/html');
+                
+                // The exact IDs we assigned to the numbers
+                const metrics = ['realtime-reserved', 'realtime-users', 'realtime-pending'];
+                
+                metrics.forEach(id => {
+                    let newElement = doc.getElementById(id);
+                    let currentElement = document.getElementById(id);
+                    
+                    // If the number changed in the database, smoothly update the screen
+                    if (newElement && currentElement && currentElement.innerHTML !== newElement.innerHTML) {
+                        currentElement.innerHTML = newElement.innerHTML;
+                    }
+                });
+            })
+            .catch(error => console.log('Polling error, waiting for next cycle...'));
+    }, 3000); 
+</script>
 </body>
 </html>

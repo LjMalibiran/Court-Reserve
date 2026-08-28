@@ -137,7 +137,9 @@
                 $notifications = Auth::check() ? Auth::user()->customNotifications()->with('reservation')->orderBy('created_at', 'desc')->take(10)->get() : collect();
                 $unreadCount = $notifications->where('is_read', false)->count();
             @endphp
-            <div class="notification-wrapper">
+            
+            <!-- ADDED ID HERE FOR REAL-TIME POLLING -->
+            <div class="notification-wrapper" id="realtime-notifications">
                 <i class="fa-regular fa-bell bell-icon" onclick="toggleNotifications()"></i>
                 @if($unreadCount > 0)
                     <span class="notification-badge" id="notif-badge">{{ $unreadCount }}</span>
@@ -151,7 +153,8 @@
                         @endif
                     </div>
                     @forelse($notifications as $notif)
-                        <div class="notification-item {{ $notif->is_read ? '' : 'unread' }}" onclick="openNotificationDetails('{{ $notif->reservation_id ?? '' }}', '{{ addslashes($notif->reservation ? ($notif->reservation->sport ?? 'Badminton') . ' Court ' . $notif->reservation->court_id : $notif->title) }}', '{{ $notif->reservation ? \Carbon\Carbon::parse($notif->reservation->start_time)->format('D, M j, Y') : '' }}', '{{ $notif->reservation ? \Carbon\Carbon::parse($notif->reservation->start_time)->format('g:i A') . ' - ' . \Carbon\Carbon::parse($notif->reservation->end_time)->format('g:i A') : '' }}', '{{ $notif->reservation ? $notif->reservation->reservation_code : '' }}', '{{ $notif->reservation ? ucfirst($notif->reservation->status) : '' }}', '{{ addslashes($notif->message) }}')">
+                        <!-- Notice we added id="notif-{{ $notif->id }}" and passed $notif->id as the first parameter -->
+                        <div id="notif-{{ $notif->id }}" class="notification-item {{ $notif->is_read ? '' : 'unread' }}" onclick="openNotificationDetails('{{ $notif->id }}', '{{ $notif->reservation_id ?? '' }}', '{{ addslashes($notif->reservation ? ($notif->reservation->sport ?? 'Badminton') . ' Court ' . $notif->reservation->court_id : $notif->title) }}', '{{ $notif->reservation ? \Carbon\Carbon::parse($notif->reservation->start_time)->format('D, M j, Y') : '' }}', '{{ $notif->reservation ? \Carbon\Carbon::parse($notif->reservation->start_time)->format('g:i A') . ' - ' . \Carbon\Carbon::parse($notif->reservation->end_time)->format('g:i A') : '' }}', '{{ $notif->reservation ? $notif->reservation->reservation_code : '' }}', '{{ $notif->reservation ? ucfirst($notif->reservation->status) : '' }}', '{{ addslashes($notif->message) }}')">
                             <div class="notification-title">{{ $notif->title }}</div>
                             <p class="notification-msg">{{ $notif->message }}</p>
                             <span style="font-size: 10px; color: #aaa; margin-top: 5px; display: block;">{{ $notif->created_at->diffForHumans() }}</span>
@@ -234,7 +237,41 @@
             document.getElementById(id).style.display = 'none';
         }
 
-        function openNotificationDetails(reservationId, title, date, time, code, status, fallbackMsg) {
+        // Notice we added notifId as the very first parameter here!
+        function openNotificationDetails(notifId, reservationId, title, date, time, code, status, fallbackMsg) {
+            
+            // 1. Mark this specific notification as read in the database
+            const notifElement = document.getElementById('notif-' + notifId);
+            
+            if (notifElement && notifElement.classList.contains('unread')) {
+                fetch(`/notifications/${notifId}/mark-read`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({})
+                }).then(response => response.json())
+                  .then(data => {
+                      if(data.success) {
+                          // Instantly remove the blue background
+                          notifElement.classList.remove('unread');
+                          
+                          // Instantly subtract 1 from the red badge count
+                          const badge = document.getElementById('notif-badge');
+                          if (badge) {
+                              let currentCount = parseInt(badge.innerText);
+                              if (currentCount > 1) {
+                                  badge.innerText = currentCount - 1;
+                              } else {
+                                  badge.style.display = 'none'; // Hide if it hits zero
+                              }
+                          }
+                      }
+                  }).catch(err => console.error('Failed to mark read', err));
+            }
+
+            // 2. Open the Modal Details as usual
             document.getElementById('notifDetailsModal').style.display = 'flex';
             document.getElementById('nd-title').innerText = title;
 
@@ -266,6 +303,36 @@
                 document.getElementById('nd-fallback-msg').style.display = 'block';
             }
         }
+
+        // --------------------------------------------------------
+        // BACKGROUND POLLING FOR REAL-TIME NOTIFICATIONS
+        // --------------------------------------------------------
+        setInterval(function() {
+            let currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set('noti_check', new Date().getTime()); // Cache buster
+            
+            fetch(currentUrl.toString(), { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(response => response.text())
+                .then(html => {
+                    let parser = new DOMParser();
+                    let doc = parser.parseFromString(html, 'text/html');
+                    
+                    let newNotifications = doc.getElementById('realtime-notifications');
+                    let currentNotifications = document.getElementById('realtime-notifications');
+                    
+                    if (newNotifications && currentNotifications && currentNotifications.innerHTML !== newNotifications.innerHTML) {
+                        // Keep dropdown open if user is currently looking at it!
+                        let isDropdownOpen = document.getElementById('notif-dropdown').style.display === 'block';
+                        
+                        currentNotifications.innerHTML = newNotifications.innerHTML;
+                        
+                        if (isDropdownOpen) {
+                            document.getElementById('notif-dropdown').style.display = 'block';
+                        }
+                    }
+                })
+                .catch(error => console.log('Notification sync paused...'));
+        }, 3000); // Checks every 3 seconds
     </script>
     
     @yield('scripts')
