@@ -70,9 +70,39 @@
     .crc-right { display: flex; align-items: center; gap: 14px; }
     .crc-chevron { color: #94a3b8; font-size: 14px; }
 
+    /* ==========================================
+       MOBILE FIXES FOR BUTTONS AND LAYOUT
+       ========================================== */
     @media (max-width: 768px) {
-        .welcome-card { flex-direction: column !important; text-align: center !important; gap: 24px !important; padding: 20px 10px !important; }
-        .reservations-grid { display: flex !important; flex-direction: column !important; gap: 24px !important; }
+        /* Container adjustments */
+        .welcome-card { 
+            flex-direction: column !important; 
+            text-align: center !important; 
+            gap: 20px !important; 
+            padding: 24px 20px !important; 
+            height: auto !important;
+        }
+        
+        .welcome-text h2 { font-size: 20px !important; }
+        .welcome-text h2 strong { font-size: 32px !important; }
+        
+        /* Box sports buttons perfectly side-by-side */
+        .sport-buttons { 
+            width: 100% !important; 
+            gap: 12px !important; /* Slightly smaller gap to save space */
+        }
+        .sport-btn { 
+            min-width: 0 !important; /* Removes the fixed width that causes overflow */
+            flex: 1 !important; /* Forces both buttons to perfectly share 50% width */
+            padding: 16px 10px !important; 
+        }
+        
+        /* Adjust icons and fonts to fit perfectly in the new button sizes */
+        .sport-btn span { font-size: 16px !important; margin-top: 8px !important; }
+        .sport-btn svg { width: 42px !important; height: 42px !important; }
+
+        .reservations-grid { display: flex !important; flex-direction: column !important; gap: 20px !important; }
+        .panel { padding: 24px 20px !important; }
     }
 </style>
 
