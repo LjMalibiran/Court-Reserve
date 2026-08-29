@@ -29,7 +29,8 @@ class VerificationController extends Controller
             $user->verification_code = null;
             $user->save();
 
-            return redirect()->route('home')->with('success', 'Identity verified successfully!');
+            // PERFECTED: Route them to the Terms and Conditions page instead of home!
+            return redirect()->route('terms')->with('success', 'Identity verified successfully! Please agree to the terms to continue.');
         }
 
         // 4. If it fails, send them back with an error
