@@ -35,7 +35,7 @@ class ReservationController extends Controller
         $courtId = $request->court_id;
 
         $isDoubleBooked = Reservation::where('court_id', $courtId)
-            ->whereIn('status', ['pending', 'confirmed'])
+            ->whereIn('status', ['pending', 'confirmed', 'completed', 'in-play'])
             ->where(function ($query) use ($start, $end) {
                 $query->where(function ($q) use ($start, $end) {
                     $q->where('start_time', '<', $end)->where('end_time', '>', $start);
@@ -48,16 +48,25 @@ class ReservationController extends Controller
 
         $court = Court::find($courtId);
         $durationInHours = $start->diffInMinutes($end) / 60;
-        $totalPrice = $durationInHours * ($court->price_per_hour ?? 230); 
-
+        
         $sport = $request->sport ?? 'Badminton';
+        $courtPrice = $sport === 'Pickleball' ? 250 : 230;
+        $totalPrice = $durationInHours * $courtPrice; 
+
+        if ($sport === 'Badminton') {
+            $rackets = intval($request->rackets ?? 0);
+            $shuttles = intval($request->shuttlecocks ?? 0);
+            $totalPrice += ($rackets * 50) + ($shuttles * 50);
+        }
 
         session()->put([
             'court_id' => $courtId,
             'sport' => $sport,
             'start_time' => $start->format('Y-m-d H:i:s'),
             'end_time' => $end->format('Y-m-d H:i:s'),
-            'total_price' => $totalPrice
+            'total_price' => $totalPrice,
+            'rackets' => $rackets ?? 0,
+            'shuttles' => $shuttles ?? 0
         ]);
 
         return redirect()->route('payment.index');
@@ -71,7 +80,7 @@ class ReservationController extends Controller
 
         $query = Reservation::where('court_id', $courtId)
             ->whereDate('start_time', $date)
-            ->whereIn('status', ['pending', 'confirmed']); // Ignores cancelled automatically
+            ->whereIn('status', ['pending', 'confirmed', 'completed', 'in-play']); // Ignores cancelled automatically
             
         // If we are editing, ignore the user's own current reservation blocks!
         if ($excludeId) {
@@ -191,7 +200,7 @@ class ReservationController extends Controller
         // Check if the NEW time and NEW court is already booked by someone else
         $isDoubleBooked = Reservation::where('court_id', $request->court_id)
             ->where('id', '!=', $reservation->id) // Ignore their own current reservation
-            ->whereIn('status', ['pending', 'confirmed']) // Ignore cancelled
+            ->whereIn('status', ['pending', 'confirmed', 'completed', 'in-play']) // Ignore cancelled
             ->where(function ($query) use ($start, $end) {
                 $query->where('start_time', '<', $end)->where('end_time', '>', $start);
             })->exists();

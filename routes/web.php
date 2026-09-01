@@ -49,7 +49,11 @@ Route::get('/check-admin', function () {
 // Normal User Login & Register
 Route::get('/login', function () {
     return view('login');
-})->name('login');
+})->middleware('guest')->name('login');
+
+Route::get('/forgot-password', function () {
+    return view('forgot-password');
+})->middleware('guest')->name('forgot.password');
 
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');

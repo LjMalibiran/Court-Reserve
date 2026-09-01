@@ -178,7 +178,7 @@
     <div class="modal-overlay" id="notifDetailsModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeGlobalModal('notifDetailsModal')">&times;</button>
-            <h2 class="modal-title">Notification Details</h2>
+            <h2 class="modal-title" id="notif-modal-main-title">Notification Details</h2>
             
             <div style="margin-bottom: 20px; text-align: center;">
                 <h3 id="nd-title" style="margin: 0; color: var(--primary-blue);"></h3>
@@ -273,6 +273,7 @@
 
             // 2. Open the Modal Details as usual
             document.getElementById('notifDetailsModal').style.display = 'flex';
+            document.getElementById('notif-modal-main-title').innerText = notifId === 'null' ? 'Reservation Details' : 'Notification Details';
             document.getElementById('nd-title').innerText = title;
 
             if (reservationId && reservationId !== 'null' && reservationId !== '') {
@@ -291,6 +292,8 @@
                 badge.innerText = status;
                 if(status === 'Confirmed') {
                     badge.style.backgroundColor = '#d1fae5'; badge.style.color = '#059669';
+                } else if(status === 'Completed') {
+                    badge.style.backgroundColor = '#e0e7ff'; badge.style.color = '#4338ca';
                 } else if(status === 'Cancelled') {
                     badge.style.backgroundColor = '#fee2e2'; badge.style.color = '#dc2626';
                 } else {

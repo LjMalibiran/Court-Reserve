@@ -21,13 +21,13 @@ class ProfileController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-            'phone_number' => 'nullable|string|max:20',
+            'contact' => 'nullable|string|max:20',
             'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
         $user->name = $request->name;
         $user->email = $request->email;
-        $user->phone_number = $request->phone_number;
+        $user->contact = $request->contact;
 
         if ($request->hasFile('profile_picture')) {
             // Delete old picture if exists
@@ -65,8 +65,8 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user->phone_number) {
-            return back()->withErrors(['2fa' => 'You must set a phone number in your profile before enabling 2-Factor Authentication.']);
+        if (!$user->email) {
+            return back()->withErrors(['2fa' => 'You must set an email address in your profile before enabling 2-Factor Authentication.']);
         }
 
         $user->two_factor_enabled = !$user->two_factor_enabled;

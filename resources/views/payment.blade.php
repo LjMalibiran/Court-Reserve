@@ -64,9 +64,13 @@
     .upload-hint { text-align: center; color: #94a3b8; font-size: 12px; font-weight: 600;}
     
     /* Submit Button */
-    .btn-submit-container { max-width: 1000px; display: flex; justify-content: flex-end; margin-top: 10px;}
+    .btn-submit-container { max-width: 1000px; display: flex; justify-content: space-between; margin-top: 10px;}
     .btn-submit { background: #0033cc; color: white; border: none; padding: 16px 40px; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.2s; min-width: 200px;}
     .btn-submit:hover { background: #002299; }
+    
+    .btn-back { background: white; color: #64748b; border: 1.5px solid #cbd5e1; padding: 15px 40px; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.2s; min-width: 200px; text-decoration: none; text-align: center; display: inline-block; box-sizing: border-box; }
+    .btn-back:hover { background: #f1f5f9; color: #334155; }
+    
     .error-msg { color: #dc2626; font-size: 13px; display: none; margin-top: 10px; font-weight: 600; text-align: center;}
 
     /* MODAL */
@@ -97,8 +101,8 @@
     @media (max-width: 768px) {
         .payment-grid { grid-template-columns: 1fr; }
         .gcash-details { flex-direction: column; align-items: flex-start; gap: 20px; }
-        .btn-submit-container { justify-content: center; }
-        .btn-submit { width: 100%; }
+        .btn-submit-container { flex-direction: column; gap: 15px; }
+        .btn-submit, .btn-back { width: 100%; min-width: auto; margin: 0; }
     }
 </style>
 @endsection
@@ -205,6 +209,7 @@
     </div>
     
     <div class="btn-submit-container">
+        <a href="{{ route('reservation.index') }}" class="btn-back">Back</a>
         <button type="submit" class="btn-submit">Next</button>
     </div>
 </form>
@@ -222,13 +227,13 @@
             </div>
         </div>
         
-        <h2 class="modal-title">Reservation Done!</h2>
+        <h2 class="modal-title">Request Received!</h2>
         
         <p class="modal-text">
             Your reservation for<br>
             <strong>{{ session('flash_sport') }} Court {{ session('flash_court') }}</strong><br>
             on <strong>{{ session('flash_start') ? \Carbon\Carbon::parse(session('flash_start'))->format('M j, Y') : '' }} at {{ session('flash_start') ? \Carbon\Carbon::parse(session('flash_start'))->format('g:i A') : '' }}</strong><br>
-            is waiting for confirmation.
+            has been submitted and is awaiting confirmation.
         </p>
         
         <div class="reservation-id">
@@ -237,13 +242,13 @@
         
         <div class="qr-box">
             @if(session('reservation_code'))
-                <img id="qr-image" src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data={{ urlencode(session('reservation_code')) }}" alt="QR Code" style="display: block;">
+                <img id="qr-image" src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data={{ urlencode(session('reservation_code')) }}" crossorigin="anonymous" alt="QR Code" style="display: block;">
             @endif
         </div>
         
-        <div class="qr-hint">Please arrive 3-5 minutes before your schedule time.</div>
+        <div class="qr-hint">Please arrive 3-5 minutes before your scheduled time.</div>
         
-        <button class="btn-download" onclick="downloadQR()">Download QR</button>
+        <button class="btn-download" onclick="downloadReceipt()">Download Receipt</button>
     </div>
 </div>
 @endsection
@@ -278,21 +283,40 @@
         window.location.href = "{{ route('reservation.index') }}";
     }
 
-    function downloadQR() {
-        const qrImage = document.getElementById('qr-image').src;
-        fetch(qrImage)
-            .then(response => response.blob())
-            .then(blob => {
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.style.display = 'none';
-                a.href = url;
-                a.download = 'Reservation_QR_{{ session("reservation_code") }}.png';
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-            })
-            .catch(() => alert('Failed to download QR code.'));
+    function downloadReceipt() {
+        const modalContent = document.querySelector('#successModal .modal-content');
+        const closeBtn = document.querySelector('#successModal .modal-close');
+        const downloadBtn = document.querySelector('#successModal .btn-download');
+
+        // Hide buttons before capture
+        closeBtn.style.display = 'none';
+        downloadBtn.style.display = 'none';
+
+        html2canvas(modalContent, {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: '#ffffff'
+        }).then(canvas => {
+            const url = canvas.toDataURL('image/png');
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = 'Receipt_{{ session("reservation_code") }}.png';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            // Restore buttons
+            closeBtn.style.display = 'block';
+            downloadBtn.style.display = 'block';
+        }).catch(err => {
+            console.error(err);
+            alert('Failed to download receipt.');
+            closeBtn.style.display = 'block';
+            downloadBtn.style.display = 'block';
+        });
     }
 </script>
+<!-- Add html2canvas library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 @endsection

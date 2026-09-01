@@ -18,5 +18,15 @@ class AppServiceProvider extends ServiceProvider
         if (config('app.env') === 'production') {
             URL::forceScheme('https');
         }
+
+        if (! $this->app->runningInConsole()) {
+            try {
+                \App\Models\Reservation::whereIn('status', ['confirmed', 'in-play'])
+                    ->where('end_time', '<=', \Carbon\Carbon::now())
+                    ->update(['status' => 'completed']);
+            } catch (\Exception $e) {
+                // Ignore if database/table is not yet set up
+            }
+        }
     }
 }

@@ -23,8 +23,10 @@ class AdminAuthController extends Controller
             'role' => 'admin' // <-- CHANGE: Use the 'role' column instead of 'is_admin'
         ];
 
+        $remember = $request->has('remember');
+
         // Try to log the user in
-        if (Auth::attempt($credentials)) {
+        if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
             
             // Success! Send them to the admin dashboard

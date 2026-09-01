@@ -19,7 +19,6 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
         }
 
-        /* The Main Card */
         .auth-form-container { 
             background: white; 
             padding: 40px 40px 30px 40px; 
@@ -30,17 +29,35 @@
             box-sizing: border-box;
             text-align: center;
             box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        /* Back Button */
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            text-decoration: none;
+            color: #2b308b;
+            font-weight: bold;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+        .back-button svg {
+            width: 16px;
+            height: 16px;
+            margin-right: 5px;
         }
 
         h2 { 
             color: #0b2057; 
-            margin-top: 0; 
+            margin-top: 20px; 
             font-size: 32px; 
             font-weight: bold;
-            margin-bottom: 30px; 
+            margin-bottom: 25px; 
         }
 
-        /* Floating Label Input Fields */
         .input-group { 
             position: relative; 
             margin-bottom: 25px; 
@@ -63,6 +80,10 @@
             border-color: #0033cc; 
         }
 
+        .input-group input.is-invalid {
+            border-color: #dc3545 !important;
+        }
+
         .input-group label { 
             position: absolute; 
             top: -10px; 
@@ -74,7 +95,6 @@
             font-weight: 500; 
         }
 
-        /* Custom Circular Checkbox for Terms */
         .custom-checkbox {
             display: flex;
             align-items: center;
@@ -114,7 +134,6 @@
             text-decoration: underline;
         }
 
-        /* Sign Up Button */
         .btn-primary { 
             background: #0044ff; 
             color: white; 
@@ -127,116 +146,252 @@
             cursor: pointer; 
         }
         .btn-primary:hover { background-color: #0033cc; }
+        .btn-primary:disabled { background-color: #cccccc; cursor: not-allowed; }
 
-        /* Error Messages */
         .alert-error { background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 8px; margin-bottom: 20px; font-size: 13px; text-align: left; }
 
-        /* Divider */
-        .divider { 
-            display: flex; 
-            align-items: center; 
-            text-align: center; 
-            margin: 25px 0 20px; 
-            color: #888; 
-            font-size: 12px; 
-        }
-        .divider::before, .divider::after { 
-            content: ''; 
-            flex: 1; 
-            border-bottom: 1px solid #ccc; 
-        }
-        .divider span { padding: 0 10px; }
-
-        /* Social Icons */
-        .social-logins { 
-            display: flex; 
-            justify-content: center; 
-            gap: 20px; 
-            margin-bottom: 30px; 
-        }
-        .social-logins svg { 
-            width: 24px; 
-            height: 24px; 
-            cursor: pointer; 
-            transition: 0.2s; 
-        }
-        .social-logins svg:hover { transform: scale(1.1); }
-
-        /* Footer */
         .auth-footer { 
             font-size: 11px; 
             color: #777; 
+            margin-top: 15px;
         }
         .auth-footer a { 
             color: #0044ff; 
             text-decoration: none; 
         }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            text-align: left;
+            position: relative;
+        }
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #333;
+        }
+        .modal-content h3 { margin-top: 0; color: #0b2057; }
+        .modal-content p { font-size: 14px; color: #555; line-height: 1.5; }
     </style>
 </head>
 <body>
     
     <div class="auth-form-container">
+        <!-- Back Button -->
+        <a href="/" class="back-button">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Back
+        </a>
+
         <h2>Create Account</h2>
-        
-        @if($errors->any())
-            <div class="alert-error">
-                <ul style="margin: 0; padding-left: 20px;">
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
         
         <form action="{{ route('register.post') }}" method="POST">
             @csrf
             
-            <div class="input-group">
-                <input type="text" name="name" id="name" required>
+            <div class="input-group" style="margin-bottom: 25px;">
+                <input type="text" name="name" id="name" class="@error('name') is-invalid @enderror" required oninput="checkInputs()" value="{{ old('name') }}">
                 <label for="name">Name</label>
+                @error('name')
+                    <span class="error-text" style="color: #dc3545; font-size: 11px; margin-top: 5px; display: block; font-weight: 500;">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <div class="input-group" style="margin-bottom: 25px;">
+                <input type="email" name="email" id="email" class="@error('email') is-invalid @enderror" required oninput="checkInputs()" value="{{ old('email') }}" placeholder="example@gmail.com">
+                <label for="email">Gmail Address</label>
+                <span id="email-error" class="error-text" style="color: #dc3545; font-size: 11px; margin-top: 5px; display: none; font-weight: 500;"></span>
+                @error('email')
+                    <span class="error-text" style="color: #dc3545; font-size: 11px; margin-top: 5px; display: block; font-weight: 500;">{{ $message }}</span>
+                @enderror
             </div>
             
-            <div class="input-group">
-                <input type="text" name="contact" id="contact" required>
+            <div class="input-group" style="margin-bottom: 25px;">
+                <input type="text" name="contact" id="contact" maxlength="11" class="@error('contact') is-invalid @enderror" required oninput="this.value = this.value.replace(/[^0-9]/g, ''); checkInputs()" value="{{ old('contact') }}">
                 <label for="contact">Contact Number</label>
+                <span id="contact-error" class="error-text" style="color: #dc3545; font-size: 11px; margin-top: 5px; display: none; font-weight: 500;"></span>
+                @error('contact')
+                    <span class="error-text" style="color: #dc3545; font-size: 11px; margin-top: 5px; display: block; font-weight: 500;">{{ $message }}</span>
+                @enderror
             </div>
             
-            <div class="input-group">
-                <input type="password" name="password" id="password" required>
+            <div class="input-group" style="margin-bottom: 5px;">
+                <input type="password" name="password" id="password" class="@error('password') is-invalid @enderror" required oninput="checkInputs()">
                 <label for="password">Password</label>
+                @error('password')
+                    <span class="error-text" style="color: #dc3545; font-size: 11px; margin-top: 5px; display: block; font-weight: 500;">{{ $message }}</span>
+                @enderror
             </div>
+            <ul id="password-reqs" style="font-size: 11px; text-align: left; margin-bottom: 25px; margin-top: 5px; padding-left: 20px; color: #dc3545; display: none;">
+                <li id="req-length">More than 8 characters</li>
+                <li id="req-letter">At least one letter</li>
+                <li id="req-number">At least one number</li>
+                <li id="req-symbol">At least one symbol</li>
+            </ul>
             
             <label class="custom-checkbox">
-                <input type="checkbox" id="terms" name="terms" checked required>
-                <span>I agree to the <a href="#">Terms and Conditions</a></span>
+                <input type="checkbox" id="terms" name="terms" required onchange="checkInputs()">
+                <span>I agree to the <a href="javascript:void(0)" onclick="openModal()">Terms and Conditions</a></span>
             </label>
             
-            <button type="submit" class="btn-primary">Sign Up</button>
+            <button type="submit" class="btn-primary" id="signUpBtn" disabled>Sign Up</button>
         </form>
-
-        <div class="divider">
-            <span>Or Continue with</span>
-        </div>
-
-        <div class="social-logins">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-            </svg>
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2C6.477 2 2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.879V14.89h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.989C18.343 21.129 22 16.99 22 12c0-5.523-4.477-10-10-10z" fill="#1877F2"/>
-            </svg>
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.15 2.95.97 3.67 2.14-3.17 1.94-2.58 6.07.6 7.4-1 2.32-2 4.52-2.92 5.47zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.02 4.41-3.74 4.25z" fill="#000000"/>
-            </svg>
-        </div>
 
         <div class="auth-footer">
             <p>Already have an account? <a href="/login">Sign In</a></p>
         </div>
     </div>
 
+    <!-- Terms Modal -->
+    <div id="termsModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h3>Terms and Conditions</h3>
+            
+            <div style="max-height: 60vh; overflow-y: auto; margin-bottom: 20px; padding-right: 15px; font-size: 14px; color: #444; line-height: 1.6; text-align: justify;">
+                <p>Welcome to Court Reserve, the online reservation system of Batangas Badminton Center and Fitness Gym. By accessing and using this website, you agree to comply with the following Terms and Conditions.</p>
+                <ul style="padding-left: 20px; margin: 0; text-align: left;">
+                    <li style="margin-bottom: 12px;"><strong style="color: #0b2057;">User Accounts:</strong> Users are responsible for maintaining the confidentiality of their account credentials and for all activities conducted under their account.</li>
+                    <li style="margin-bottom: 12px;"><strong style="color: #0b2057;">Reservations:</strong> Court reservations are processed on a first-come, first-served basis. Reservations are subject to court availability and are confirmed only after the required payment has been completed.</li>
+                    <li style="margin-bottom: 12px;"><strong style="color: #0b2057;">Payments:</strong> A 50% down payment is required to secure a reservation. Failure to complete the required payment may result in the cancellation of the reservation request.</li>
+                    <li style="margin-bottom: 12px;"><strong style="color: #0b2057;">Cancellation and Refund Policy:</strong> Users may request cancellation or rescheduling through the system. Refunds of the down payment will only be granted for cancellations made at least five (5) hours before the scheduled reservation time. Cancellations made less than five (5) hours before the reservation schedule are non-refundable. Refunds may take 24 hours working time.</li>
+                    <li style="margin-bottom: 12px;"><strong style="color: #0b2057;">User Conduct:</strong> Users agree not to misuse the system, provide false information, attempt unauthorized access, or engage in activities that may disrupt the website's operations.</li>
+                    <li style="margin-bottom: 12px;"><strong style="color: #0b2057;">Limitation of Liability:</strong> Batangas Badminton Center and Fitness Gym shall not be held liable for reservation issues, delays, or service interruptions caused by internet connectivity problems, technical failures, power outages, or other circumstances beyond its control.</li>
+                    <li style="margin-bottom: 12px;"><strong style="color: #0b2057;">Privacy:</strong> Personal information collected through the website shall be used solely for reservation management, communication, payment processing, and service improvement. User information will be handled in accordance with applicable data privacy laws.</li>
+                    <li style="margin-bottom: 12px;"><strong style="color: #0b2057;">Changes to Terms and Conditions:</strong> Batangas Badminton Center and Fitness Gym reserves the right to modify these Terms and Conditions at any time. Continued use of the website after such changes constitutes acceptance of the updated terms.</li>
+                </ul>
+            </div>
+
+            <button class="btn-primary" onclick="acceptTerms()">I Accept</button>
+        </div>
+    </div>
+
+    <script>
+        function checkInputs() {
+            const name = document.getElementById('name').value;
+            const emailInput = document.getElementById('email');
+            const contactInput = document.getElementById('contact');
+            const password = document.getElementById('password').value;
+            const terms = document.getElementById('terms').checked;
+            const signUpBtn = document.getElementById('signUpBtn');
+            
+            const email = emailInput.value;
+            const contact = contactInput.value;
+
+            // Email Validation
+            let emailValid = false;
+            const emailError = document.getElementById('email-error');
+            if (email.length > 0) {
+                if (!email.endsWith('@gmail.com')) {
+                    emailError.textContent = "Must be a valid Gmail address (@gmail.com)";
+                    emailError.style.display = "block";
+                    emailInput.classList.add('is-invalid');
+                } else {
+                    emailError.style.display = "none";
+                    emailInput.classList.remove('is-invalid');
+                    emailValid = true;
+                }
+            } else {
+                emailError.style.display = "none";
+                emailInput.classList.remove('is-invalid');
+            }
+
+            // Contact Validation
+            let contactValid = false;
+            const contactError = document.getElementById('contact-error');
+            if (contact.length > 0) {
+                if (contact.length !== 11) {
+                    contactError.textContent = "Contact number must be exactly 11 digits";
+                    contactError.style.display = "block";
+                    contactInput.classList.add('is-invalid');
+                } else {
+                    contactError.style.display = "none";
+                    contactInput.classList.remove('is-invalid');
+                    contactValid = true;
+                }
+            } else {
+                contactError.style.display = "none";
+                contactInput.classList.remove('is-invalid');
+            }
+
+            // Password Validation (Bulleted List)
+            const reqsList = document.getElementById('password-reqs');
+            let passwordValid = false;
+            
+            if (password.length > 0) {
+                reqsList.style.display = "block";
+                
+                const hasLength = password.length > 8;
+                const hasLetter = /[a-zA-Z]/.test(password);
+                const hasNumber = /[0-9]/.test(password);
+                const hasSymbol = /[^a-zA-Z0-9]/.test(password);
+
+                document.getElementById('req-length').style.color = hasLength ? "#28a745" : "#dc3545";
+                document.getElementById('req-letter').style.color = hasLetter ? "#28a745" : "#dc3545";
+                document.getElementById('req-number').style.color = hasNumber ? "#28a745" : "#dc3545";
+                document.getElementById('req-symbol').style.color = hasSymbol ? "#28a745" : "#dc3545";
+
+                passwordValid = hasLength && hasLetter && hasNumber && hasSymbol;
+            } else {
+                reqsList.style.display = "none";
+            }
+
+            // Overall Button Check
+            if (name.trim() !== '' && emailValid && contactValid && passwordValid && terms) {
+                signUpBtn.disabled = false;
+            } else {
+                signUpBtn.disabled = true;
+            }
+        }
+        
+        window.onload = function() {
+            checkInputs();
+        };
+
+        // Modal Logic
+        const modal = document.getElementById("termsModal");
+        
+        function openModal() {
+            modal.style.display = "flex";
+        }
+        
+        function closeModal() {
+            modal.style.display = "none";
+        }
+
+        function acceptTerms() {
+            document.getElementById('terms').checked = true;
+            closeModal();
+            checkInputs();
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+    </script>
 </body>
 </html>

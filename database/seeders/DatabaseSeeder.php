@@ -18,11 +18,11 @@ class DatabaseSeeder extends Seeder
     {
         // Creates the Master Admin Account automatically
         User::updateOrCreate(
-            ['name' => 'Lj Malibiran'], // Look for this username...
+            ['name' => 'Court Reserve'], // Look for this username...
             [
                 'contact' => 'admin', // A placeholder contact so the DB doesn't complain
                 'password' => Hash::make('123Court'), // Securely encrypts your password
-                'is_admin' => true, // Grants master privileges
+                'role' => 'admin', // Grants master privileges
                 'phone_verified_at' => now(), // Skips the OTP verification step
             ]
         );

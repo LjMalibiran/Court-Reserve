@@ -187,9 +187,9 @@
         <div class="scrollable-list">
             @forelse($todayReservations as $res)
                 @php
-                    $badgeClass = $res->status == 'confirmed' ? 'badge-confirmed' : ($res->status == 'cancelled' ? 'badge-cancelled' : 'badge-pending');
+                    $badgeClass = in_array($res->status, ['confirmed', 'completed', 'in-play']) ? 'badge-confirmed' : ($res->status == 'cancelled' ? 'badge-cancelled' : 'badge-pending');
                 @endphp
-                <div class="compact-res-card" onclick="openResDetailsModal({{ $res->id }}, '{{ $res->sport ?? 'Badminton' }}', '{{ $res->court_id }}', '{{ $res->start_time }}', '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }}', '{{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}', '{{ $res->reservation_code }}', '{{ $res->status }}')">
+                <div class="compact-res-card" data-id="{{ $res->id }}" onclick="openResDetailsModal({{ $res->id }}, '{{ $res->sport ?? 'Badminton' }}', '{{ $res->court_id }}', '{{ $res->start_time }}', '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }}', '{{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}', '{{ $res->reservation_code }}', '{{ $res->status }}')">
                     <div class="crc-left">
                         <div class="crc-icon">
                             @if(($res->sport ?? 'Badminton') == 'Pickleball')
@@ -248,7 +248,7 @@
         <div class="scrollable-list">
             @forelse($upcomingReservations as $res)
                 @php
-                    $badgeClass = $res->status == 'confirmed' ? 'badge-confirmed' : ($res->status == 'cancelled' ? 'badge-cancelled' : 'badge-pending');
+                    $badgeClass = in_array($res->status, ['confirmed', 'completed', 'in-play']) ? 'badge-confirmed' : ($res->status == 'cancelled' ? 'badge-cancelled' : 'badge-pending');
                 @endphp
                 <div class="compact-res-card" onclick="openResDetailsModal({{ $res->id }}, '{{ $res->sport ?? 'Badminton' }}', '{{ $res->court_id }}', '{{ $res->start_time }}', '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }}', '{{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}', '{{ $res->reservation_code }}', '{{ $res->status }}')">
                     <div class="crc-left">
@@ -539,7 +539,7 @@
         const badge = document.getElementById('detail-res-badge');
         badge.innerText = status.charAt(0).toUpperCase() + status.slice(1);
         badge.className = '';
-        if (status === 'confirmed') badge.className = 'badge-confirmed';
+        if (status === 'confirmed' || status === 'completed' || status === 'in-play') badge.className = 'badge-confirmed';
         else if (status === 'cancelled') badge.className = 'badge-cancelled';
         else badge.className = 'badge-pending';
 

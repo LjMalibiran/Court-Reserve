@@ -97,7 +97,7 @@
         <h2>Verify your Account</h2>
         
         <p class="instruction">
-            We have sent the verification code to your contact number
+            We have sent the verification code to your Gmail address.
         </p>
         
         <form action="{{ route('verify.post') }}" method="POST" id="verifyForm">

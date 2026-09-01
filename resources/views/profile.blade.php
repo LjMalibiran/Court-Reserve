@@ -16,7 +16,7 @@
     .profile-pic { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 4px solid var(--light-blue); position: absolute; top: 0; left: 0; z-index: 1; }
     .profile-pic-placeholder { width: 100%; height: 100%; border-radius: 50%; background: var(--primary-blue); color: white; display: flex; justify-content: center; align-items: center; font-size: 60px; font-weight: bold; border: 4px solid var(--light-blue); box-sizing: border-box; }
     
-    .upload-btn { position: absolute; bottom: 0; right: 10px; background: var(--primary-blue); color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: 0.2s; }
+    .upload-btn { position: absolute; bottom: 0; right: 10px; background: var(--primary-blue); color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: 0.2s; z-index: 2; }
     .upload-btn:hover { background: #002299; transform: scale(1.05); }
 
     .user-name { font-size: 22px; color: var(--text-dark); margin: 0 0 5px 0; font-weight: bold; }
@@ -46,11 +46,12 @@
     .switch input { opacity: 0; width: 0; height: 0; }
     .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
     .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
-    input:checked + .slider { background-color: var(--success-green); }
+    input:checked + .slider { background-color: #059669; }
     input:checked + .slider:before { transform: translateX(24px); }
 
-    /* Help Center Unclickable */
-    .help-center-btn { display: flex; align-items: center; gap: 15px; padding: 15px 20px; background: #f9f9f9; border-radius: 8px; color: var(--text-dark); text-decoration: none; font-weight: bold; border: 1px solid #eee; margin-top: 20px; pointer-events: none; opacity: 0.6; }
+    /* Help Center */
+    .help-center-btn { display: flex; align-items: center; gap: 15px; padding: 15px 20px; background: #f9f9f9; border-radius: 8px; color: var(--text-dark); text-decoration: none; font-weight: bold; border: 1px solid #eee; margin-top: 20px; cursor: pointer; transition: 0.2s; }
+    .help-center-btn:hover { background: #f0f0f0; border-color: #ddd; }
     .help-center-btn i { color: var(--primary-blue); font-size: 20px; }
 
     /* Alerts */
@@ -98,7 +99,7 @@
                 <!-- Hidden inputs to satisfy required validation on update -->
                 <input type="hidden" name="name" value="{{ Auth::user()->name }}">
                 <input type="hidden" name="email" value="{{ Auth::user()->email }}">
-                <input type="hidden" name="phone_number" value="{{ Auth::user()->phone_number }}">
+                <input type="hidden" name="contact" value="{{ Auth::user()->contact }}">
             </div>
         </form>
 
@@ -130,13 +131,13 @@
                 </div>
                 
                 <div class="form-group">
-                    <label>Email Address</label>
+                    <label>Email Address <span style="font-size: 11px; color: #999;">(Required for 2FA)</span></label>
                     <input type="email" name="email" class="form-control" value="{{ Auth::user()->email }}" required>
                 </div>
 
                 <div class="form-group">
-                    <label>Phone Number <span style="font-size: 11px; color: #999;">(Required for 2FA)</span></label>
-                    <input type="text" name="phone_number" class="form-control" value="{{ Auth::user()->phone_number }}" placeholder="e.g. 09123456789">
+                    <label>Phone Number</label>
+                    <input type="text" name="contact" class="form-control" value="{{ Auth::user()->contact }}" placeholder="e.g. 09123456789">
                 </div>
 
                 <div style="overflow: hidden;">
@@ -152,7 +153,7 @@
             <div class="toggle-container">
                 <div class="toggle-info">
                     <h4>Two-Factor Authentication (2FA)</h4>
-                    <p>When enabled, you'll need to verify your identity with an SMS OTP when logging in.</p>
+                    <p>When enabled, you'll need to verify your identity with an Email OTP when logging in.</p>
                 </div>
                 <form action="{{ route('profile.toggle-2fa') }}" method="POST" id="toggle2faForm">
                     @csrf
@@ -192,11 +193,11 @@
 
 <!-- Help Center & Logout pinned at the very bottom -->
 <div style="margin-top: 40px; padding-bottom: 30px;">
-    <a href="#" class="help-center-btn">
+    <a href="#" class="help-center-btn" onclick="document.getElementById('helpCenterModal').style.display='flex'; return false;">
         <i class="fa-solid fa-circle-question"></i>
         <div>
             <span style="display: block; font-size: 14px;">Help Center</span>
-            <span style="font-size: 11px; color: var(--text-gray); font-weight: normal;">Currently Unavailable</span>
+            <span style="font-size: 11px; color: var(--text-gray); font-weight: normal;">View FAQs and Support</span>
         </div>
     </a>
 
@@ -204,5 +205,29 @@
         @csrf
         <button type="submit" class="btn-outline-red" style="width: 100%;"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out</button>
     </form>
+</div>
+@endsection
+
+@section('modals')
+<div class="modal-overlay" id="helpCenterModal">
+    <div class="modal-content" style="max-width: 500px;">
+        <button class="modal-close" onclick="closeGlobalModal('helpCenterModal')">&times;</button>
+        <h2 class="modal-title">Help Center</h2>
+        
+        <div style="text-align: left; margin-top: 20px;">
+            <h4 style="color: var(--primary-blue); margin-bottom: 5px;">How do I verify my account?</h4>
+            <p style="color: var(--text-gray); font-size: 14px; margin-top: 0;">During login, if you have Two-Factor Authentication (2FA) enabled, you will be sent a verification code to your registered Email address.</p>
+
+            <h4 style="color: var(--primary-blue); margin-bottom: 5px; margin-top: 20px;">Can I cancel a reservation?</h4>
+            <p style="color: var(--text-gray); font-size: 14px; margin-top: 0;">Yes, you can cancel your reservation by going to your Home dashboard, clicking on your upcoming reservation, and selecting "Cancel Reservation". Note that cancellations are subject to our refund policy.</p>
+
+            <h4 style="color: var(--primary-blue); margin-bottom: 5px; margin-top: 20px;">Who do I contact for support?</h4>
+            <p style="color: var(--text-gray); font-size: 14px; margin-top: 0;">You can reach out to our admin staff or cashier on-site, or contact us at BBC.Court.Reserve.gmail.com for further assistance.</p>
+        </div>
+        
+        <div style="margin-top: 30px; text-align: center;">
+            <button class="btn-submit" style="float: none; width: 100%;" onclick="closeGlobalModal('helpCenterModal')">Got it</button>
+        </div>
+    </div>
 </div>
 @endsection

@@ -127,23 +127,10 @@
                 </div>
             </div>
 
-            <!-- STEP 2: Date & Time -->
+            <!-- STEP 2: Court -->
             <div class="step-panel">
                 <div class="step-header">
                     <div class="step-circle">2</div>
-                    <h2 class="step-title">Select Date & Time</h2>
-                </div>
-                <input type="date" name="reservation_date" class="date-input" id="resDate" min="{{ \Carbon\Carbon::now('Asia/Manila')->format('Y-m-d') }}" value="{{ \Carbon\Carbon::now('Asia/Manila')->format('Y-m-d') }}" required>
-                <span class="time-label">Available Time Slot</span>
-                <div class="time-grid" id="timeSlots">
-                    <!-- JS Injected Time Slots -->
-                </div>
-            </div>
-
-            <!-- STEP 3: Court -->
-            <div class="step-panel">
-                <div class="step-header">
-                    <div class="step-circle">3</div>
                     <h2 class="step-title">Select Court</h2>
                 </div>
                 <div class="court-selection">
@@ -153,10 +140,10 @@
                 </div>
             </div>
 
-            <!-- STEP 4: Duration -->
+            <!-- STEP 3: Duration -->
             <div class="step-panel">
                 <div class="step-header">
-                    <div class="step-circle">4</div>
+                    <div class="step-circle">3</div>
                     <div style="display: flex; flex-direction: column;">
                         <h2 class="step-title">Play Duration</h2>
                         <span class="duration-sub" id="durationSubText">₱230.00 / hr</span>
@@ -167,6 +154,19 @@
                     <option value="2">2 Hours</option>
                     <option value="3">3 Hours</option>
                 </select>
+            </div>
+
+            <!-- STEP 4: Date & Time -->
+            <div class="step-panel">
+                <div class="step-header">
+                    <div class="step-circle">4</div>
+                    <h2 class="step-title">Select Date & Time</h2>
+                </div>
+                <input type="date" name="reservation_date" class="date-input" id="resDate" min="{{ \Carbon\Carbon::now('Asia/Manila')->format('Y-m-d') }}" value="{{ \Carbon\Carbon::now('Asia/Manila')->format('Y-m-d') }}" required>
+                <span class="time-label">Available Time Slot</span>
+                <div class="time-grid" id="timeSlots">
+                    <!-- JS Injected Time Slots -->
+                </div>
             </div>
         </div>
 
@@ -401,26 +401,7 @@
         selectedTimeString = timeText;
         
         let startHour = parseInt(element.getAttribute('data-hour'));
-        let closingHour = getClosingHour(document.getElementById('resDate').value);
-        
-        // Limits the dropdown to the exact hours remaining before close
-        let maxAvailableHours = closingHour - startHour;
-
         let durationSelect = document.getElementById('durationSelect');
-        let currentSelectedDuration = parseInt(durationSelect.value) || 1;
-        durationSelect.innerHTML = '';
-        
-        let optionLimit = Math.min(3, maxAvailableHours);
-        for(let i = 1; i <= optionLimit; i++) {
-            let option = document.createElement('option');
-            option.value = i;
-            option.text = i + (i === 1 ? ' Hour' : ' Hours');
-            if(i === currentSelectedDuration && i <= optionLimit) {
-                option.selected = true;
-            }
-            durationSelect.appendChild(option);
-        }
-
         let duration = parseInt(durationSelect.value) || 1;
         let endHour = startHour + duration;
        
@@ -446,6 +427,8 @@
         return true;
     }
 
+    let currentBookedSlots = [];
+
     function checkAvailability() {
         let date = document.getElementById('resDate').value;
         let courtId = document.getElementById('hidden_court_id').value;
@@ -455,30 +438,83 @@
         fetch(`/api/check-availability?date=${date}&court_id=${courtId}`)
             .then(response => response.json())
             .then(data => {
-                let bookedSlots = data.booked_slots || [];
-
-                document.querySelectorAll('.time-slot').forEach(slot => {
-                    let timeText = slot.innerText.trim();
-                    slot.classList.remove('booked');
-                   
-                    if(bookedSlots.includes(timeText)) {
-                        slot.classList.add('booked');
-                        slot.classList.remove('selected');
-                       
-                        if(selectedTimeString === timeText) {
-                            selectedTimeString = null;
-                            document.getElementById('summaryTime').innerText = "Not selected";
-                            document.getElementById('hidden_start_time').value = "";
-                            document.getElementById('hidden_end_time').value = "";
-                        }
-                    }
-                });
-                markPastSlots();
+                currentBookedSlots = data.booked_slots || [];
+                applySlotLogic();
             });
+    }
+
+    function applySlotLogic() {
+        let duration = parseInt(document.getElementById('durationSelect').value) || 1;
+        let closingHour = getClosingHour(document.getElementById('resDate').value);
+
+        let selectedDate = document.getElementById('resDate').value;
+        let now = new Date();
+        let manilaTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
+        let todayStr = manilaTime.getFullYear() + '-' + String(manilaTime.getMonth() + 1).padStart(2, '0') + '-' + String(manilaTime.getDate()).padStart(2, '0');
+        let currentHour = manilaTime.getHours();
+        
+        let allSlots = document.querySelectorAll('.time-slot');
+        
+        allSlots.forEach(slot => {
+            let slotHour = parseInt(slot.getAttribute('data-hour'));
+            let timeText = slot.innerText.trim();
+            
+            slot.classList.remove('booked');
+            
+            // 1. Is it naturally booked?
+            if(currentBookedSlots.includes(timeText)) {
+                slot.classList.add('booked');
+            }
+            
+            // 2. Is it in the past?
+            if (selectedDate === todayStr && slotHour <= currentHour) {
+                slot.classList.add('booked');
+            }
+        });
+
+        // 3. Apply duration rules
+        allSlots.forEach(slot => {
+            if(slot.classList.contains('booked')) return;
+            
+            let startHour = parseInt(slot.getAttribute('data-hour'));
+            let endHour = startHour + duration;
+            
+            if (endHour > closingHour) {
+                slot.classList.add('booked');
+                return;
+            }
+            
+            let overlap = false;
+            for(let i = 1; i < duration; i++) {
+                let checkHour = startHour + i;
+                let targetSlot = document.querySelector(`.time-slot[data-hour="${checkHour}"]`);
+                // If it doesn't exist, it means it's past closing or blocked
+                if (!targetSlot || currentBookedSlots.includes(targetSlot.innerText.trim()) || (selectedDate === todayStr && checkHour <= currentHour)) {
+                    overlap = true;
+                    break;
+                }
+            }
+            
+            if (overlap) {
+                slot.classList.add('booked');
+            }
+        });
+
+        // 4. Clear selection if the current selected slot is now booked
+        let selectedSlot = document.querySelector('.time-slot.selected');
+        if (selectedSlot && selectedSlot.classList.contains('booked')) {
+            selectedSlot.classList.remove('selected');
+            selectedTimeString = null;
+            document.getElementById('summaryTime').innerText = "Not selected";
+            document.getElementById('hidden_start_time').value = "";
+            document.getElementById('hidden_end_time').value = "";
+        }
     }
 
     document.getElementById('durationSelect').addEventListener('change', function() {
         calculateTotal();
+        applySlotLogic();
+        
         if(selectedTimeString) {
             let selectedEl = document.querySelector('.time-slot.selected');
             if(selectedEl) {
@@ -499,34 +535,6 @@
             }
         }
     });
-
-    function markPastSlots() {
-        let selectedDate = document.getElementById('resDate').value;
-        let now = new Date();
-        let manilaTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
-        let todayStr = manilaTime.getFullYear() + '-' + String(manilaTime.getMonth() + 1).padStart(2, '0') + '-' + String(manilaTime.getDate()).padStart(2, '0');
-       
-        if (selectedDate !== todayStr) return;
-       
-        let currentHour = manilaTime.getHours();
-       
-        document.querySelectorAll('.time-slot').forEach(slot => {
-            let slotHour = parseInt(slot.getAttribute('data-hour'));
-           
-            if (slotHour <= currentHour) {
-                slot.classList.add('booked');
-                slot.classList.remove('selected');
-               
-                let timeText = slot.innerText.trim();
-                if (selectedTimeString === timeText) {
-                    selectedTimeString = null;
-                    document.getElementById('summaryTime').innerText = "Not selected";
-                    document.getElementById('hidden_start_time').value = "";
-                    document.getElementById('hidden_end_time').value = "";
-                }
-            }
-        });
-    }
    
     document.addEventListener("DOMContentLoaded", function() {
         const urlParams = new URLSearchParams(window.location.search);
@@ -543,6 +551,59 @@
             generateTimeSlots(initialDate);
             checkAvailability();
         }
+
+        // Restore state if coming back from payment page
+        @if(session('start_time'))
+            setTimeout(() => {
+                let oldSport = "{{ session('sport', 'Badminton') }}";
+                let oldCourt = {{ session('court_id', 1) }};
+                
+                // Sport & Court
+                if (oldSport) selectSport(oldSport);
+                if (oldCourt) selectCourt(oldCourt);
+
+                // Date
+                let oldStart = new Date("{{ session('start_time') }}");
+                let y = oldStart.getFullYear();
+                let m = String(oldStart.getMonth() + 1).padStart(2, '0');
+                let d = String(oldStart.getDate()).padStart(2, '0');
+                
+                let resDateInput = document.getElementById('resDate');
+                resDateInput.value = `${y}-${m}-${d}`;
+                resDateInput.dispatchEvent(new Event('change'));
+
+                // Duration
+                let oldEnd = new Date("{{ session('end_time') }}");
+                let diffHrs = Math.round((oldEnd - oldStart) / 3600000);
+                if(diffHrs < 1) diffHrs = 1;
+                let durationSelect = document.getElementById('durationSelect');
+                durationSelect.value = diffHrs;
+                durationSelect.dispatchEvent(new Event('change'));
+
+                // Rentals
+                document.getElementById('racketCount').value = {{ session('rackets', 0) }};
+                document.getElementById('shuttlecockCount').value = {{ session('shuttles', 0) }};
+                calculateTotal();
+
+                // Select Time Slot (wait a moment for AJAX generation & checking)
+                let targetHour = oldStart.getHours();
+                let attempts = 0;
+                let poller = setInterval(() => {
+                    attempts++;
+                    let slots = document.querySelectorAll('.time-slot');
+                    if (slots.length > 0 || attempts > 20) {
+                        clearInterval(poller);
+                        setTimeout(() => {
+                            document.querySelectorAll('.time-slot').forEach(slot => {
+                                if (parseInt(slot.getAttribute('data-hour')) === targetHour && !slot.classList.contains('booked')) {
+                                    selectTime(slot);
+                                }
+                            });
+                        }, 500); // Buffer for checkAvailability to add .booked
+                    }
+                }, 100);
+            }, 100); // small initial delay to let DOM settle
+        @endif
     });
 </script>
 @endsection

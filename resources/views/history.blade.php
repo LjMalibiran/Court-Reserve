@@ -53,12 +53,12 @@
 
 <div class="search-container">
     <input type="text" class="search-bar" id="searchBar" placeholder="Search reservations...">
-    <button class="filter-btn"><i class="fa-solid fa-filter"></i></button>
+    <button class="filter-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
 </div>
 
 <div class="history-list">
     @forelse($historyReservations ?? collect() as $res)
-        <div class="history-card" data-search="{{ strtolower($res->sport . ' ' . $res->court_id . ' ' . $res->reservation_code) }}" onclick="openNotificationDetails({{ $res->id }}, '{{ $res->sport ?? 'Badminton' }} Court {{ $res->court_id }}', '{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}', '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}', '{{ $res->reservation_code }}', '{{ ucfirst($res->status) }}')">
+        <div class="history-card" data-search="{{ strtolower($res->sport . ' ' . $res->court_id . ' ' . $res->reservation_code . ' ' . \Carbon\Carbon::parse($res->start_time)->format('F j, Y M j, Y Y-m-d')) }}" onclick="openNotificationDetails('null', '{{ $res->id }}', '{{ $res->sport ?? 'Badminton' }} Court {{ $res->court_id }}', '{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}', '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}', '{{ $res->reservation_code }}', '{{ ucfirst($res->status) }}', '')">
             <div class="res-info">
                 <div class="crc-icon {{ strtolower($res->sport ?? 'badminton') }}">
                     @if(($res->sport ?? 'Badminton') == 'Pickleball')

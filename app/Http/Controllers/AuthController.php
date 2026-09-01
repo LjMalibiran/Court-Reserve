@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http; // <-- Added to send HTTP requests to Semaphore
+use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
@@ -20,8 +21,19 @@ class AuthController extends Controller
     public function register(Request $request) {
         $request->validate([
             'name' => 'required|unique:users,name',
-            'contact' => 'required',
-            'password' => 'required|min:6',
+            'email' => 'required|email|unique:users,email|ends_with:@gmail.com',
+            'contact' => 'required|digits:11',
+            'password' => [
+                'required',
+                'string',
+                'min:9',             // more than 8 characters
+                'regex:/[a-zA-Z]/',  // at least one letter
+                'regex:/[0-9]/',     // at least one number
+                'regex:/[^a-zA-Z0-9]/', // at least one symbol
+            ],
+        ], [
+            'password.regex' => 'The password must contain at least one letter, one number, and one symbol.',
+            'password.min' => 'The password must be more than 8 characters.',
         ]);
 
         // 1. Generate a random 4-digit code
@@ -30,24 +42,22 @@ class AuthController extends Controller
         // 2. Create the user and save the code
         $user = User::create([
             'name' => $request->name,
+            'email' => $request->email,
             'contact' => $request->contact,
             'password' => Hash::make($request->password),
             'verification_code' => $verificationCode,
         ]);
 
-        // 3. SEND REAL SMS VIA SEMAPHORE
+        // 3. SEND VERIFICATION EMAIL TO GMAIL
         try {
-            Http::post('https://api.semaphore.co/api/v4/messages', [
-                'apikey'  => env('SEMAPHORE_API_KEY'),
-                'number'  => $user->contact,
-                'message' => "Your Court Reserve verification code is: {$verificationCode}",
-            ]);
+            Mail::raw("Your Court Reserve verification code is: {$verificationCode}", function ($message) use ($user) {
+                $message->to($user->email)
+                        ->subject('Court Reserve - Verification Code');
+            });
+            Log::info("EMAIL SENT TO {$user->email}: Your Court Reserve verification code is: {$verificationCode}");
         } catch (\Exception $e) {
-            Log::error("Failed to send SMS to {$user->contact}: " . $e->getMessage());
+            Log::error("Failed to send Email to {$user->email}: " . $e->getMessage());
         }
-
-        // Backup Log (so you can still see the code in logs if needed)
-        Log::info("SMS SENT TO {$user->contact}: Your Court Reserve verification code is: {$verificationCode}");
 
         Auth::login($user);
         
@@ -91,20 +101,16 @@ class AuthController extends Controller
                 $user->phone_verified_at = null;
                 $user->save();
 
-                // Send fresh SMS via Semaphore API
+                // Send fresh Email
                 try {
-                    $phoneToUse = $user->phone_number ?? $user->contact;
-                    Http::post('https://api.semaphore.co/api/v4/messages', [
-                        'apikey'  => env('SEMAPHORE_API_KEY'),
-                        'number'  => $phoneToUse,
-                        'message' => "Your fresh Court Reserve verification code is: {$newCode}",
-                    ]);
+                    Mail::raw("Your fresh Court Reserve verification code is: {$newCode}", function ($message) use ($user) {
+                        $message->to($user->email)
+                                ->subject('Court Reserve - New Verification Code');
+                    });
+                    Log::info("NEW EMAIL SENT TO {$user->email}: Your fresh verification code is: {$newCode}");
                 } catch (\Exception $e) {
-                    Log::error("Failed to send SMS to {$phoneToUse}: " . $e->getMessage());
+                    Log::error("Failed to send Email to {$user->email}: " . $e->getMessage());
                 }
-
-                // Log the new code
-                Log::info("NEW SMS SENT TO {$phoneToUse}: Your fresh verification code is: {$newCode}");
 
                 return redirect()->route('verify.index');
             }

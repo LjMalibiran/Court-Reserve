@@ -79,7 +79,7 @@
         }
         .back-btn:hover { color: #0033cc; }
 
-        .logo { max-width: 120px; }
+        .logo { max-width: 180px; }
 
         /* Form Container */
         .form-container {
@@ -229,7 +229,7 @@
         
         <div class="left-panel">
             <div class="welcome-overlay">
-                WELCOME<br>BACK
+                WELCOME BACK
             </div>
         </div>
 

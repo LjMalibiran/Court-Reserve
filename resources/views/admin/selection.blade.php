@@ -106,14 +106,7 @@
             <a href="{{ route('admin.login') }}" class="btn btn-admin">Log in as Admin</a>
             <a href="{{ url('/cashier/login') }}" class="btn btn-cashier">Log in as Cashier</a>
 
-            <p class="terms-text">
-                By signing up, you agree to Batangas Badminton's<br>
-                <a href="#">Term of Use</a> and <a href="#">Privacy Policy</a>
-            </p>
 
-            <div class="footer-text">
-                Already have an account ? <a href="#">Log In</a>
-            </div>
 
         </div>
     </div>
