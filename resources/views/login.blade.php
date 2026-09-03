@@ -223,8 +223,8 @@
             @csrf 
             
             <div class="input-group">
-                <input type="text" id="login_id" name="login_id" class="@error('login_id') is-invalid @enderror" required placeholder="Enter username or contact number" oninput="checkInputs()" value="{{ old('login_id') }}">
-                <label for="login_id">Username or Contact Number</label>
+                <input type="text" id="login_id" name="login_id" class="@error('login_id') is-invalid @enderror" required placeholder="Enter username, email, or contact number" oninput="checkInputs()" value="{{ old('login_id') }}">
+                <label for="login_id">Username, Email, or Contact Number</label>
                 @error('login_id')
                     <span class="error-text" style="color: #dc3545; font-size: 11px; margin-top: 5px; display: block; font-weight: 500;">{{ $message }}</span>
                 @enderror
