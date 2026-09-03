@@ -51,7 +51,7 @@ class AuthController extends Controller
         // 3. SEND VERIFICATION SMS VIA SEMAPHORE
         try {
             $response = Http::post('https://api.semaphore.co/api/v4/messages', [
-                'apikey' => env('SEMAPHORE_API_KEY'),
+                'apikey' => config('services.semaphore.key'),
                 'number' => $user->contact,
                 'message' => "Your Court Reserve verification code is: {$verificationCode}"
             ]);
@@ -111,7 +111,7 @@ class AuthController extends Controller
                 // Send fresh SMS
                 try {
                     $response = Http::post('https://api.semaphore.co/api/v4/messages', [
-                        'apikey' => env('SEMAPHORE_API_KEY'),
+                        'apikey' => config('services.semaphore.key'),
                         'number' => $user->contact,
                         'message' => "Your fresh Court Reserve verification code is: {$newCode}"
                     ]);
