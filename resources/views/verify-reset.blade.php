@@ -111,7 +111,7 @@
             We have sent the verification code to your email address.
         </p>
 
-        <form action="{{ route('verify.post') }}" method="POST" id="verifyForm">
+        <form action="{{ route('forgot.verify.post') }}" method="POST" id="verifyForm">
             @csrf
             
             <div class="otp-container">
@@ -121,7 +121,7 @@
                 <input type="text" class="otp-input" name="code[]" maxlength="1" required autocomplete="off">
             </div>
             
-            <button type="submit" class="btn-primary" id="confirmBtn" disabled style="background-color: #cccccc; cursor: not-allowed;">Confirm</button>
+            <button type="submit" class="btn-primary" id="confirmBtn" disabled style="background-color: #cccccc; cursor: not-allowed;">Confirm Reset</button>
         </form>
 
         <p id="countdownDisplay" style="color: #dc3545; font-size: 13px; font-weight: normal; margin-top: 15px; margin-bottom: 5px;">
@@ -129,7 +129,7 @@
         </p>
 
         <div style="margin-top: 15px;">
-            <form action="{{ route('verify.resend') }}" method="POST" id="resendForm" style="display: none;">
+            <form action="{{ route('forgot.resend') }}" method="POST" id="resendForm" style="display: none;">
                 @csrf
                 <button type="submit" style="background: none; border: none; color: #0044ff; text-decoration: underline; cursor: pointer; font-size: 13px;">
                     Resend new code
@@ -138,11 +138,7 @@
         </div>
     </div>
 
-    @php
-        $expiresAt = auth()->user()->verification_code_expires_at;
-        $secondsLeft = $expiresAt ? \Carbon\Carbon::now()->diffInSeconds($expiresAt, false) : 0;
-        if ($secondsLeft < 0) $secondsLeft = 0;
-    @endphp
+    <!-- $secondsLeft is passed from ForgotPasswordController -->
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {

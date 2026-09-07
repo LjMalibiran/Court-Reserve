@@ -17,15 +17,54 @@ class AdminController extends Controller
         // 1. Exact same calculation as Cashier
         $totalReserved = Reservation::where('status', '!=', 'cancelled')->count();
         $pendingReservations = Reservation::where('status', 'pending')->count();
-        // This counts everyone EXCEPT the admin (1) and cashier (2)
-        $totalUsers = User::whereNotIn('role', [1, 2, 'admin', 'cashier'])->count();
+        // This counts everyone EXCEPT the admin, cashier, and walk-in users
+        $registeredUsers = User::whereNotIn('role', ['admin', 'cashier'])
+            ->where('email', 'NOT LIKE', 'walkin_%')
+            ->get();
+            
+        $totalUsers = $registeredUsers->count();
 
-        return view('admin.dashboard', compact('totalReserved', 'pendingReservations', 'totalUsers'));
+        return view('admin.dashboard', compact('totalReserved', 'pendingReservations', 'totalUsers', 'registeredUsers'));
     }
 
-    // ==========================================
-    // EXISTING LOGIC
-    // ==========================================
+    public function filterSales(Request $request)
+    {
+        $query = \App\Models\Reservation::whereNotIn('status', ['pending', 'cancelled']);
+
+        $startDate = $request->filled('start_date') ? \Carbon\Carbon::parse($request->start_date)->startOfDay() : now()->subDays(6)->startOfDay();
+        $endDate = $request->filled('end_date') ? \Carbon\Carbon::parse($request->end_date)->endOfDay() : now()->endOfDay();
+
+        $query->whereBetween('created_at', [$startDate, $endDate]);
+
+        $reservations = $query->get();
+        
+        $chartData = [];
+        $period = \Carbon\CarbonPeriod::create($startDate, $endDate);
+        
+        // Ensure max 30 days are rendered on chart to avoid massive datasets if range is huge
+        if ($period->count() > 31) {
+            $period = \Carbon\CarbonPeriod::create($endDate->copy()->subDays(30), $endDate);
+        }
+
+        foreach ($period as $date) {
+            $chartData[$date->format('M d')] = 0;
+        }
+
+        $total = 0;
+        foreach ($reservations as $res) {
+            $date = $res->created_at->format('M d');
+            if (isset($chartData[$date])) {
+                $chartData[$date] += (float)$res->total_price;
+            }
+            $total += (float)$res->total_price;
+        }
+
+        return response()->json([
+            'total' => '₱' . number_format($total, 2),
+            'labels' => array_keys($chartData),
+            'data' => array_values($chartData)
+        ]);
+    }
     public function qrIndex()
     {
         return view('admin.qr-verification', [
@@ -39,7 +78,7 @@ class AdminController extends Controller
         $request->validate(['qr_code' => 'required']);
 
         // Search the database for the exact QR code string
-        $reservation = Reservation::where('qr_code', $request->qr_code)->first();
+        $reservation = \App\Models\Reservation::where('reservation_code', $request->qr_code)->first();
 
         if (!$reservation) {
             return back()->with('error', 'Invalid Code: No reservation found.');
@@ -50,13 +89,13 @@ class AdminController extends Controller
 
     public function qrVerify($id)
     {
-        $reservation = Reservation::findOrFail($id);
+        $reservation = \App\Models\Reservation::findOrFail($id);
         
         // Update the reservation status to activate the court
-        $reservation->status = 'In Play';
+        $reservation->status = 'in-play';
         $reservation->save();
 
-        return redirect('/admin/dashboard')->with('success', 'Verified! Court ' . $reservation->court_number . ' is now In Play.');
+        return redirect('/admin/dashboard')->with('success', 'Verified! Court ' . $reservation->court_id . ' is now In Play.');
     }
 
     public function reservationsIndex()
@@ -67,7 +106,7 @@ class AdminController extends Controller
         return view('admin.reservations', compact('reservations'));
     }
 
-    public function confirmReservation($id)
+    public function confirmReservation(\Illuminate\Http\Request $request, $id)
     {
         $reservation = \App\Models\Reservation::find($id);
         
@@ -84,13 +123,13 @@ class AdminController extends Controller
                 ]);
             }
 
-            return back()->with('success', 'Reservation confirmed successfully! The user will now see this on their dashboard.');
+            return back()->with('success', 'Reservation confirmed successfully! The user will now see this on their dashboard.')->with('active_tab', $request->tab ?? 'pending');
         }
         
-        return back()->with('error', 'Reservation not found.');
+        return back()->with('error', 'Reservation not found.')->with('active_tab', $request->tab ?? 'pending');
     }
 
-    public function cancelReservation($id)
+    public function cancelReservation(\Illuminate\Http\Request $request, $id)
     {
         $reservation = \App\Models\Reservation::find($id);
         
@@ -107,10 +146,40 @@ class AdminController extends Controller
                 ]);
             }
 
-            return back()->with('success', 'Reservation cancelled.');
+            return back()->with('success', 'Reservation cancelled successfully.')->with('active_tab', $request->tab ?? 'pending');
         }
 
-        return back()->with('error', 'Reservation not found.');
+        return back()->with('error', 'Reservation not found.')->with('active_tab', $request->tab ?? 'pending');
+    }
+
+    public function sendReminder($id)
+    {
+        $reservation = \App\Models\Reservation::find($id);
+        
+        if ($reservation && $reservation->user_id) {
+            $user = $reservation->user;
+            
+            // Format time for email
+            $date = \Carbon\Carbon::parse($reservation->start_time)->format('F j, Y');
+            $start = \Carbon\Carbon::parse($reservation->start_time)->format('g:i A');
+            $end = \Carbon\Carbon::parse($reservation->end_time)->format('g:i A');
+            
+            // Send email (for local testing using Mail::raw, but in production use Mailable)
+            try {
+                \Illuminate\Support\Facades\Mail::raw(
+                    "Hello {$user->name},\n\nThis is a friendly reminder for your upcoming {$reservation->sport} reservation at Batangas Badminton Center.\n\nDate: {$date}\nTime: {$start} - {$end}\nCourt: Court {$reservation->court_id}\n\nWe look forward to seeing you!", 
+                    function ($message) use ($user) {
+                        $message->to($user->email)->subject('Reminder: Upcoming Court Reservation');
+                    }
+                );
+                return response()->json(['success' => true]);
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error("Failed to send reminder email to {$user->email}: " . $e->getMessage());
+                return response()->json(['success' => false, 'message' => 'Failed to send email. Check logs.']);
+            }
+        }
+        
+        return response()->json(['success' => false, 'message' => 'User not found or is a walk-in.']);
     }
 
     public function walkInIndex()

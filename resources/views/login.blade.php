@@ -219,6 +219,12 @@
 
         <h2>Get Started</h2>
         
+        @if(session('success'))
+            <div style="background: #d4edda; color: #155724; padding: 10px; border-radius: 8px; margin-bottom: 20px; font-size: 14px;">
+                {{ session('success') }}
+            </div>
+        @endif
+
         <form action="{{ route('login.post') }}" method="POST">
             @csrf 
             

@@ -247,6 +247,11 @@
                 <form action="{{ route('admin.login.submit') }}" method="POST">
                     @csrf
                     
+                    @if(session('success'))
+                        <div style="background: #dcfce7; color: #166534; padding: 12px 20px; border-radius: 10px; margin-bottom: 20px; font-size: 14px; border-left: 4px solid #22c55e;">
+                            <i class="fa-solid fa-circle-check"></i> {{ session('success') }}
+                        </div>
+                    @endif
                     @error('login_id')
                         <div class="error-message">
                             <i class="fa-solid fa-circle-exclamation"></i> {{ $message }}
@@ -265,10 +270,10 @@
 
                     <div class="form-options">
                         <label class="remember-me">
-                            <input type="checkbox" name="remember">
+                            <input type="checkbox" name="remember" value="1">
                             Remember me
                         </label>
-                        <a href="#" class="forgot-pass">Forgot Password?</a>
+                        <a href="{{ url('/admin/forgot-password') }}" class="forgot-pass">Forgot Password?</a>
                     </div>
 
                     <button type="submit" class="btn-submit">Continue</button>
@@ -278,5 +283,35 @@
         </div>
     </div>
 
+    <style>
+        .btn-submit:disabled {
+            background-color: #d1d5db !important;
+            cursor: not-allowed !important;
+            box-shadow: none !important;
+            transform: none !important;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginInput = document.querySelector('input[name="login_id"]');
+            const passwordInput = document.querySelector('input[name="password"]');
+            const submitBtn = document.querySelector('.btn-submit');
+
+            function checkInputs() {
+                if (loginInput.value.trim() === '' || passwordInput.value.trim() === '') {
+                    submitBtn.disabled = true;
+                } else {
+                    submitBtn.disabled = false;
+                }
+            }
+
+            // Run on load in case fields are pre-filled by browser
+            checkInputs();
+
+            // Listen for input changes
+            loginInput.addEventListener('input', checkInputs);
+            passwordInput.addEventListener('input', checkInputs);
+        });
+    </script>
 </body>
 </html>

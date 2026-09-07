@@ -285,6 +285,7 @@
                                         <div class="rental-info">
                                             <h4>Racket</h4>
                                             <p>₱50.00 / pc</p>
+                                            <p id="racketAvailability" style="font-size: 12px; color: #16a34a; margin-top: 4px; font-weight: bold;">(Available: 5)</p>
                                         </div>
                                         <div class="counter">
                                             <button type="button" onclick="updateCount('racket', -1)">-</button>
@@ -303,6 +304,10 @@
                                             <input type="text" id="shuttleCount" name="shuttle_qty" value="0" readonly>
                                             <button type="button" onclick="updateCount('shuttle', 1)">+</button>
                                         </div>
+                                    </div>
+
+                                    <div id="noEquipmentMsg" style="display: none; padding: 15px; color: #dc2626; font-style: italic; text-align: center; font-size: 14px; margin-top: 10px;">
+                                        No available equipment for Pickleball.
                                     </div>
                                 </div>
                             </div>
@@ -525,6 +530,7 @@
             document.getElementById('hidden_end_time').value = endHour.toString().padStart(2, '0') + ':00:00';
             
             syncSummary();
+            checkAvailableRentals();
         }
 
         function handleSportChange() {
@@ -533,13 +539,16 @@
             
             if (sport === 'Pickleball') {
                 rentalSection.style.display = 'none';
+                document.getElementById('noEquipmentMsg').style.display = 'block';
                 document.getElementById('racketCount').value = 0;
                 document.getElementById('shuttleCount').value = 0;
             } else {
                 rentalSection.style.display = 'block';
+                document.getElementById('noEquipmentMsg').style.display = 'none';
             }
             checkAvailability();
             syncSummary();
+            checkAvailableRentals();
         }
 
         function handleCourtChange() {
@@ -574,6 +583,7 @@
                 }
             }
             syncSummary();
+            checkAvailableRentals();
         }
 
         function toggleMenu(menuId) {
@@ -631,12 +641,45 @@
             }
         }
 
+        let maxAvailableRackets = 5;
+
+        function checkAvailableRentals() {
+            let date = document.getElementById('resDate').value;
+            let startTime = document.getElementById('hidden_start_time').value;
+            let endTime = document.getElementById('hidden_end_time').value;
+            let sport = document.getElementById('sportSelect').value;
+            
+            if(!date || !startTime || !endTime || sport !== 'Badminton') {
+                maxAvailableRackets = 5;
+                let availabilityLabel = document.getElementById('racketAvailability');
+                if (availabilityLabel) availabilityLabel.innerText = '(Available: 5)';
+                return;
+            }
+
+            fetch(`/api/check-rentals?date=${date}&start_time=${startTime}&end_time=${endTime}`)
+                .then(response => response.json())
+                .then(data => {
+                    maxAvailableRackets = data.available_rackets;
+                    let availabilityLabel = document.getElementById('racketAvailability');
+                    if (availabilityLabel) availabilityLabel.innerText = `(Available: ${maxAvailableRackets})`;
+                    
+                    let currentRackets = parseInt(document.getElementById('racketCount').value);
+                    if(currentRackets > maxAvailableRackets) {
+                        document.getElementById('racketCount').value = maxAvailableRackets;
+                        syncSummary();
+                    }
+                });
+        }
+
         function updateCount(item, change) {
             const input = document.getElementById(item + 'Count');
             let currentVal = parseInt(input.value) || 0;
             let newVal = currentVal + change;
+            
+            let maxLimit = item === 'racket' ? maxAvailableRackets : 99;
+
             if(newVal < 0) newVal = 0;
-            if(newVal > 5) newVal = 5;
+            if(newVal > maxLimit) newVal = maxLimit;
             input.value = newVal;
             syncSummary();
         }

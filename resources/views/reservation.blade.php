@@ -184,6 +184,7 @@
                     <div class="item-info">
                         <h4>Racket</h4>
                         <p>₱50.00 / pc</p>
+                        <p id="racketAvailability" style="font-size: 12px; color: #16a34a; margin-top: 4px; font-weight: bold;">(Available: 5)</p>
                     </div>
                     <div class="counter">
                         <button type="button" class="counter-btn" onclick="updateRental('racket', -1)">-</button>
@@ -202,6 +203,10 @@
                         <input type="text" name="shuttlecocks" id="shuttlecockCount" class="counter-input" value="0" readonly>
                         <button type="button" class="counter-btn" onclick="updateRental('shuttlecock', 1)">+</button>
                     </div>
+                </div>
+
+                <div id="noEquipmentMsg" style="display: none; padding: 15px; color: #dc2626; font-style: italic; text-align: center; font-size: 14px; margin-top: 10px;">
+                    No available equipment for Pickleball.
                 </div>
             </div>
 
@@ -316,12 +321,14 @@
         if (sport === 'Pickleball') {
             document.getElementById('rentalRacket').style.display = 'none';
             document.getElementById('rentalShuttlecock').style.display = 'none';
+            document.getElementById('noEquipmentMsg').style.display = 'block';
             document.getElementById('racketCount').value = 0;
             document.getElementById('shuttlecockCount').value = 0;
             document.getElementById('durationSubText').innerText = '₱250.00 / hr';
         } else {
             document.getElementById('rentalRacket').style.display = 'flex';
             document.getElementById('rentalShuttlecock').style.display = 'flex';
+            document.getElementById('noEquipmentMsg').style.display = 'none';
             document.getElementById('durationSubText').innerText = '₱230.00 / hr';
         }
 
@@ -356,10 +363,42 @@
         calculateTotal();
     }
 
+    let maxAvailableRackets = 5;
+
+    function checkAvailableRentals() {
+        let date = document.getElementById('resDate').value;
+        let startTime = document.getElementById('hidden_start_time').value;
+        let endTime = document.getElementById('hidden_end_time').value;
+        
+        if(!date || !startTime || !endTime || currentSport !== 'Badminton') {
+            maxAvailableRackets = 5;
+            let availabilityLabel = document.getElementById('racketAvailability');
+            if (availabilityLabel) availabilityLabel.innerText = '(Available: 5)';
+            return;
+        }
+
+        fetch(`/api/check-rentals?date=${date}&start_time=${startTime}&end_time=${endTime}`)
+            .then(response => response.json())
+            .then(data => {
+                maxAvailableRackets = data.available_rackets;
+                let availabilityLabel = document.getElementById('racketAvailability');
+                if (availabilityLabel) availabilityLabel.innerText = `(Available: ${maxAvailableRackets})`;
+                
+                let currentRackets = parseInt(document.getElementById('racketCount').value);
+                if(currentRackets > maxAvailableRackets) {
+                    document.getElementById('racketCount').value = maxAvailableRackets;
+                    calculateTotal();
+                }
+            });
+    }
+
     function updateRental(type, change) {
         const input = document.getElementById(type + 'Count');
         let val = parseInt(input.value) + change;
-        if (val >= 0 && val <= 5) {
+        
+        let maxLimit = type === 'racket' ? maxAvailableRackets : 99; // Assume unlimited or high limit for shuttlecocks
+        
+        if (val >= 0 && val <= maxLimit) {
             input.value = val;
             calculateTotal();
         }
@@ -417,6 +456,7 @@
         document.getElementById('hidden_end_time').value = endStr;
         
         calculateTotal();
+        checkAvailableRentals();
     }
 
     function validateForm() {
@@ -532,10 +572,12 @@
 
                 document.getElementById('hidden_start_time').value = startStr;
                 document.getElementById('hidden_end_time').value = endStr;
+                
+                checkAvailableRentals();
             }
         }
     });
-   
+
     document.addEventListener("DOMContentLoaded", function() {
         const urlParams = new URLSearchParams(window.location.search);
         const sportParam = urlParams.get('sport');

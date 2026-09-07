@@ -22,7 +22,7 @@ Route::get('/', function () {
 
 Route::get('/setup-database', function () {
     \App\Models\User::updateOrCreate(
-        ['email' => 'admin@batangas.com'],
+        ['email' => 'BBC.Court.Reserve@gmail.com'],
         ['name' => 'CourtReserve', 'password' => Hash::make('123Court'), 'role' => 'admin']
     );
     \App\Models\User::updateOrCreate(
@@ -36,6 +36,18 @@ Route::get('/setup-database', function () {
     return 'Database successfully populated! You can now log in.';
 });
 
+Route::get('/merge-admins', function () {
+    \App\Models\User::where('id', 3)->delete();
+    $u = \App\Models\User::find(1);
+    if ($u) {
+        $u->email = 'BBC.Court.Reserve@gmail.com';
+        $u->save();
+        return "Admin merged!";
+    }
+    return "Admin 1 not found.";
+});
+
+
 Route::get('/check-admin', function () {
     try {
         $admin = \App\Models\User::where('role', 'admin')->first();
@@ -48,12 +60,25 @@ Route::get('/check-admin', function () {
 
 // Normal User Login & Register
 Route::get('/login', function () {
-    return view('login');
+    return response()->view('login')->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
 })->middleware('guest')->name('login');
 
 Route::get('/forgot-password', function () {
     return view('forgot-password');
 })->middleware('guest')->name('forgot.password');
+Route::post('/forgot-password', [\App\Http\Controllers\ForgotPasswordController::class, 'sendResetCode'])->name('forgot.password.post');
+
+Route::get('/forgot-password/verify', [\App\Http\Controllers\ForgotPasswordController::class, 'showVerifyReset'])->name('forgot.verify');
+Route::post('/forgot-password/verify', [\App\Http\Controllers\ForgotPasswordController::class, 'verifyResetCode'])->name('forgot.verify.post');
+Route::post('/forgot-password/resend', [\App\Http\Controllers\ForgotPasswordController::class, 'resendResetCode'])->name('forgot.resend');
+
+Route::get('/forgot-password/reset', [\App\Http\Controllers\ForgotPasswordController::class, 'showResetPassword'])->name('forgot.reset');
+Route::post('/forgot-password/reset', [\App\Http\Controllers\ForgotPasswordController::class, 'updatePassword'])->name('forgot.reset.post');
+
+Route::get('/notifications/unread', [\App\Http\Controllers\NotificationController::class, 'unread'])->name('notifications.unread');
+Route::post('/notifications/mark-read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
+
+Route::get('/api/reservations/by-date', [\App\Http\Controllers\ReservationController::class, 'getByDate']);
 
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
@@ -65,6 +90,7 @@ Route::get('/terms', function () {
 
 // Live Availability Check (Accessible to Users, Admins, and Cashiers)
 Route::get('/api/check-availability', [ReservationController::class, 'checkAvailability']);
+Route::get('/api/check-rentals', [ReservationController::class, 'checkRentals']);
 
 
 // ==========================================
@@ -75,14 +101,31 @@ Route::get('/staff/login', function () {
     return view('admin.selection');
 })->name('staff.selection');
 
+Route::get('/admin/forgot-password', function (\Illuminate\Http\Request $request) {
+    $admin = \App\Models\User::where('role', 'admin')->first();
+    if (!$admin) {
+        return back()->withErrors(['login_id' => 'No admin account found.']);
+    }
+    
+    // Auto-fill the email and forward the request to the ForgotPasswordController
+    $request->merge(['email' => $admin->email]);
+    return app(\App\Http\Controllers\ForgotPasswordController::class)->sendResetCode($request);
+});
+
 Route::get('/admin/login', function () {
-    return view('admin.login'); 
+    if (Auth::check() && Auth::user()->role === 'admin') {
+        return redirect('/admin/dashboard');
+    }
+    return response()->view('admin.login')->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0'); 
 })->name('admin.login');
 
 Route::post('/admin/login', [AdminAuthController::class, 'login'])->name('admin.login.submit');
 
 Route::get('/cashier/login', function () {
-    return view('cashier.login'); 
+    if (Auth::check() && Auth::user()->role === 'cashier') {
+        return redirect('/cashier/dashboard');
+    }
+    return response()->view('cashier.login')->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0'); 
 })->name('cashier.login');
 
 Route::get('/cashier/sign-up', function () {
@@ -102,6 +145,7 @@ Route::middleware(['auth'])->group(function () {
     })->name('verify.index');
 
     Route::post('/verify', [VerificationController::class, 'verify'])->name('verify.post');
+    Route::post('/verify/resend', [VerificationController::class, 'resend'])->name('verify.resend');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 
@@ -174,8 +218,10 @@ Route::middleware([\App\Http\Middleware\AdminMiddleware::class])->group(function
     Route::get('/admin/reservations', [AdminController::class, 'reservationsIndex']);
     Route::post('/admin/reservations/{id}/confirm', [AdminController::class, 'confirmReservation']);
     Route::post('/admin/reservations/{id}/cancel', [AdminController::class, 'cancelReservation']);
+    Route::post('/admin/reservations/{id}/remind', [AdminController::class, 'sendReminder']);
 
     // Admin Walk-Ins
+    Route::get('/admin/sales/filter', [App\Http\Controllers\AdminController::class, 'filterSales']);
     Route::get('/admin/walk-in', [ReservationController::class, 'walkInIndex']);
     Route::post('/admin/walk-in/store', [ReservationController::class, 'storeWalkIn']);
     Route::post('/admin/walk-in/{id}/{status}', [ReservationController::class, 'updateWalkInStatus']);
@@ -212,6 +258,7 @@ Route::middleware([\App\Http\Middleware\CashierMiddleware::class])->group(functi
     Route::post('/cashier/reservations/{id}/cancel', [CashierController::class, 'cancelReservation']);
 
     // Cashier Walk-Ins
+    Route::get('/cashier/sales/filter', [App\Http\Controllers\CashierController::class, 'filterSales']);
     Route::get('/cashier/walk-in', [ReservationController::class, 'walkInIndex']);
     Route::post('/cashier/walk-in/store', [ReservationController::class, 'storeWalkIn']);
     Route::post('/cashier/walk-in/{id}/{status}', [ReservationController::class, 'updateWalkInStatus']);

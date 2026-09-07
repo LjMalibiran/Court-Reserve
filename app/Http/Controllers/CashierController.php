@@ -16,15 +16,53 @@ class CashierController extends Controller
         // 1. Exact same calculation as Admin
         $totalReserved = Reservation::where('status', '!=', 'cancelled')->count();
         $pendingReservations = Reservation::where('status', 'pending')->count();
-        // This counts everyone EXCEPT the admin (1) and cashier (2)
-        $totalUsers = User::whereNotIn('role', [1, 2, 'admin', 'cashier'])->count();
+        // This counts everyone EXCEPT the admin, cashier, and walk-in users
+        $registeredUsers = User::whereNotIn('role', ['admin', 'cashier'])
+            ->where('email', 'NOT LIKE', 'walkin_%')
+            ->get();
+            
+        $totalUsers = $registeredUsers->count();
 
-        return view('cashier.dashboard', compact('totalReserved', 'pendingReservations', 'totalUsers'));
+        return view('cashier.dashboard', compact('totalReserved', 'pendingReservations', 'totalUsers', 'registeredUsers'));
     }
 
-    // ==========================================
-    // RESERVATION LOGIC
-    // ==========================================
+    public function filterSales(Request $request)
+    {
+        $query = \App\Models\Reservation::whereNotIn('status', ['pending', 'cancelled']);
+
+        $startDate = $request->filled('start_date') ? \Carbon\Carbon::parse($request->start_date)->startOfDay() : now()->subDays(6)->startOfDay();
+        $endDate = $request->filled('end_date') ? \Carbon\Carbon::parse($request->end_date)->endOfDay() : now()->endOfDay();
+
+        $query->whereBetween('created_at', [$startDate, $endDate]);
+
+        $reservations = $query->get();
+        
+        $chartData = [];
+        $period = \Carbon\CarbonPeriod::create($startDate, $endDate);
+        
+        if ($period->count() > 31) {
+            $period = \Carbon\CarbonPeriod::create($endDate->copy()->subDays(30), $endDate);
+        }
+
+        foreach ($period as $date) {
+            $chartData[$date->format('M d')] = 0;
+        }
+
+        $total = 0;
+        foreach ($reservations as $res) {
+            $date = $res->created_at->format('M d');
+            if (isset($chartData[$date])) {
+                $chartData[$date] += (float)$res->total_price;
+            }
+            $total += (float)$res->total_price;
+        }
+
+        return response()->json([
+            'total' => '₱' . number_format($total, 2),
+            'labels' => array_keys($chartData),
+            'data' => array_values($chartData)
+        ]);
+    }
     public function reservationsIndex()
     {
         // Fetch all reservations exactly like the Admin does
@@ -33,7 +71,7 @@ class CashierController extends Controller
         return view('cashier.reservations', compact('reservations'));
     }
 
-    public function confirmReservation($id)
+    public function confirmReservation(\Illuminate\Http\Request $request, $id)
     {
         $reservation = Reservation::find($id);
         
@@ -50,13 +88,13 @@ class CashierController extends Controller
                 ]);
             }
 
-            return back()->with('success', 'Reservation confirmed successfully!');
+            return back()->with('success', 'Reservation confirmed successfully!')->with('active_tab', $request->tab ?? 'pending');
         }
         
-        return back()->with('error', 'Reservation not found.');
+        return back()->with('error', 'Reservation not found.')->with('active_tab', $request->tab ?? 'pending');
     }
 
-    public function cancelReservation($id)
+    public function cancelReservation(\Illuminate\Http\Request $request, $id)
     {
         $reservation = Reservation::find($id);
         
@@ -73,10 +111,10 @@ class CashierController extends Controller
                 ]);
             }
 
-            return back()->with('success', 'Reservation cancelled.');
+            return back()->with('success', 'Reservation cancelled successfully.')->with('active_tab', $request->tab ?? 'pending');
         }
-
-        return back()->with('error', 'Reservation not found.');
+        
+        return back()->with('error', 'Reservation not found.')->with('active_tab', $request->tab ?? 'pending');
     }
 
     // ==========================================
@@ -97,7 +135,7 @@ class CashierController extends Controller
         ]);
 
         // Search for a matching reservation ID in the database
-        $reservation = Reservation::where('reservation_id', $request->qr_code)->first();
+        $reservation = \App\Models\Reservation::where('reservation_code', $request->qr_code)->first();
 
         if ($reservation) {
             // Found it! Send the reservation data to the screen
@@ -111,16 +149,15 @@ class CashierController extends Controller
     // 3. Mark the reservation as Verified/Checked-In
     public function qrVerify($id)
     {
-        $reservation = Reservation::find($id);
+        $reservation = \App\Models\Reservation::find($id);
 
         if ($reservation) {
-            // Change the status to indicate they have arrived
-            $reservation->status = 'completed'; // Or 'verified' depending on your database setup
+            $reservation->status = 'in-play';
             $reservation->save();
-            
-            return redirect('/cashier/qr-verification')->with('success', 'Reservation successfully verified!');
+
+            return redirect('/cashier/dashboard')->with('success', 'Reservation Verified! Court ' . $reservation->court_id . ' is now In Play.');
         }
 
-        return back()->with('error', 'Reservation not found.');
+        return back()->with('error', 'Could not verify reservation.');
     }
 }

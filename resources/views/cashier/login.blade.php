@@ -214,6 +214,11 @@
             <div class="subtitle">Please log in your account to continue.</div>
             
             <!-- Display Auth Errors if they type the wrong credentials -->
+            @if(session('success'))
+                <div style="background: #dcfce7; color: #166534; padding: 12px 20px; border-radius: 10px; margin-bottom: 20px; font-size: 14px; border-left: 4px solid #22c55e;">
+                    <i class="fa-solid fa-circle-check"></i> {{ session('success') }}
+                </div>
+            @endif
             @if($errors->any())
                 <div style="color: #dc2626; background: #fee2e2; padding: 10px 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; border: 1px solid #f87171;">
                     {{ $errors->first() }}
@@ -234,10 +239,9 @@
                 
                 <div class="options-row">
                     <label class="remember-me">
-                        <input type="checkbox" name="remember">
+                        <input type="checkbox" name="remember" value="1">
                         Remember me
                     </label>
-                    <a href="#" class="forgot-password">Forgot Password?</a>
                 </div>
                 
                 <button type="submit" class="btn-submit">Continue</button>
@@ -247,5 +251,35 @@
         
     </div>
 
+    <style>
+        .btn-submit:disabled {
+            background-color: #d1d5db !important;
+            cursor: not-allowed !important;
+            box-shadow: none !important;
+            transform: none !important;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginInput = document.querySelector('input[name="login_id"]');
+            const passwordInput = document.querySelector('input[name="password"]');
+            const submitBtn = document.querySelector('.btn-submit');
+
+            function checkInputs() {
+                if (loginInput.value.trim() === '' || passwordInput.value.trim() === '') {
+                    submitBtn.disabled = true;
+                } else {
+                    submitBtn.disabled = false;
+                }
+            }
+
+            // Run on load in case fields are pre-filled by browser
+            checkInputs();
+
+            // Listen for input changes
+            loginInput.addEventListener('input', checkInputs);
+            passwordInput.addEventListener('input', checkInputs);
+        });
+    </script>
 </body>
 </html>

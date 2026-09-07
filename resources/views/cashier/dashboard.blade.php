@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard | Batangas Badminton</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { 
             --primary-blue: #1557c0;
@@ -102,7 +103,22 @@
             <h1>Dashboard</h1>
             <div class="header-right">
                 <span>{{ now()->timezone('Asia/Manila')->format('l, F j, Y') }}</span>
-                <i class="fa-regular fa-bell"></i>
+                <div class="notification-wrapper" style="position: relative;">
+                    <i class="fa-regular fa-bell" id="bellIcon" style="cursor: pointer; font-size: 20px; position: relative;" onclick="toggleNotifDropdown()">
+                        <span id="notifBadge" style="display: none; position: absolute; top: -5px; right: -5px; background: #e53935; color: white; font-size: 10px; font-weight: bold; padding: 2px 5px; border-radius: 10px; border: 2px solid var(--bg-color);">0</span>
+                    </i>
+                    
+                    <!-- Notification Dropdown -->
+                    <div id="notifDropdown" style="display: none; position: absolute; right: 0; top: 35px; width: 320px; background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); z-index: 1000; overflow: hidden; border: 1px solid #eee;">
+                        <div style="padding: 15px 20px; background: #fafbfc; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
+                            <h4 style="margin: 0; color: var(--dark-blue); font-size: 15px;">Notifications</h4>
+                            <button onclick="markNotificationsRead()" style="background: none; border: none; color: var(--primary-blue); font-size: 12px; cursor: pointer; font-weight: 600;">Mark all read</button>
+                        </div>
+                        <div id="notifList" style="max-height: 350px; overflow-y: auto; padding: 0;">
+                            <div style="padding: 20px; text-align: center; color: #999; font-size: 13px;">Loading...</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </header>
 
@@ -119,14 +135,14 @@
                         </div>
                     </div>
                 </a>
-                <div class="card kpi-card">
+                <div class="card kpi-card" onclick="window.location.href='{{ url('/cashier/walk-in') }}'" style="cursor: pointer; transition: 0.2s;" onmouseover="this.style.transform='translateY(-3px)';" onmouseout="this.style.transform='none';">
                     <i class="fa-solid fa-shoe-prints kpi-icon" style="color: #67e8f9;"></i>
                     <div class="kpi-data">
                         <div class="kpi-label">Total Walk - In</div>
                         <div class="kpi-value">0</div>
                     </div>
                 </div>
-                <div class="card kpi-card">
+                <div class="card kpi-card" onclick="document.getElementById('usersModal').style.display='flex'" style="cursor: pointer; transition: 0.2s;" onmouseover="this.style.transform='translateY(-3px)';" onmouseout="this.style.transform='none';">
                     <i class="fa-solid fa-users kpi-icon"></i>
                     <div class="kpi-data">
                         <div class="kpi-label">Total Users</div>
@@ -144,63 +160,58 @@
 
             <!-- Middle Row -->
             <div class="middle-row">
-                <div>
-                    <div class="section-title">Court Status</div>
-                    <div class="courts-grid">
-                        <div class="card court-card">
-                            <div class="court-name">Court 1</div>
-                            <div class="court-status status-vacant">Vacant</div>
-                            <div class="court-time">Start Time: --<br>End Time: --</div>
+                <div class="card" style="display: flex; flex-direction: column;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2 class="section-title" style="margin: 0; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-chart-line" style="color: #2e7d32;"></i> Total Sales</h2>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <input type="date" id="cashierSalesStart" style="padding: 8px; border-radius: 6px; border: 1px solid #ddd; font-size: 13px; color: var(--text-main); outline: none;">
+                            <span style="font-size: 13px; color: var(--text-muted);">to</span>
+                            <input type="date" id="cashierSalesEnd" style="padding: 8px; border-radius: 6px; border: 1px solid #ddd; font-size: 13px; color: var(--text-main); outline: none;">
+                            <button onclick="fetchCashierSales()" style="background: var(--primary-blue); color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; transition: 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">Filter</button>
                         </div>
-                        <div class="card court-card">
-                            <div class="court-name">Court 2</div>
-                            <div class="court-status status-vacant">Vacant</div>
-                            <div class="court-time">Start Time: --<br>End Time: --</div>
-                        </div>
-                        <div class="card court-card">
-                            <div class="court-name">Court 3</div>
-                            <div class="court-status status-vacant">Vacant</div>
-                            <div class="court-time">Start Time: --<br>End Time: --</div>
+                    </div>
+                    <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px 0; width: 100%;">
+                        <p style="margin: 0; font-size: 14px; color: var(--text-muted); font-weight: 600;">Revenue</p>
+                        <h3 id="cashierTotalSales" style="margin: 5px 0 15px 0; font-size: 42px; color: var(--dark-blue); font-weight: bold;">Loading...</h3>
+                        <div style="position: relative; height: 200px; width: 100%;">
+                            <canvas id="salesChart"></canvas>
                         </div>
                     </div>
                 </div>
 
                 <div class="card">
-                    <div class="calendar-header">
-                        <div class="calendar-title">February 2026</div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <div class="calendar-title" id="calendarMonthYear" style="margin: 0; font-size: 18px; font-weight: bold; color: var(--dark-blue);">{{ date('F Y') }}</div>
+                        <div style="display: flex; gap: 5px;">
+                            <button onclick="changeMonth(-1)" style="background: white; border: 1px solid #ddd; border-radius: 4px; padding: 5px 10px; cursor: pointer; color: var(--dark-blue); transition: 0.2s;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='white'"><i class="fa-solid fa-chevron-left"></i></button>
+                            <button onclick="changeMonth(1)" style="background: white; border: 1px solid #ddd; border-radius: 4px; padding: 5px 10px; cursor: pointer; color: var(--dark-blue); transition: 0.2s;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='white'"><i class="fa-solid fa-chevron-right"></i></button>
+                        </div>
                     </div>
-                    <div class="calendar-days">
-                        <div class="cal-day-name">Mo</div><div class="cal-day-name">Tu</div><div class="cal-day-name">We</div><div class="cal-day-name">Th</div><div class="cal-day-name">Fr</div><div class="cal-day-name">Sa</div><div class="cal-day-name">Su</div>
-                        <div class="cal-date">23</div><div class="cal-date">24</div><div class="cal-date active">25</div><div class="cal-date current-month">26</div><div class="cal-date current-month">27</div><div class="cal-date current-month">28</div><div class="cal-date current-month">1</div>
+                    
+                    <div class="calendar-days" id="calendarGrid">
+                        <!-- Populated by JS -->
                     </div>
                     <hr style="border: 0; border-top: 2px solid var(--dark-blue); margin-top: 20px;">
                 </div>
             </div>
 
             <!-- Bottom Row -->
-            <div class="bottom-row">
+            <div class="bottom-row" style="display: block;">
                 <div>
-                    <div class="section-title">Today Reservation</div>
-                    <div class="card reservation-list">
-                        <div class="empty-state">No reservations for today.</div>
-                    </div>
-                </div>
-
-                <div>
-                    <div class="section-title">Upcoming</div>
+                    <div class="section-title">Confirmed Reservations</div>
                     <div class="card">
                         <table class="upcoming-table">
                             <thead>
                                 <tr>
                                     <th>Names</th>
-                                    <th>Court</th>
-                                    <th>Time</th>
-                                    <th>Date</th>
+                                    <th style="text-align: center;">Court</th>
+                                    <th style="text-align: center;">Time</th>
+                                    <th style="text-align: right;">Date</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="upcomingTableBody">
                                 <tr>
-                                    <td colspan="4" style="text-align: center; color: var(--text-muted); font-style: italic;">No upcoming reservations.</td>
+                                    <td colspan="4" style="text-align: center; color: var(--text-muted); font-style: italic; padding: 20px;">Loading...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -236,9 +247,294 @@
                 });
             })
             .catch(error => console.log('Polling error, waiting for next cycle...'));
+            
+        // ALSO FETCH NOTIFICATIONS IN REAL-TIME
+        fetchNotifications();
     }, 3000); 
+
+    // Notification Logic
+    function toggleNotifDropdown() {
+        let dropdown = document.getElementById('notifDropdown');
+        dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+        if(dropdown.style.display === 'block') {
+            fetchNotifications(); // load fresh when opened
+        }
+    }
+
+    // Close dropdown if clicked outside
+    document.addEventListener('click', function(event) {
+        let wrapper = document.querySelector('.notification-wrapper');
+        if (wrapper && !wrapper.contains(event.target)) {
+            document.getElementById('notifDropdown').style.display = 'none';
+        }
+    });
+
+    function fetchNotifications() {
+        fetch('/notifications/unread')
+            .then(res => res.json())
+            .then(data => {
+                let badge = document.getElementById('notifBadge');
+                if(data.count > 0) {
+                    badge.style.display = 'block';
+                    badge.innerHTML = data.count;
+                } else {
+                    badge.style.display = 'none';
+                }
+
+                let html = '';
+                if(data.notifications.length === 0) {
+                    html = '<div style="padding: 20px; text-align: center; color: #999; font-size: 13px;">No new notifications</div>';
+                } else {
+                    data.notifications.forEach(n => {
+                        let bg = n.is_read ? 'transparent' : '#f0f7ff';
+                        let dot = n.is_read ? '' : '<div style="width: 8px; height: 8px; background: #0044ff; border-radius: 50%; margin-top: 5px;"></div>';
+                        html += `
+                        <div style="padding: 15px 20px; border-bottom: 1px solid #eee; background: ${bg}; display: flex; gap: 15px; cursor: pointer; transition: 0.2s;" onmouseover="this.style.backgroundColor='#f9f9f9'" onmouseout="this.style.backgroundColor='${bg}'" onclick="window.location.href='/cashier/reservations?tab=pending'">
+                            <div style="flex-shrink: 0;">${dot}</div>
+                            <div>
+                                <h5 style="margin: 0 0 5px 0; color: #002277; font-size: 13px;">${n.title}</h5>
+                                <p style="margin: 0; color: #666; font-size: 12px; line-height: 1.4;">${n.message}</p>
+                                <span style="font-size: 10px; color: #999; margin-top: 5px; display: block;">${n.time_ago}</span>
+                            </div>
+                        </div>`;
+                    });
+                }
+                document.getElementById('notifList').innerHTML = html;
+            });
+    }
+
+    function markNotificationsRead() {
+        fetch('/notifications/mark-read', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/json'
+            }
+        }).then(() => {
+            fetchNotifications();
+        });
+    }
+    
+    // Initial load
+    fetchNotifications(); 
+    fetchCashierSales();
+
+    let salesChartInstance = null;
+
+    function fetchCashierSales() {
+        let start = document.getElementById('cashierSalesStart').value;
+        let end = document.getElementById('cashierSalesEnd').value;
+        let url = '/cashier/sales/filter';
+        if (start && end) {
+            url += `?start_date=${start}&end_date=${end}`;
+        }
+        
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('cashierTotalSales').innerText = data.total;
+                
+                // Render Chart
+                const ctx = document.getElementById('salesChart').getContext('2d');
+                if (salesChartInstance) {
+                    salesChartInstance.destroy();
+                }
+                
+                salesChartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: 'Sales (₱)',
+                            data: data.data,
+                            borderColor: '#1557c0',
+                            backgroundColor: 'rgba(21, 87, 192, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.3,
+                            pointBackgroundColor: '#1557c0'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: { 
+                                beginAtZero: true,
+                                grid: { color: '#f0f0f0' }
+                            },
+                            x: {
+                                grid: { display: false }
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(err => {
+                console.error(err);
+                document.getElementById('cashierTotalSales').innerText = 'Error';
+            });
+    }
+
+    // Call fetch for today on initial load
+    let currentMonthOffset = 0;
+    
+    function changeMonth(offset) {
+        currentMonthOffset += offset;
+        renderCalendarMonth();
+    }
+
+    function renderCalendarMonth() {
+        let today = new Date();
+        let targetMonth = new Date(today.getFullYear(), today.getMonth() + currentMonthOffset, 1);
+        
+        let monthYearStr = targetMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+        document.getElementById('calendarMonthYear').innerText = monthYearStr;
+        
+        let weekDays = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+        let html = '';
+        
+        for (let i = 0; i < 7; i++) {
+            html += `<div class="cal-day-name">${weekDays[i]}</div>`;
+        }
+        
+        let firstDayIndex = targetMonth.getDay();
+        let daysInMonth = new Date(targetMonth.getFullYear(), targetMonth.getMonth() + 1, 0).getDate();
+
+        let realTodayDate = new Date();
+        let realTodayStr = `${realTodayDate.getFullYear()}-${String(realTodayDate.getMonth()+1).padStart(2,'0')}-${String(realTodayDate.getDate()).padStart(2,'0')}`;
+        
+        let firstDayToFetch = null;
+
+        // Pad empty days
+        for (let i = 0; i < firstDayIndex; i++) {
+            html += `<div></div>`;
+        }
+
+        for (let i = 1; i <= daysInMonth; i++) {
+            let currentDay = new Date(targetMonth.getFullYear(), targetMonth.getMonth(), i);
+            
+            let m = currentDay.getMonth() + 1;
+            let d = currentDay.getDate();
+            let y = currentDay.getFullYear();
+            let formattedDate = `${y}-${m < 10 ? '0'+m : m}-${d < 10 ? '0'+d : d}`;
+            
+            if (i === 1) firstDayToFetch = formattedDate;
+
+            let isToday = (formattedDate === realTodayStr) ? 'active' : 'current-month';
+            if (currentMonthOffset !== 0 && i === 1) {
+                isToday = 'active'; 
+            } else if (currentMonthOffset !== 0) {
+                isToday = 'current-month';
+            }
+            if (currentMonthOffset !== 0 && formattedDate !== firstDayToFetch) {
+                 isToday = 'current-month';
+            }
+            
+            html += `<div class="cal-date ${isToday} cashier-cal-day" onclick="fetchReservationsByDate('${formattedDate}', this)" style="cursor: pointer; transition: 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='none'">
+                        ${d}
+                     </div>`;
+        }
+        
+        document.getElementById('calendarGrid').innerHTML = html;
+        
+        let dayToFetch = (currentMonthOffset === 0) ? realTodayStr : firstDayToFetch;
+        fetchReservationsByDate(dayToFetch, null);
+    }
+    
+    // Initial Render
+    renderCalendarMonth();
+
+    function fetchReservationsByDate(date, element) {
+        // Handle active state
+        if (element) {
+            document.querySelectorAll('.cashier-cal-day').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        let tbody = document.getElementById('upcomingTableBody');
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-muted); font-style: italic; padding: 20px;">Loading...</td></tr>';
+
+        fetch(`/api/reservations/by-date?date=${date}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-muted); font-style: italic; padding: 20px;">No reservations found for this date.</td></tr>';
+                    return;
+                }
+
+                let html = '';
+                data.forEach(res => {
+                    html += `
+                        <tr>
+                            <td style="font-weight: 500; color: var(--dark-blue);">${res.name}</td>
+                            <td style="text-align: center;"><span style="background: #e3f2fd; color: #1557c0; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">${res.court}</span></td>
+                            <td style="text-align: center;">${res.time}</td>
+                            <td style="text-align: right;">${res.date}</td>
+                        </tr>
+                    `;
+                });
+                tbody.innerHTML = html;
+            })
+            .catch(err => {
+                console.error(err);
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #e53935; padding: 20px;">Error loading data.</td></tr>';
+            });
+    }
 </script>
 
+    <!-- USERS MODAL -->
+    <div id="usersModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(4px);">
+        <div style="background: white; width: 90%; max-width: 800px; max-height: 85vh; border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.2); animation: modalFadeIn 0.3s ease;">
+            <!-- Modal Header -->
+            <div style="padding: 20px 25px; border-bottom: 1px solid #eef0f4; display: flex; justify-content: space-between; align-items: center; background: #fafbfc;">
+                <h2 style="margin: 0; color: var(--dark-blue); font-size: 20px;"><i class="fa-solid fa-users" style="margin-right: 10px; color: #93c5fd;"></i>Registered Users</h2>
+                <button onclick="document.getElementById('usersModal').style.display='none'" style="background: none; border: none; font-size: 24px; color: #999; cursor: pointer; transition: 0.2s;" onmouseover="this.style.color='#f44336'" onmouseout="this.style.color='#999'">&times;</button>
+            </div>
+            
+            <!-- Modal Body (Table) -->
+            <div style="padding: 0; overflow-y: auto; flex-grow: 1;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead style="position: sticky; top: 0; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                        <tr>
+                            <th style="padding: 15px 25px; font-size: 13px; color: #6b7280; border-bottom: 1px solid #eef0f4;">Name</th>
+                            <th style="padding: 15px 25px; font-size: 13px; color: #6b7280; border-bottom: 1px solid #eef0f4;">Email / Contact</th>
+                            <th style="padding: 15px 25px; font-size: 13px; color: #6b7280; border-bottom: 1px solid #eef0f4;">Joined Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($registeredUsers ?? [] as $user)
+                        <tr style="border-bottom: 1px solid #f9f9f9; transition: 0.2s;" onmouseover="this.style.backgroundColor='#f4f6f9'" onmouseout="this.style.backgroundColor='transparent'">
+                            <td style="padding: 15px 25px;">
+                                <div style="font-weight: 600; color: #374151; font-size: 14px;">{{ $user->name }}</div>
+                            </td>
+                            <td style="padding: 15px 25px;">
+                                <div style="font-size: 13px; color: #4b5563;"><i class="fa-regular fa-envelope" style="margin-right: 6px; color: #9ca3af;"></i>{{ $user->email }}</div>
+                                <div style="font-size: 13px; color: #6b7280; margin-top: 4px;"><i class="fa-solid fa-phone" style="margin-right: 6px; color: #9ca3af;"></i>{{ $user->contact }}</div>
+                            </td>
+                            <td style="padding: 15px 25px; font-size: 13px; color: #6b7280;">
+                                {{ \Carbon\Carbon::parse($user->created_at)->format('M d, Y') }}
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="3" style="text-align: center; padding: 40px; color: #9ca3af;">No registered users found.</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <style>
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+    </style>
 </body>
 </html>
 

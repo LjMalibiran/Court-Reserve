@@ -121,10 +121,10 @@
             Back
         </a>
 
-        <h2>Forgot Password</h2>
-        <p class="instruction">Enter your Google account (Email) to receive a 4-digit verification code to reset your password.</p>
+        <h2>Reset Password</h2>
+        <p class="instruction">Please enter your new password below.</p>
         
-        <form action="{{ route('forgot.password.post') }}" method="POST">
+        <form action="{{ route('forgot.reset.post') }}" method="POST">
             @csrf 
 
             @if($errors->any())
@@ -134,11 +134,16 @@
             @endif
 
             <div class="input-group">
-                <input type="email" id="email" name="email" required placeholder="Enter your Google account email" value="{{ old('email') }}">
-                <label for="email">Google Account</label>
+                <input type="password" id="password" name="password" required placeholder="New Password">
+                <label for="password">New Password</label>
+            </div>
+
+            <div class="input-group">
+                <input type="password" id="password_confirmation" name="password_confirmation" required placeholder="Confirm New Password">
+                <label for="password_confirmation">Confirm Password</label>
             </div>
             
-            <button type="submit" class="btn-primary">Send Code</button>
+            <button type="submit" class="btn-primary">Update Password</button>
         </form>
     </div>
 </body>

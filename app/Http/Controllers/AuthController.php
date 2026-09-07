@@ -46,23 +46,18 @@ class AuthController extends Controller
             'contact' => $request->contact,
             'password' => Hash::make($request->password),
             'verification_code' => $verificationCode,
+            'verification_code_expires_at' => now()->addMinutes(3),
         ]);
 
-        // 3. SEND VERIFICATION SMS VIA SEMAPHORE
+        // 3. SEND VERIFICATION EMAIL TO GMAIL (For Local Testing)
         try {
-            $response = Http::post('https://api.semaphore.co/api/v4/messages', [
-                'apikey' => config('services.semaphore.key'),
-                'number' => $user->contact,
-                'message' => "Your Court Reserve verification code is: {$verificationCode}"
-            ]);
-
-            if ($response->successful()) {
-                Log::info("SMS SENT TO {$user->contact}: Your Court Reserve verification code is: {$verificationCode}");
-            } else {
-                Log::error("Semaphore API Error for {$user->contact}: " . $response->body());
-            }
+            Mail::raw("Your Court Reserve verification code is: {$verificationCode}", function ($message) use ($user) {
+                $message->to($user->email)
+                        ->subject('Court Reserve - Verification Code');
+            });
+            Log::info("EMAIL SENT TO {$user->email}: Your Court Reserve verification code is: {$verificationCode}");
         } catch (\Exception $e) {
-            Log::error("Failed to send SMS to {$user->contact}: " . $e->getMessage());
+            Log::error("Failed to send Email to {$user->email}: " . $e->getMessage());
         }
 
         Auth::login($user);
@@ -94,9 +89,9 @@ class AuthController extends Controller
 
             // 3. STAFF CHECK: Are they an Admin or Cashier?
             if ($user->role === 'admin') {
-                return redirect()->intended('/admin/dashboard');
+                return redirect('/admin/dashboard');
             } elseif ($user->role === 'cashier') {
-                return redirect()->intended('/cashier/dashboard');
+                return redirect('/cashier/dashboard');
             }
 
             // 4. REGULAR USER CHECK: Are they verified yet or is 2FA enabled?
@@ -104,25 +99,20 @@ class AuthController extends Controller
                 // Generate a fresh code because they need to verify!
                 $newCode = rand(1000, 9999);
                 $user->verification_code = $newCode;
+                $user->verification_code_expires_at = now()->addMinutes(3);
                 // Unverify them so middleware catches them
                 $user->phone_verified_at = null;
                 $user->save();
 
-                // Send fresh SMS
+                // Send fresh Email (For Local Testing)
                 try {
-                    $response = Http::post('https://api.semaphore.co/api/v4/messages', [
-                        'apikey' => config('services.semaphore.key'),
-                        'number' => $user->contact,
-                        'message' => "Your fresh Court Reserve verification code is: {$newCode}"
-                    ]);
-
-                    if ($response->successful()) {
-                        Log::info("NEW SMS SENT TO {$user->contact}: Your fresh verification code is: {$newCode}");
-                    } else {
-                        Log::error("Semaphore API Error for {$user->contact}: " . $response->body());
-                    }
+                    Mail::raw("Your fresh Court Reserve verification code is: {$newCode}", function ($message) use ($user) {
+                        $message->to($user->email)
+                                ->subject('Court Reserve - New Verification Code');
+                    });
+                    Log::info("NEW EMAIL SENT TO {$user->email}: Your fresh verification code is: {$newCode}");
                 } catch (\Exception $e) {
-                    Log::error("Failed to send SMS to {$user->contact}: " . $e->getMessage());
+                    Log::error("Failed to send Email to {$user->email}: " . $e->getMessage());
                 }
 
                 return redirect()->route('verify.index');
@@ -138,18 +128,27 @@ class AuthController extends Controller
         ])->onlyInput('login_id');
     }
 
-   public function logout(Request $request)
+    public function logout(Request $request)
     {
-        // 1. Log the user out of the system
+        // 1. Get the user's role before logging them out
+        $role = Auth::user() ? Auth::user()->role : 'customer';
+
+        // 2. Log the user out of the system
         Auth::logout();
         
-        // 2. Invalidate their active session to keep it secure
+        // 3. Invalidate their active session to keep it secure
         $request->session()->invalidate();
         
-        // 3. Regenerate the CSRF token to prevent hijacking
+        // 4. Regenerate the CSRF token to prevent hijacking
         $request->session()->regenerateToken();
         
-        // 4. Send them back to the main login screen!
-        return redirect('/login'); // <-- Change this to '/' if your login is on the homepage
+        // 5. Redirect them to the correct login page based on their role
+        if ($role === 'admin') {
+            return redirect('/admin/login');
+        } elseif ($role === 'cashier') {
+            return redirect('/cashier/login');
+        }
+        
+        return redirect('/login');
     }
 }

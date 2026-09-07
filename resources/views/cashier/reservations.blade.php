@@ -479,10 +479,18 @@
     <script>
         function switchTab(tabName, btnElement) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            btnElement.classList.add('active');
-
+            if(btnElement) btnElement.classList.add('active');
+            
             document.querySelectorAll('.data-table').forEach(table => table.style.display = 'none');
             document.getElementById('table-' + tabName).style.display = 'table';
+
+            document.querySelectorAll('.data-table form').forEach(form => {
+                let action = form.getAttribute('action');
+                if(action) {
+                    let base = action.split('?')[0];
+                    form.setAttribute('action', base + '?tab=' + tabName);
+                }
+            });
         }
 
         // Functions for the Receipt Lightbox
@@ -562,13 +570,19 @@
     </script>
     
     <script>
-        // Check the URL for "?tab=pending" and click the tab automatically
+        // Check the URL for "?tab=..." or session data and click the tab automatically
         document.addEventListener("DOMContentLoaded", function() {
             const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('tab') === 'pending') {
-                const pendingBtn = document.getElementById('btn-pending-tab');
-                if (pendingBtn) {
-                    pendingBtn.click();
+            let targetTab = urlParams.get('tab');
+
+            @if(session('active_tab'))
+                targetTab = "{{ session('active_tab') }}";
+            @endif
+
+            if (targetTab) {
+                const targetBtn = document.querySelector(`.tab-btn[onclick*="'${targetTab}'"]`);
+                if (targetBtn) {
+                    targetBtn.click();
                 }
             }
         });

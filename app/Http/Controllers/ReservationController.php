@@ -102,6 +102,64 @@ class ReservationController extends Controller
 
         return response()->json(['booked_slots' => $bookedSlots]);
     }
+
+    public function checkRentals(\Illuminate\Http\Request $request)
+    {
+        $date = $request->date; // Y-m-d
+        $startTime = $request->start_time; // H:i:s or g:i A
+        $endTime = $request->end_time; // H:i:s or g:i A
+
+        if (!$date || !$startTime || !$endTime) {
+            return response()->json(['available_rackets' => 5]); // default max
+        }
+
+        $start = \Carbon\Carbon::parse("$date $startTime");
+        $end = \Carbon\Carbon::parse("$date $endTime");
+
+        // Get all active reservations on this date that overlap with the selected time
+        $overlapping = Reservation::with('rentalItems')
+            ->whereDate('start_time', $date)
+            ->whereIn('status', ['pending', 'confirmed', 'in-play'])
+            ->where(function ($query) use ($start, $end) {
+                $query->where('start_time', '<', $end)->where('end_time', '>', $start);
+            })->get();
+
+        // Calculate max rackets used at any hour during the selected time span
+        $maxRacketsUsed = 0;
+        
+        // Loop hour by hour for the selected time span
+        $current = $start->copy();
+        while ($current->lt($end)) {
+            $hourEnd = $current->copy()->addHour();
+            $racketsThisHour = 0;
+
+            // Check which overlapping reservations overlap with THIS specific hour
+            foreach ($overlapping as $res) {
+                $resStart = \Carbon\Carbon::parse($res->start_time);
+                $resEnd = \Carbon\Carbon::parse($res->end_time);
+
+                if ($resStart->lt($hourEnd) && $resEnd->gt($current)) {
+                    // It overlaps this hour! How many rackets did they rent?
+                    $racketItem = $res->rentalItems->where('item_name', 'Racket')->first();
+                    if ($racketItem) {
+                        $racketsThisHour += $racketItem->quantity;
+                    }
+                }
+            }
+
+            if ($racketsThisHour > $maxRacketsUsed) {
+                $maxRacketsUsed = $racketsThisHour;
+            }
+
+            $current->addHour();
+        }
+
+        $availableRackets = max(0, 5 - $maxRacketsUsed);
+
+        return response()->json([
+            'available_rackets' => $availableRackets
+        ]);
+    }
     
     public function processPayment(Request $request)
     {
@@ -136,7 +194,37 @@ class ReservationController extends Controller
         $reservation->reservation_code = $reservationCode;
         $reservation->save();
 
-        session()->forget(['court_id', 'sport', 'start_time', 'end_time', 'total_price']);
+        // Save Rental Items if any
+        if (session()->has('rackets') && session('rackets') > 0) {
+            \App\Models\RentalItem::create([
+                'reservation_id' => $reservation->id,
+                'item_name' => 'Racket',
+                'quantity' => session('rackets'),
+                'price_per_item' => 50
+            ]);
+        }
+        
+        if (session()->has('shuttles') && session('shuttles') > 0) {
+            \App\Models\RentalItem::create([
+                'reservation_id' => $reservation->id,
+                'item_name' => 'Shuttlecock',
+                'quantity' => session('shuttles'),
+                'price_per_item' => 50
+            ]);
+        }
+
+        // Notify Admins and Cashiers
+        $staff = \App\Models\User::whereIn('role', ['admin', 'cashier'])->get();
+        foreach ($staff as $member) {
+            \App\Models\Notification::create([
+                'user_id' => $member->id,
+                'reservation_id' => $reservation->id,
+                'title' => 'New Reservation Request',
+                'message' => \Illuminate\Support\Facades\Auth::user()->name . ' requested a ' . $reservation->sport . ' reservation for Court ' . $reservation->court_id . '.'
+            ]);
+        }
+
+        session()->forget(['court_id', 'sport', 'start_time', 'end_time', 'total_price', 'rackets', 'shuttles']);
 
         return back()->with('success', true)
                      ->with('reservation_code', $reservation->reservation_code)
@@ -218,13 +306,16 @@ class ReservationController extends Controller
         $reservation->status = 'pending'; 
         $reservation->save();
 
-        // Notify Admin
-        \App\Models\Notification::create([
-            'user_id' => 1, // Sends to Admin
-            'reservation_id' => $reservation->id,
-            'title' => 'Reservation Rescheduled',
-            'message' => Auth::user()->name . ' moved their ' . $reservation->sport . ' booking to ' . $start->format('M j, g:i A') . ' on Court ' . $request->court_id . '. Needs approval.'
-        ]);
+        // Notify Admin and Cashier
+        $staff = \App\Models\User::whereIn('role', ['admin', 'cashier'])->get();
+        foreach ($staff as $member) {
+            \App\Models\Notification::create([
+                'user_id' => $member->id,
+                'reservation_id' => $reservation->id,
+                'title' => 'Reservation Rescheduled',
+                'message' => Auth::user()->name . ' moved their ' . $reservation->sport . ' booking to ' . $start->format('M j, g:i A') . ' on Court ' . $request->court_id . '. Needs approval.'
+            ]);
+        }
 
         return back()->with('success', 'Reservation updated successfully! Please wait for admin approval.');
     }
@@ -247,11 +338,11 @@ class ReservationController extends Controller
     public function storeWalkIn(\Illuminate\Http\Request $request)
     {
         // 1. Create a fast "stub" user account
-        // FIX: Removed the 'role' line to let your database apply the default automatically!
         $user = \App\Models\User::create([
             'name' => $request->name,
             'email' => 'walkin_' . \Illuminate\Support\Str::random(6) . '@batangas.com',
-            'password' => \Illuminate\Support\Facades\Hash::make('walkin123')
+            'password' => \Illuminate\Support\Facades\Hash::make('walkin123'),
+            'role' => 'customer'
         ]);
 
         // 2. Format a specific Walk-In Reservation Code (e.g. W-BC26-ABCD)
@@ -271,6 +362,24 @@ class ReservationController extends Controller
         $res->reservation_code = $code;
         $res->save();
 
+        if ($request->racket_qty && $request->racket_qty > 0) {
+            \App\Models\RentalItem::create([
+                'reservation_id' => $res->id,
+                'item_name' => 'Racket',
+                'quantity' => $request->racket_qty,
+                'price_per_item' => 50
+            ]);
+        }
+        
+        if ($request->shuttle_qty && $request->shuttle_qty > 0) {
+            \App\Models\RentalItem::create([
+                'reservation_id' => $res->id,
+                'item_name' => 'Shuttlecock',
+                'quantity' => $request->shuttle_qty,
+                'price_per_item' => 50
+            ]);
+        }
+
         return redirect()->back()->with('success', 'Walk-in added! The time slot is now blocked for online users.');
     }
     
@@ -284,5 +393,28 @@ class ReservationController extends Controller
         $res->status = $status;
         $res->save();
         return redirect()->back()->with('success', 'Walk-in status updated!');
+    }
+
+    public function getByDate(Request $request)
+    {
+        $date = $request->query('date', Carbon::today()->format('Y-m-d'));
+        
+        $reservations = Reservation::with('user')
+            ->whereDate('start_time', $date)
+            ->whereIn('status', ['confirmed', 'completed', 'in-play'])
+            ->orderBy('start_time', 'asc')
+            ->get();
+
+        $formatted = $reservations->map(function($res) {
+            return [
+                'id' => $res->id,
+                'name' => $res->user ? $res->user->name : ($res->walk_in_name ?: 'Walk-In Customer'),
+                'court' => 'Court ' . $res->court_id,
+                'time' => Carbon::parse($res->start_time)->format('g:i A') . ' - ' . Carbon::parse($res->end_time)->format('g:i A'),
+                'date' => Carbon::parse($res->start_time)->format('M d, Y')
+            ];
+        });
+
+        return response()->json($formatted);
     }
 }

@@ -250,7 +250,7 @@
                 @php
                     $badgeClass = in_array($res->status, ['confirmed', 'completed', 'in-play']) ? 'badge-confirmed' : ($res->status == 'cancelled' ? 'badge-cancelled' : 'badge-pending');
                 @endphp
-                <div class="compact-res-card" onclick="openResDetailsModal({{ $res->id }}, '{{ $res->sport ?? 'Badminton' }}', '{{ $res->court_id }}', '{{ $res->start_time }}', '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }}', '{{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}', '{{ $res->reservation_code }}', '{{ $res->status }}')">
+                <div class="compact-res-card" data-id="{{ $res->id }}" onclick="openResDetailsModal({{ $res->id }}, '{{ $res->sport ?? 'Badminton' }}', '{{ $res->court_id }}', '{{ $res->start_time }}', '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }}', '{{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}', '{{ $res->reservation_code }}', '{{ $res->status }}')">
                     <div class="crc-left">
                         <div class="crc-icon">
                             @if(($res->sport ?? 'Badminton') == 'Pickleball')

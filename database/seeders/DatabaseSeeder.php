@@ -26,5 +26,14 @@ class DatabaseSeeder extends Seeder
                 'phone_verified_at' => now(), // Skips the OTP verification step
             ]
         );
+
+        // Seed Courts
+        if (\Illuminate\Support\Facades\DB::table('courts')->count() == 0) {
+            \Illuminate\Support\Facades\DB::table('courts')->insert([
+                ['id' => 1, 'is_active' => true],
+                ['id' => 2, 'is_active' => true],
+                ['id' => 3, 'is_active' => true],
+            ]);
+        }
     }
 }

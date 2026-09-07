@@ -185,7 +185,9 @@
 
                 <div class="scan-box">
                     <h4>Scan Qr Code</h4>
-                    <img src="{{ asset('images/qr-placeholder.png') }}" alt="QR Code" class="qr-placeholder" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg'">
+                    <div id="reader" style="width: 100%; max-width: 100%; display: none;"></div>
+                    <img id="qr-placeholder" src="https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg" alt="QR Code" class="qr-placeholder" style="width: 250px; margin-bottom: 20px; opacity: 0.7;">
+                    <button id="start-camera-btn" type="button" class="btn-go" style="padding: 10px 20px; font-size: 14px; background: #2563eb;">Start Camera</button>
                 </div>
 
                 <div class="manual-entry">
@@ -212,52 +214,167 @@
                             $res = session('reservation'); 
                         @endphp
 
-                        <div class="user-profile">
-                            <img src="{{ asset('images/default-avatar.png') }}" alt="Avatar" onerror="this.src='https://ui-avatars.com/api/?name={{ $res ? urlencode($res->customer_name) : 'Ven+Matira' }}&background=60a5fa&color=fff'">
-                            <h4>{{ $res ? $res->customer_name : 'Ven Matira' }}</h4>
-                        </div>
+                        @if($res)
+                            <div class="user-profile">
+                                @php
+                                    $customerName = $res->user ? $res->user->name : ($res->walk_in_name ?: 'Walk-In Customer');
+                                @endphp
+                                <img src="{{ asset('images/default-avatar.png') }}" alt="Avatar" onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($customerName) }}&background=60a5fa&color=fff'">
+                                <h4>{{ $customerName }}</h4>
+                            </div>
 
-                        <table class="details-table">
-                            <tr>
-                                <td>Reservation ID</td>
-                                <td>{{ $res ? $res->reservation_id : 'BC26-02' }}</td>
-                            </tr>
-                            <tr>
-                                <td>Sport</td>
-                                <td>Badminton</td>
-                            </tr>
-                            <tr>
-                                <td>Court</td>
-                                <td>{{ $res ? 'Court ' . $res->court_number : 'Court 1' }}</td>
-                            </tr>
-                            <tr>
-                                <td>Date & Time</td>
-                                <td>{{ $res ? $res->date . ', ' . $res->time_slot : 'Mon, June 1, 2026, 4:00 - 5:00 PM' }}</td>
-                            </tr>
-                            <tr>
-                                <td>Rent Item</td>
-                                <td>{{ $res ? $res->rented_items : '1 Racket, 1 Shuttlecock' }}</td>
-                            </tr>
-                            <tr>
-                                <td>Duration</td>
-                                <td>{{ $res ? $res->duration . ' Hour' : '1 Hour' }}</td>
-                            </tr>
-                            <tr>
-                                <td>Payment</td>
-                                <td>Paid <i class="fa-regular fa-image" style="margin-left: 5px; color: #6b7280;"></i></td>
-                            </tr>
-                            <tr>
-                                <td>Status</td>
-                                <td style="color: #22c55e;">{{ $res ? $res->status : 'Confirmed' }}</td>
-                            </tr>
-                        </table>
+                            <table class="details-table">
+                                <tr>
+                                    <td>Reservation ID</td>
+                                    <td>{{ $res->reservation_code }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Sport</td>
+                                    <td>Badminton</td>
+                                </tr>
+                                <tr>
+                                    <td>Court</td>
+                                    <td>Court {{ $res->court_id }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Date & Time</td>
+                                    <td>{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') . ', ' . \Carbon\Carbon::parse($res->start_time)->format('g:i A') . ' - ' . \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Rent Item</td>
+                                    <td>
+                                        @if($res->rentalItems && $res->rentalItems->count() > 0)
+                                            @foreach($res->rentalItems as $item)
+                                                {{ $item->quantity }}x {{ $item->item_name }}<br>
+                                            @endforeach
+                                        @else
+                                            None
+                                        @endif
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Duration</td>
+                                    <td>{{ \Carbon\Carbon::parse($res->start_time)->diffInHours(\Carbon\Carbon::parse($res->end_time)) }} Hour(s)</td>
+                                </tr>
+                                <tr>
+                                    <td>Payment Type</td>
+                                    <td>
+                                        <span style="background: #e0f2fe; color: #0284c7; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 12px;">
+                                            {{ $res->payment_type ? ucfirst($res->payment_type) : 'Unknown' }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Payment Details</td>
+                                    <td>
+                                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                                            @php 
+                                                $actual_paid = $res->amount_paid;
+                                                if ($actual_paid == 0) {
+                                                    if (strtolower($res->payment_type) == 'full') $actual_paid = $res->total_price;
+                                                    elseif (strtolower($res->payment_type) == 'half') $actual_paid = $res->total_price / 2;
+                                                }
+                                                $balance = max(0, $res->total_price - $actual_paid); 
+                                            @endphp
+                                            <span>Total: <b>₱{{ number_format($res->total_price, 2) }}</b></span>
+                                            <span style="color: #16a34a;">Paid: <b>₱{{ number_format($actual_paid, 2) }}</b></span>
+                                            @if($balance > 0)
+                                                <span style="color: #dc2626;">Balance: <b>₱{{ number_format($balance, 2) }}</b></span>
+                                            @else
+                                                <span style="color: #16a34a;"><i class="fa-solid fa-check-circle"></i> Fully Paid</span>
+                                            @endif
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Receipt</td>
+                                    <td>
+                                        @if($res->receipt_path)
+                                            <a href="javascript:void(0);" onclick="document.getElementById('receiptModal').style.display='flex'" style="display: inline-flex; align-items: center; gap: 5px; color: #1557c0; text-decoration: none; font-weight: bold; cursor: pointer;">
+                                                <i class="fa-regular fa-image"></i> View Receipt
+                                            </a>
+                                        @else
+                                            <span style="color: #9ca3af;">No receipt uploaded</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Status</td>
+                                    <td style="color: #22c55e;">{{ ucfirst($res->status) }}</td>
+                                </tr>
+                            </table>
 
-                        <form action="{{ url('/admin/qr-verification/verify/' . ($res ? $res->id : '1')) }}" method="POST" class="verify-container">
-                            @csrf
-                            <button type="submit" class="btn-verify" {{ !$res ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : '' }}>
-                                Verify
-                            </button>
-                        </form>
+                            @php
+                                $isPassed = \Carbon\Carbon::parse($res->end_time)->isPast();
+                            @endphp
+
+                            @if($isPassed)
+                                <div style="background-color: #fee2e2; color: #dc2626; padding: 12px; border-radius: 6px; text-align: center; margin-bottom: 20px; font-weight: bold; font-size: 14px; border: 1px solid #f87171;">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> Warning: This reservation has already passed.
+                                </div>
+                            @endif
+
+                            <form action="{{ url('/admin/qr-verification/verify/' . $res->id) }}" method="POST" class="verify-container">
+                                @csrf
+                                <button type="submit" class="btn-verify" {!! $isPassed ? 'disabled style="background: #e5e7eb; color: #9ca3af; cursor: not-allowed; box-shadow: none;"' : '' !!}>
+                                    Verify
+                                </button>
+                            </form>
+                        @else
+                            <div class="user-profile">
+                                <img src="{{ asset('images/default-avatar.png') }}" alt="Avatar" onerror="this.src='https://ui-avatars.com/api/?name=Waiting+Scan&background=e5e7eb&color=9ca3af'">
+                                <h4 style="color: #9ca3af;">Awaiting Scan...</h4>
+                            </div>
+
+                            <table class="details-table" style="color: #9ca3af;">
+                                <tr>
+                                    <td>Reservation ID</td>
+                                    <td>---</td>
+                                </tr>
+                                <tr>
+                                    <td>Sport</td>
+                                    <td>---</td>
+                                </tr>
+                                <tr>
+                                    <td>Court</td>
+                                    <td>---</td>
+                                </tr>
+                                <tr>
+                                    <td>Date & Time</td>
+                                    <td>---</td>
+                                </tr>
+                                <tr>
+                                    <td>Rent Item</td>
+                                    <td>---</td>
+                                </tr>
+                                <tr>
+                                    <td>Duration</td>
+                                    <td>---</td>
+                                </tr>
+                                <tr>
+                                    <td>Payment Type</td>
+                                    <td>---</td>
+                                </tr>
+                                <tr>
+                                    <td>Payment Details</td>
+                                    <td>---</td>
+                                </tr>
+                                <tr>
+                                    <td>Receipt</td>
+                                    <td>---</td>
+                                </tr>
+                                <tr>
+                                    <td>Status</td>
+                                    <td>---</td>
+                                </tr>
+                            </table>
+
+                            <div class="verify-container">
+                                <button type="button" class="btn-verify" style="background: #e5e7eb; color: #9ca3af; cursor: not-allowed;" disabled>
+                                    Verify
+                                </button>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -265,13 +382,25 @@
 
     </main>
 
+    @if(session('reservation') && session('reservation')->receipt_path)
+    <!-- RECEIPT MODAL -->
+    <div id="receiptModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; justify-content: center; align-items: center; backdrop-filter: blur(4px);">
+        <div style="background: #fff; padding: 20px; border-radius: 12px; max-width: 500px; width: 90%; text-align: center; position: relative;">
+            <button onclick="document.getElementById('receiptModal').style.display='none'" style="position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 24px; cursor: pointer; color: #666;">&times;</button>
+            <h3 style="margin-top: 0; margin-bottom: 20px; color: #1e3a8a;">Payment Receipt</h3>
+            <img src="{{ asset('storage/' . session('reservation')->receipt_path) }}" alt="Receipt" style="max-width: 100%; max-height: 70vh; border-radius: 8px; border: 1px solid #e5e7eb;">
+        </div>
+    </div>
+    @endif
+
     <!-- Hardware Scanner Script -->
+    <script src="https://unpkg.com/html5-qrcode"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const qrInput = document.getElementById('qrInput');
             
             document.body.addEventListener('click', function(e) {
-                if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'A' && e.target.tagName !== 'INPUT') {
+                if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'A' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'VIDEO') {
                     qrInput.focus();
                 }
             });
@@ -281,6 +410,49 @@
                     e.preventDefault(); 
                     document.getElementById('qrSearchForm').submit();
                 }
+            });
+
+            // Camera Scanner logic
+            const startCameraBtn = document.getElementById('start-camera-btn');
+            const html5QrCode = new Html5Qrcode("reader");
+
+            startCameraBtn.addEventListener('click', function() {
+                startCameraBtn.style.display = 'none';
+                document.getElementById('qr-placeholder').style.display = 'none';
+                document.getElementById('reader').style.display = 'block';
+                
+                Html5Qrcode.getCameras().then(devices => {
+                    if (devices && devices.length) {
+                        // Use the last camera (often the back camera on mobile) or the only camera available
+                        let cameraId = devices.length > 1 ? devices[devices.length - 1].id : devices[0].id;
+                        let config = { fps: 10, qrbox: { width: 250, height: 250 } };
+                        
+                        html5QrCode.start(
+                            cameraId, 
+                            config,
+                            (decodedText, decodedResult) => {
+                                // Once we get a scan, fill the input and submit
+                                html5QrCode.stop().catch(err => console.log(err));
+                                qrInput.value = decodedText;
+                                document.getElementById('qrSearchForm').submit();
+                            },
+                            (errorMessage) => {
+                                // ignore background scanning errors
+                            })
+                        .catch((err) => {
+                            console.log("Error starting scanner", err);
+                            alert("Could not start camera. Please ensure camera permissions are granted in your browser.");
+                            startCameraBtn.style.display = 'inline-block';
+                        });
+                    } else {
+                        alert("No cameras found on this device.");
+                        startCameraBtn.style.display = 'inline-block';
+                    }
+                }).catch(err => {
+                    console.log("Error getting cameras", err);
+                    alert("Error accessing cameras. Please ensure camera permissions are granted.");
+                    startCameraBtn.style.display = 'inline-block';
+                });
             });
         });
     </script>

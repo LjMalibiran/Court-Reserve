@@ -24,9 +24,15 @@ class VerificationController extends Controller
         // 3. Check if it matches the database
         if ($enteredCode == $user->verification_code) {
             
+            // Check if the code has expired
+            if (now()->greaterThan($user->verification_code_expires_at)) {
+                return back()->withErrors(['code' => 'Verification code has expired. Please request a new one.']);
+            }
+
             // Success! Update their status and clear the code
             $user->phone_verified_at = now();
             $user->verification_code = null;
+            $user->verification_code_expires_at = null;
             $user->save();
 
             // Success! Route them to the home dashboard
@@ -35,6 +41,29 @@ class VerificationController extends Controller
 
         // 4. If it fails, send them back with an error
         return back()->withErrors(['code' => 'Invalid verification code. Please try again.']);
+    }
+
+    // Resend a new OTP code
+    public function resend(Request $request)
+    {
+        $user = auth()->user();
+        
+        $newCode = rand(1000, 9999);
+        $user->verification_code = $newCode;
+        $user->verification_code_expires_at = now()->addMinutes(3);
+        $user->save();
+
+        try {
+            \Illuminate\Support\Facades\Mail::raw("Your new Court Reserve verification code is: {$newCode}", function ($message) use ($user) {
+                $message->to($user->email)
+                        ->subject('Court Reserve - New Verification Code');
+            });
+            \Illuminate\Support\Facades\Log::info("NEW EMAIL SENT TO {$user->email}: Your fresh verification code is: {$newCode}");
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Failed to send Email to {$user->email}: " . $e->getMessage());
+        }
+
+        return back()->with('success', 'A new code has been sent to your email.');
     }
 
     // Show the verification form
