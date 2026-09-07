@@ -22,14 +22,25 @@ class ForgotPasswordController extends Controller
         $user->verification_code_expires_at = now()->addMinutes(3);
         $user->save();
 
-        // Send Email (Local testing)
+        // Send SMS via Semaphore
         try {
-            Mail::raw("Your password reset code is: {$newCode}", function ($message) use ($user) {
-                $message->to($user->email)->subject('Court Reserve - Password Reset Code');
-            });
-            Log::info("PASSWORD RESET EMAIL SENT TO {$user->email}: Code is {$newCode}");
+            $apiKey = env('SEMAPHORE_API_KEY');
+            $senderName = env('SEMAPHORE_SENDER_NAME', '');
+            
+            $payload = [
+                'apikey' => $apiKey,
+                'number' => $user->contact,
+                'message' => "Your password reset code is: {$newCode}",
+            ];
+            
+            if (!empty($senderName)) {
+                $payload['sendername'] = $senderName;
+            }
+            
+            \Illuminate\Support\Facades\Http::post('https://api.semaphore.co/api/v4/messages', $payload);
+            Log::info("PASSWORD RESET SMS SENT TO {$user->contact}: {$newCode}");
         } catch (\Exception $e) {
-            Log::error("Failed to send Email to {$user->email}: " . $e->getMessage());
+            Log::error("Failed to send SMS to {$user->contact}: " . $e->getMessage());
         }
 
         // Save email in session so we know who is resetting
@@ -98,12 +109,23 @@ class ForgotPasswordController extends Controller
         $user->save();
 
         try {
-            Mail::raw("Your new password reset code is: {$newCode}", function ($message) use ($user) {
-                $message->to($user->email)->subject('Court Reserve - New Password Reset Code');
-            });
+            $apiKey = env('SEMAPHORE_API_KEY');
+            $senderName = env('SEMAPHORE_SENDER_NAME', '');
+            
+            $payload = [
+                'apikey' => $apiKey,
+                'number' => $user->contact,
+                'message' => "Your new password reset code is: {$newCode}",
+            ];
+            
+            if (!empty($senderName)) {
+                $payload['sendername'] = $senderName;
+            }
+            
+            \Illuminate\Support\Facades\Http::post('https://api.semaphore.co/api/v4/messages', $payload);
         } catch (\Exception $e) {}
 
-        return back()->with('success', 'A new code has been sent to your email.');
+        return back()->with('success', 'A new code has been sent to your phone number.');
     }
 
     // 5. Show Reset Password Form

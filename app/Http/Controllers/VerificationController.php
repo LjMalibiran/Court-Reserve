@@ -54,16 +54,26 @@ class VerificationController extends Controller
         $user->save();
 
         try {
-            \Illuminate\Support\Facades\Mail::raw("Your new Court Reserve verification code is: {$newCode}", function ($message) use ($user) {
-                $message->to($user->email)
-                        ->subject('Court Reserve - New Verification Code');
-            });
-            \Illuminate\Support\Facades\Log::info("NEW EMAIL SENT TO {$user->email}: Your fresh verification code is: {$newCode}");
+            $apiKey = env('SEMAPHORE_API_KEY');
+            $senderName = env('SEMAPHORE_SENDER_NAME', ''); // Keep blank until approved
+            
+            $payload = [
+                'apikey' => $apiKey,
+                'number' => $user->contact,
+                'message' => "Your new Court Reserve verification code is: {$newCode}",
+            ];
+            
+            if (!empty($senderName)) {
+                $payload['sendername'] = $senderName;
+            }
+            
+            \Illuminate\Support\Facades\Http::post('https://api.semaphore.co/api/v4/messages', $payload);
+            \Illuminate\Support\Facades\Log::info("SMS SENT TO {$user->contact}: {$newCode}");
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error("Failed to send Email to {$user->email}: " . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error("Failed to send SMS to {$user->contact}: " . $e->getMessage());
         }
 
-        return back()->with('success', 'A new code has been sent to your email.');
+        return back()->with('success', 'A new code has been sent to your phone number.');
     }
 
     // Show the verification form

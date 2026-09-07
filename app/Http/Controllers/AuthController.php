@@ -49,15 +49,25 @@ class AuthController extends Controller
             'verification_code_expires_at' => now()->addMinutes(3),
         ]);
 
-        // 3. SEND VERIFICATION EMAIL TO GMAIL (For Local Testing)
+        // 3. SEND VERIFICATION SMS VIA SEMAPHORE
         try {
-            Mail::raw("Your Court Reserve verification code is: {$verificationCode}", function ($message) use ($user) {
-                $message->to($user->email)
-                        ->subject('Court Reserve - Verification Code');
-            });
-            Log::info("EMAIL SENT TO {$user->email}: Your Court Reserve verification code is: {$verificationCode}");
+            $apiKey = env('SEMAPHORE_API_KEY');
+            $senderName = env('SEMAPHORE_SENDER_NAME', ''); // Keep blank until approved
+            
+            $payload = [
+                'apikey' => $apiKey,
+                'number' => $user->contact,
+                'message' => "Your Court Reserve verification code is: {$verificationCode}",
+            ];
+            
+            if (!empty($senderName)) {
+                $payload['sendername'] = $senderName;
+            }
+            
+            \Illuminate\Support\Facades\Http::post('https://api.semaphore.co/api/v4/messages', $payload);
+            Log::info("SMS SENT TO {$user->contact}: {$verificationCode}");
         } catch (\Exception $e) {
-            Log::error("Failed to send Email to {$user->email}: " . $e->getMessage());
+            Log::error("Failed to send SMS to {$user->contact}: " . $e->getMessage());
         }
 
         Auth::login($user);
@@ -104,15 +114,25 @@ class AuthController extends Controller
                 $user->phone_verified_at = null;
                 $user->save();
 
-                // Send fresh Email (For Local Testing)
+                // Send fresh SMS via Semaphore
                 try {
-                    Mail::raw("Your fresh Court Reserve verification code is: {$newCode}", function ($message) use ($user) {
-                        $message->to($user->email)
-                                ->subject('Court Reserve - New Verification Code');
-                    });
-                    Log::info("NEW EMAIL SENT TO {$user->email}: Your fresh verification code is: {$newCode}");
+                    $apiKey = env('SEMAPHORE_API_KEY');
+                    $senderName = env('SEMAPHORE_SENDER_NAME', '');
+                    
+                    $payload = [
+                        'apikey' => $apiKey,
+                        'number' => $user->contact,
+                        'message' => "Your fresh Court Reserve verification code is: {$newCode}",
+                    ];
+                    
+                    if (!empty($senderName)) {
+                        $payload['sendername'] = $senderName;
+                    }
+                    
+                    \Illuminate\Support\Facades\Http::post('https://api.semaphore.co/api/v4/messages', $payload);
+                    Log::info("NEW SMS SENT TO {$user->contact}: {$newCode}");
                 } catch (\Exception $e) {
-                    Log::error("Failed to send Email to {$user->email}: " . $e->getMessage());
+                    Log::error("Failed to send SMS to {$user->contact}: " . $e->getMessage());
                 }
 
                 return redirect()->route('verify.index');

@@ -164,18 +164,26 @@ class AdminController extends Controller
             $start = \Carbon\Carbon::parse($reservation->start_time)->format('g:i A');
             $end = \Carbon\Carbon::parse($reservation->end_time)->format('g:i A');
             
-            // Send email (for local testing using Mail::raw, but in production use Mailable)
+            // Send SMS via Semaphore
             try {
-                \Illuminate\Support\Facades\Mail::raw(
-                    "Hello {$user->name},\n\nThis is a friendly reminder for your upcoming {$reservation->sport} reservation at Batangas Badminton Center.\n\nDate: {$date}\nTime: {$start} - {$end}\nCourt: Court {$reservation->court_id}\n\nWe look forward to seeing you!", 
-                    function ($message) use ($user) {
-                        $message->to($user->email)->subject('Reminder: Upcoming Court Reservation');
-                    }
-                );
+                $apiKey = env('SEMAPHORE_API_KEY');
+                $senderName = env('SEMAPHORE_SENDER_NAME', '');
+                
+                $payload = [
+                    'apikey' => $apiKey,
+                    'number' => $user->contact,
+                    'message' => "Hello {$user->name},\n\nThis is a friendly reminder for your upcoming {$reservation->sport} reservation at Batangas Badminton Center.\n\nDate: {$date}\nTime: {$start} - {$end}\nCourt: Court {$reservation->court_id}\n\nWe look forward to seeing you!",
+                ];
+                
+                if (!empty($senderName)) {
+                    $payload['sendername'] = $senderName;
+                }
+                
+                \Illuminate\Support\Facades\Http::post('https://api.semaphore.co/api/v4/messages', $payload);
                 return response()->json(['success' => true]);
             } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::error("Failed to send reminder email to {$user->email}: " . $e->getMessage());
-                return response()->json(['success' => false, 'message' => 'Failed to send email. Check logs.']);
+                \Illuminate\Support\Facades\Log::error("Failed to send reminder SMS to {$user->contact}: " . $e->getMessage());
+                return response()->json(['success' => false, 'message' => 'Failed to send SMS. Check logs.']);
             }
         }
         
