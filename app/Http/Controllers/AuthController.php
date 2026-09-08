@@ -56,8 +56,9 @@ class AuthController extends Controller
                         ->subject('Court Reserve - Verification Code');
             });
             Log::info("EMAIL SENT TO {$user->email}: {$verificationCode}");
-        } catch (\Exception $e) {
-            Log::error("Failed to send email to {$user->email}: " . $e->getMessage());
+        } catch (\Throwable $e) {
+            // If email fails (e.g. SMTP blocked), still proceed — code is saved in DB
+            Log::error("Failed to send email to {$user->email}: " . $e->getMessage() . " | Code: {$verificationCode}");
         }
 
         Auth::login($user);
@@ -111,8 +112,8 @@ class AuthController extends Controller
                                 ->subject('Court Reserve - New Verification Code');
                     });
                     Log::info("NEW EMAIL SENT TO {$user->email}: {$newCode}");
-                } catch (\Exception $e) {
-                    Log::error("Failed to send email to {$user->email}: " . $e->getMessage());
+                } catch (\Throwable $e) {
+                    Log::error("Failed to send email to {$user->email}: " . $e->getMessage() . " | Code: {$newCode}");
                 }
 
                 return redirect()->route('verify.index');

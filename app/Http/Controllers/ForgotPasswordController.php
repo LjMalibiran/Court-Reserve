@@ -28,8 +28,8 @@ class ForgotPasswordController extends Controller
                 $message->to($user->email)->subject('Court Reserve - Password Reset Code');
             });
             Log::info("PASSWORD RESET EMAIL SENT TO {$user->email}: {$newCode}");
-        } catch (\Exception $e) {
-            Log::error("Failed to send email to {$user->email}: " . $e->getMessage());
+        } catch (\Throwable $e) {
+            Log::error("Failed to send email to {$user->email}: " . $e->getMessage() . " | Code: {$newCode}");
         }
 
         // Save email in session so we know who is resetting
@@ -101,7 +101,7 @@ class ForgotPasswordController extends Controller
             Mail::raw("Your new Court Reserve password reset code is: {$newCode}", function ($message) use ($user) {
                 $message->to($user->email)->subject('Court Reserve - New Password Reset Code');
             });
-        } catch (\Exception $e) {}
+        } catch (\Throwable $e) {}
 
         return back()->with('success', 'A new code has been sent to your email.');
     }

@@ -59,7 +59,7 @@ class VerificationController extends Controller
                 $message->to($user->email)->subject('Court Reserve - Verification Code');
             });
             \Illuminate\Support\Facades\Log::info("EMAIL SENT TO {$user->email}: {$newCode}");
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error("Failed to send email to {$user->email}: " . $e->getMessage());
         }
 
