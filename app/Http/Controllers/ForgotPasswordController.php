@@ -19,7 +19,7 @@ class ForgotPasswordController extends Controller
         
         $newCode = rand(1000, 9999);
         $user->verification_code = $newCode;
-        $user->verification_code_expires_at = now()->addMinutes(30);
+        $user->verification_code_expires_at = now()->addMinutes(3);
         $user->save();
 
         // Send via Email (temporary while Semaphore sender name is pending)
@@ -94,7 +94,7 @@ class ForgotPasswordController extends Controller
         
         $newCode = rand(1000, 9999);
         $user->verification_code = $newCode;
-        $user->verification_code_expires_at = now()->addMinutes(30);
+        $user->verification_code_expires_at = now()->addMinutes(3);
         $user->save();
 
         try {

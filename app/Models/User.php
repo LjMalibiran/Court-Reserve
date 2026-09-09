@@ -29,6 +29,7 @@ class User extends Authenticatable
         'profile_picture',
         'phone_number',
         'two_factor_enabled',
+        'verification_code_expires_at',
     ];
 
     /**
@@ -50,6 +51,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'verification_code_expires_at' => 'datetime',
             'password' => 'hashed',
         ];
     }

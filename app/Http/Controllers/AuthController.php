@@ -46,7 +46,7 @@ class AuthController extends Controller
             'contact' => $request->contact,
             'password' => Hash::make($request->password),
             'verification_code' => $verificationCode,
-            'verification_code_expires_at' => now()->addMinutes(30),
+            'verification_code_expires_at' => now()->addMinutes(3),
         ]);
 
         // 3. SEND VERIFICATION CODE VIA EMAIL (temporary while Semaphore sender name is pending)
@@ -100,7 +100,7 @@ class AuthController extends Controller
                 // Generate a fresh code because they need to verify!
                 $newCode = rand(1000, 9999);
                 $user->verification_code = $newCode;
-                $user->verification_code_expires_at = now()->addMinutes(30);
+                $user->verification_code_expires_at = now()->addMinutes(3);
                 // Unverify them so middleware catches them
                 $user->phone_verified_at = null;
                 $user->save();
