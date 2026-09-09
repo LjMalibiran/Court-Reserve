@@ -66,7 +66,8 @@
     /* Submit Button */
     .btn-submit-container { max-width: 1000px; display: flex; justify-content: space-between; margin-top: 10px;}
     .btn-submit { background: #0033cc; color: white; border: none; padding: 16px 40px; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.2s; min-width: 200px;}
-    .btn-submit:hover { background: #002299; }
+    .btn-submit:hover:not(:disabled) { background: #002299; }
+    .btn-submit:disabled { background: #cccccc; cursor: not-allowed; }
     
     .btn-back { background: white; color: #64748b; border: 1.5px solid #cbd5e1; padding: 15px 40px; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.2s; min-width: 200px; text-decoration: none; text-align: center; display: inline-block; box-sizing: border-box; }
     .btn-back:hover { background: #f1f5f9; color: #334155; }
@@ -174,7 +175,7 @@
                 
                 <label class="radio-option">
                     <div class="radio-label">
-                        <input type="radio" name="payment_type" value="full" checked>
+                        <input type="radio" name="payment_type" value="full" class="payment-radio">
                         Full Payment
                     </div>
                     <span class="price-text">₱ {{ number_format($totalAmount, 2) }}</span>
@@ -182,7 +183,7 @@
                 
                 <label class="radio-option" style="margin-bottom: 0;">
                     <div class="radio-label">
-                        <input type="radio" name="payment_type" value="half">
+                        <input type="radio" name="payment_type" value="half" class="payment-radio">
                         <div>
                             50% Down Payment
                             <span class="radio-sub">Please pay the remaining balance<br>before your playing time.</span>
@@ -210,7 +211,7 @@
     
     <div class="btn-submit-container">
         <a href="{{ route('reservation.index') }}" class="btn-back">Back</a>
-        <button type="submit" class="btn-submit">Next</button>
+        <button type="submit" class="btn-submit" id="submitBtn" disabled>Submit</button>
     </div>
 </form>
 @endsection
@@ -255,13 +256,41 @@
 
 @section('scripts')
 <script>
-    document.getElementById('receipt').addEventListener('change', function(e) {
+    const submitBtn = document.getElementById('submitBtn');
+    const paymentRadios = document.querySelectorAll('.payment-radio');
+    const fileInput = document.getElementById('receipt');
+
+    function checkSubmitState() {
+        let isPaymentSelected = false;
+        paymentRadios.forEach(radio => {
+            if (radio.checked) isPaymentSelected = true;
+        });
+        
+        let isReceiptUploaded = fileInput.files.length > 0;
+
+        if (isPaymentSelected && isReceiptUploaded) {
+            submitBtn.disabled = false;
+        } else {
+            submitBtn.disabled = true;
+        }
+    }
+
+    paymentRadios.forEach(radio => {
+        radio.addEventListener('change', checkSubmitState);
+    });
+
+    fileInput.addEventListener('change', function(e) {
         if(e.target.files.length > 0) {
             document.querySelector('.upload-text').innerText = e.target.files[0].name;
             document.querySelector('.upload-text').style.color = '#22c55e';
             document.querySelector('.upload-icon').style.color = '#22c55e';
             document.getElementById('receiptError').style.display = 'none';
+        } else {
+            document.querySelector('.upload-text').innerHTML = 'Drag and drop your file here<div class="upload-or">or</div>';
+            document.querySelector('.upload-text').style.color = '#0f2b6e';
+            document.querySelector('.upload-icon').style.color = '#0033cc';
         }
+        checkSubmitState();
     });
 
     function validatePayment(e) {
