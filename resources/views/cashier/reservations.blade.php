@@ -140,7 +140,7 @@
             <table id="table-all" class="data-table">
                 <thead>
                     <tr>
-                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Amount</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th><th style="text-align: center;">Action</th>
+                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Total Amount</th><th>Amount Paid</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th><th style="text-align: center;">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -154,6 +154,16 @@
                                 <div style="font-size: 12px; color: #777;">{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}</div>
                             </td>
                             <td>₱{{ number_format($res->total_price, 2) }}</td>
+                            <td style="color: #16a34a; font-weight: 600;">
+                                @php
+                                    $actual_paid = $res->amount_paid;
+                                    if ($actual_paid == 0) {
+                                        if (strtolower($res->payment_type) == 'full') $actual_paid = $res->total_price;
+                                        elseif (strtolower($res->payment_type) == 'half') $actual_paid = $res->total_price / 2;
+                                    }
+                                @endphp
+                                ₱{{ number_format($actual_paid, 2) }}
+                            </td>
                             <td style="text-align: center;">
                                 @if($res->receipt_path)
                                     <button type="button" class="btn-receipt" onclick="viewReceipt('{{ asset('storage/' . $res->receipt_path) }}')"><i class="fa-regular fa-image"></i></button>
@@ -198,7 +208,7 @@
             <table id="table-pending" class="data-table" style="display: none;">
                 <thead>
                     <tr>
-                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Amount</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Action</th>
+                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Total Amount</th><th>Amount Paid</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -212,6 +222,16 @@
                                 <div style="font-size: 12px; color: #777;">{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}</div>
                             </td>
                             <td>₱{{ number_format($res->total_price, 2) }}</td>
+                            <td style="color: #16a34a; font-weight: 600;">
+                                @php
+                                    $actual_paid = $res->amount_paid;
+                                    if ($actual_paid == 0) {
+                                        if (strtolower($res->payment_type) == 'full') $actual_paid = $res->total_price;
+                                        elseif (strtolower($res->payment_type) == 'half') $actual_paid = $res->total_price / 2;
+                                    }
+                                @endphp
+                                ₱{{ number_format($actual_paid, 2) }}
+                            </td>
                             <td style="text-align: center;">
                                 @if($res->receipt_path)
                                     <button type="button" class="btn-receipt" onclick="viewReceipt('{{ asset('storage/' . $res->receipt_path) }}')"><i class="fa-regular fa-image"></i></button>
@@ -242,7 +262,7 @@
             <table id="table-confirmed" class="data-table" style="display: none;">
                 <thead>
                     <tr>
-                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Amount</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th><th style="text-align: center;">Action</th>
+                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Total Amount</th><th>Amount Paid</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th><th style="text-align: center;">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -256,6 +276,16 @@
                                 <div style="font-size: 12px; color: #777;">{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}</div>
                             </td>
                             <td>₱{{ number_format($res->total_price, 2) }}</td>
+                            <td style="color: #16a34a; font-weight: 600;">
+                                @php
+                                    $actual_paid = $res->amount_paid;
+                                    if ($actual_paid == 0) {
+                                        if (strtolower($res->payment_type) == 'full') $actual_paid = $res->total_price;
+                                        elseif (strtolower($res->payment_type) == 'half') $actual_paid = $res->total_price / 2;
+                                    }
+                                @endphp
+                                ₱{{ number_format($actual_paid, 2) }}
+                            </td>
                             <td style="text-align: center;">
                                 @if($res->receipt_path)
                                     <button type="button" class="btn-receipt" onclick="viewReceipt('{{ asset('storage/' . $res->receipt_path) }}')"><i class="fa-regular fa-image"></i></button>
@@ -298,7 +328,7 @@
             <table id="table-completed" class="data-table" style="display: none;">
                 <thead>
                     <tr>
-                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Amount</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th><th style="text-align: center;">Action</th>
+                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Total Amount</th><th>Amount Paid</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th><th style="text-align: center;">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -312,6 +342,16 @@
                                 <div style="font-size: 12px; color: #777;">{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}</div>
                             </td>
                             <td>₱{{ number_format($res->total_price, 2) }}</td>
+                            <td style="color: #16a34a; font-weight: 600;">
+                                @php
+                                    $actual_paid = $res->amount_paid;
+                                    if ($actual_paid == 0) {
+                                        if (strtolower($res->payment_type) == 'full') $actual_paid = $res->total_price;
+                                        elseif (strtolower($res->payment_type) == 'half') $actual_paid = $res->total_price / 2;
+                                    }
+                                @endphp
+                                ₱{{ number_format($actual_paid, 2) }}
+                            </td>
                             <td style="text-align: center;">
                                 @if($res->receipt_path)
                                     <button type="button" class="btn-receipt" onclick="viewReceipt('{{ asset('storage/' . $res->receipt_path) }}')"><i class="fa-regular fa-image"></i></button>
@@ -354,7 +394,7 @@
             <table id="table-cancelled" class="data-table" style="display: none;">
                 <thead>
                     <tr>
-                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Amount</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th><th style="text-align: center;">Action</th>
+                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Total Amount</th><th>Amount Paid</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th><th style="text-align: center;">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -368,6 +408,16 @@
                                 <div style="font-size: 12px; color: #777;">{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}</div>
                             </td>
                             <td>₱{{ number_format($res->total_price, 2) }}</td>
+                            <td style="color: #16a34a; font-weight: 600;">
+                                @php
+                                    $actual_paid = $res->amount_paid;
+                                    if ($actual_paid == 0) {
+                                        if (strtolower($res->payment_type) == 'full') $actual_paid = $res->total_price;
+                                        elseif (strtolower($res->payment_type) == 'half') $actual_paid = $res->total_price / 2;
+                                    }
+                                @endphp
+                                ₱{{ number_format($actual_paid, 2) }}
+                            </td>
                             <td style="text-align: center;">
                                 @if($res->receipt_path)
                                     <button type="button" class="btn-receipt" onclick="viewReceipt('{{ asset('storage/' . $res->receipt_path) }}')"><i class="fa-regular fa-image"></i></button>
