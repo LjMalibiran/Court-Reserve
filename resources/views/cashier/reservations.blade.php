@@ -140,7 +140,7 @@
             <table id="table-all" class="data-table">
                 <thead>
                     <tr>
-                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Total Amount</th><th>Amount Paid</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th><th style="text-align: center;">Action</th>
+                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Amount Paid</th><th>Total Amount</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th><th style="text-align: center;">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -208,7 +208,7 @@
             <table id="table-pending" class="data-table" style="display: none;">
                 <thead>
                     <tr>
-                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Total Amount</th><th>Amount Paid</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Action</th>
+                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Amount Paid</th><th>Total Amount</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -262,7 +262,7 @@
             <table id="table-confirmed" class="data-table" style="display: none;">
                 <thead>
                     <tr>
-                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Total Amount</th><th>Amount Paid</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th><th style="text-align: center;">Action</th>
+                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Amount Paid</th><th>Total Amount</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th><th style="text-align: center;">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -328,7 +328,7 @@
             <table id="table-completed" class="data-table" style="display: none;">
                 <thead>
                     <tr>
-                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Total Amount</th><th>Amount Paid</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th><th style="text-align: center;">Action</th>
+                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Amount Paid</th><th>Total Amount</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th><th style="text-align: center;">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -394,7 +394,7 @@
             <table id="table-cancelled" class="data-table" style="display: none;">
                 <thead>
                     <tr>
-                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Total Amount</th><th>Amount Paid</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th><th style="text-align: center;">Action</th>
+                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Amount Paid</th><th>Total Amount</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th><th style="text-align: center;">Action</th>
                     </tr>
                 </thead>
                 <tbody>
