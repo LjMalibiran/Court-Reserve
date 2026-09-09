@@ -134,8 +134,9 @@ class CashierController extends Controller
             'qr_code' => 'required'
         ]);
 
-        // Search for a matching reservation ID in the database
-        $reservation = \App\Models\Reservation::where('reservation_code', $request->qr_code)->first();
+        // Search for a matching reservation ID in the database, safely trimmed
+        $code = trim($request->qr_code);
+        $reservation = \App\Models\Reservation::where('reservation_code', $code)->first();
 
         if ($reservation) {
             // Found it! Send the reservation data to the screen

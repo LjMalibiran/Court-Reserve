@@ -77,8 +77,9 @@ class AdminController extends Controller
     {
         $request->validate(['qr_code' => 'required']);
 
-        // Search the database for the exact QR code string
-        $reservation = \App\Models\Reservation::where('reservation_code', $request->qr_code)->first();
+        // Search the database for the exact QR code string, safely trimmed
+        $code = trim($request->qr_code);
+        $reservation = \App\Models\Reservation::where('reservation_code', $code)->first();
 
         if (!$reservation) {
             return back()->with('error', 'Invalid Code: No reservation found.');
