@@ -149,6 +149,11 @@
             display: inline-block;
         }
         .btn-verify:hover { background: #0022cc; }
+
+        /* Mirror the camera feed so movement feels natural like a mirror */
+        #reader video {
+            transform: scaleX(-1) !important;
+        }
     </style>
 </head>
 <body>
