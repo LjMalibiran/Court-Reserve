@@ -374,7 +374,15 @@
                     if (devices && devices.length) {
                         // Use the last camera (often the back camera on mobile) or the only camera available
                         let cameraId = devices.length > 1 ? devices[devices.length - 1].id : devices[0].id;
-                        let config = { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 };
+                        // Dynamically size the scan box to 70% of the camera feed (great for laptops)
+                        let config = { 
+                            fps: 15, 
+                            qrbox: function(viewfinderWidth, viewfinderHeight) {
+                                let minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+                                let qrboxSize = Math.floor(minEdge * 0.70);
+                                return { width: qrboxSize, height: qrboxSize };
+                            }
+                        };
                         
                         html5QrCode.start(
                             cameraId, 
