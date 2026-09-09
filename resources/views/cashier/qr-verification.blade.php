@@ -374,7 +374,7 @@
                     if (devices && devices.length) {
                         // Use the last camera (often the back camera on mobile) or the only camera available
                         let cameraId = devices.length > 1 ? devices[devices.length - 1].id : devices[0].id;
-                        let config = { fps: 10, qrbox: { width: 250, height: 250 } };
+                        let config = { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 };
                         
                         html5QrCode.start(
                             cameraId, 
