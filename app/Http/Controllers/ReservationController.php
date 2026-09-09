@@ -357,6 +357,7 @@ class ReservationController extends Controller
         $res->start_time = \Carbon\Carbon::parse($request->date . ' ' . $request->start_time);
         $res->end_time = \Carbon\Carbon::parse($request->date . ' ' . $request->end_time);
         $res->total_price = $request->total_amount;
+        $res->amount_paid = $request->amount_received ?? $request->total_amount;
         $res->payment_type = $request->payment_method ?? 'Cash';
         $res->status = 'confirmed'; // Automatically blocks the slot for online users!
         $res->reservation_code = $code;
