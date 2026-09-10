@@ -403,6 +403,7 @@ class ReservationController extends Controller
         $reservations = Reservation::with('user')
             ->whereDate('start_time', $date)
             ->whereIn('status', ['confirmed', 'completed', 'in-play'])
+            ->where('reservation_code', 'NOT LIKE', 'W-%')
             ->orderBy('start_time', 'asc')
             ->get();
 
