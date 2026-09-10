@@ -55,7 +55,7 @@ class ReservationController extends Controller
 
         if ($sport === 'Badminton') {
             $rackets = intval($request->rackets ?? 0);
-            $shuttles = intval($request->shuttlecocks ?? 0);
+            $shuttles = min(10, intval($request->shuttlecocks ?? 0));
             $totalPrice += ($rackets * 50) + ($shuttles * 50);
         }
 
@@ -373,10 +373,11 @@ class ReservationController extends Controller
         }
         
         if ($request->shuttle_qty && $request->shuttle_qty > 0) {
+            $shuttleQty = min(10, intval($request->shuttle_qty));
             \App\Models\RentalItem::create([
                 'reservation_id' => $res->id,
                 'item_name' => 'Shuttlecock',
-                'quantity' => $request->shuttle_qty,
+                'quantity' => $shuttleQty,
                 'price_per_item' => 50
             ]);
         }

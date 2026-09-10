@@ -688,7 +688,7 @@
             let currentVal = parseInt(input.value) || 0;
             let newVal = currentVal + change;
             
-            let maxLimit = item === 'racket' ? maxAvailableRackets : 99;
+            let maxLimit = item === 'racket' ? maxAvailableRackets : 10;
 
             if(newVal < 0) newVal = 0;
             if(newVal > maxLimit) newVal = maxLimit;
@@ -839,4 +839,5 @@
 @include('partials.notif-script')
 </body>
 </html>
+
 

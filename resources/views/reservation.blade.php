@@ -396,7 +396,7 @@
         const input = document.getElementById(type + 'Count');
         let val = parseInt(input.value) + change;
         
-        let maxLimit = type === 'racket' ? maxAvailableRackets : 99; // Assume unlimited or high limit for shuttlecocks
+        let maxLimit = type === 'racket' ? maxAvailableRackets : 10;
         
         if (val >= 0 && val <= maxLimit) {
             input.value = val;
