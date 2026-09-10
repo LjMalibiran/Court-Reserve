@@ -118,6 +118,7 @@
                 <button class="tab-btn active" onclick="switchTab('all', this)">All <span>{{ $reservations->count() }}</span></button>
                 <button id="btn-pending-tab" class="tab-btn" onclick="switchTab('pending', this)">Pending <span>{{ $reservations->where('status', 'pending')->count() }}</span></button>
                 <button class="tab-btn" onclick="switchTab('confirmed', this)">Confirmed <span>{{ $reservations->where('status', 'confirmed')->count() }}</span></button>
+                <button class="tab-btn" onclick="switchTab('in-play', this)">In Play <span>{{ $reservations->where('status', 'in-play')->count() }}</span></button>
                 <button class="tab-btn" onclick="switchTab('completed', this)">Completed <span>{{ $reservations->where('status', 'completed')->count() }}</span></button>
                 <button class="tab-btn" onclick="switchTab('cancelled', this)">Cancelled <span>{{ $reservations->where('status', 'cancelled')->count() }}</span></button>
             </div>
@@ -357,6 +358,81 @@
                         </tr>
                     @empty
                         <tr><td colspan="8" class="empty-state">No confirmed reservations.</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+
+                        <!-- TABLE: IN PLAY -->
+            <table id="table-in-play" class="data-table" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Amount Paid</th><th>Total Amount</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th><th style="text-align: center;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($reservations->where('status', 'in-play') as $res)
+                        <tr>
+                            <td style="color: var(--primary-blue); font-weight: 600;">{{ $res->reservation_code }}</td>
+                            <td>{{ $res->user->name ?? 'User '.$res->user_id }}</td>
+                            <td>{{ $res->sport ?? 'Badminton' }} - Court {{ $res->court_id }}</td>
+                            <td>
+                                <div>{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}</div>
+                                <div style="font-size: 12px; color: #777;">{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}</div>
+                            </td>
+                            <td style="color: #16a34a; font-weight: 600;">
+                                @php
+                                    $actual_paid = $res->amount_paid;
+                                    $change = 0;
+                                    if ($actual_paid == 0) {
+                                        if (strtolower($res->payment_type) == 'full') $actual_paid = $res->total_price;
+                                        elseif (strtolower($res->payment_type) == 'half') $actual_paid = $res->total_price / 2;
+                                    } elseif ($actual_paid > $res->total_price) {
+                                        $change = $actual_paid - $res->total_price;
+                                    }
+                                @endphp
+                                ₱{{ number_format($actual_paid, 2) }}
+                                @if($change > 0)
+                                    <div style="font-size: 12px; color: #dc2626; margin-top: 2px;">Change: ₱{{ number_format($change, 2) }}</div>
+                                @endif
+                            </td>
+                            <td>₱{{ number_format($res->total_price, 2) }}</td>
+                            <td style="text-align: center;">
+                                @if($res->receipt_path)
+                                    <button type="button" class="btn-receipt" onclick="viewReceipt('{{ asset('storage/' . $res->receipt_path) }}')"><i class="fa-regular fa-image"></i></button>
+                                @else
+                                    <span style="color: #999; font-size: 12px;">N/A</span>
+                                @endif
+                            </td>
+                            <td style="text-align: center;"><span class="badge badge-confirmed" style="background-color:#dbeafe; color:#2563eb;">In Play</span></td>
+                            <td style="text-align: center;">
+                                <div class="dropdown">
+                                    <button class="action-dots">⋮</button>
+                                    <div class="dropdown-content">
+                                        <a href="javascript:void(0)" onclick="viewAdminReservationDetails(
+                                            '{{ $res->reservation_code }}', 
+                                            '{{ addslashes($res->user->name ?? 'User '.$res->user_id) }}', 
+                                            '{{ $res->sport ?? 'Badminton' }}', 
+                                            '{{ $res->court_id }}', 
+                                            '{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}', 
+                                            '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}', 
+                                            '₱{{ number_format($res->total_price, 2) }}', 
+                                            '{{ ucfirst($res->status) }}', 
+                                            ''
+                                        )"><i class="fa-regular fa-eye"></i> View Details</a>
+                                        <a href="#"><i class="fa-solid fa-pen"></i> Edit</a>
+                                        <form action="{{ url(Request::segment(1).'/walk-in/'.$res->id.'/completed') }}" method="POST" style="margin:0;">
+                                            @csrf <button type="submit" style="background:none; border:none; padding:10px 15px; width:100%; text-align:left; cursor:pointer; font-size:14px; color:#059669;"><i class="fa-solid fa-circle-check"></i> Mark Completed</button>
+                                        </form>
+                                        <form action="{{ url(Request::segment(1).'/reservations/'.$res->id.'/cancel') }}" method="POST" style="margin:0;">
+                                            @csrf
+                                            <button type="submit" class="text-danger" onclick="return confirm('Are you sure you want to delete this reservation?');"><i class="fa-regular fa-trash-can"></i> Delete</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="9" class="empty-state">No reservations in play.</td></tr>
                     @endforelse
                 </tbody>
             </table>
@@ -668,7 +744,7 @@
                 let parser = new DOMParser();
                 let doc = parser.parseFromString(html, 'text/html');
                 
-                const tableIds = ['table-all', 'table-pending', 'table-confirmed', 'table-completed', 'table-cancelled'];
+                const tableIds = ['table-all', 'table-pending', 'table-confirmed', 'table-in-play', 'table-completed', 'table-cancelled'];
                 
                 tableIds.forEach(id => {
                     let newTbody = doc.querySelector(`#${id} tbody`);

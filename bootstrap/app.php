@@ -13,7 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        
+        $middleware->append(\App\Http\Middleware\AutoUpdateWalkInStatus::class);
         $middleware->alias([
             'verified.phone' => EnsureUserIsVerified::class,
             'role' => RoleMiddleware::class, // Added the role alias here
