@@ -19,6 +19,18 @@
         }
     });
 
+    function markSingleNotificationRead(id, link) {
+        fetch(`/notifications/${id}/mark-read`, {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+        }).then(() => {
+            window.location.href = link;
+        }).catch(err => {
+            console.error(err);
+            window.location.href = link;
+        });
+    }
+
     function fetchNotifications() {
         fetch('/notifications/unread')
             .then(res => res.json())
@@ -40,7 +52,7 @@
                         let dot = n.is_read ? '' : '<div style="width: 8px; height: 8px; background: #0044ff; border-radius: 50%; margin-top: 5px;"></div>';
                         let link = n.user_id ? `/admin/reservations?tab=pending` : `#`;
                         html += `
-                        <div style="padding: 15px 20px; border-bottom: 1px solid #eee; background: ${bg}; display: flex; gap: 15px; cursor: pointer; transition: 0.2s;" onmouseover="this.style.backgroundColor='#f9f9f9'" onmouseout="this.style.backgroundColor='${bg}'" onclick="window.location.href='${link}'">
+                        <div style="padding: 15px 20px; border-bottom: 1px solid #eee; background: ${bg}; display: flex; gap: 15px; cursor: pointer; transition: 0.2s;" onmouseover="this.style.backgroundColor='#f9f9f9'" onmouseout="this.style.backgroundColor='${bg}'" onclick="markSingleNotificationRead(${n.id}, '${link}')">
                             <div style="flex-shrink: 0;">${dot}</div>
                             <div>
                                 <h5 style="margin: 0 0 5px 0; color: #002277; font-size: 13px;">${n.title}</h5>

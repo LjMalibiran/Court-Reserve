@@ -197,7 +197,7 @@ Route::middleware(['auth', 'verified.phone'])->group(function () {
     // User Reservation Management
     Route::post('/reservations/{id}/edit-user', [ReservationController::class, 'editUserReservation']);
     Route::post('/reservations/{id}/cancel-user', [ReservationController::class, 'cancelUserReservation']);
-    Route::post('/notifications/{id}/mark-read', [App\Http\Controllers\ReservationController::class, 'markSingleNotificationRead']);
+    Route::post('/notifications/{id}/mark-read', [\App\Http\Controllers\NotificationController::class, 'markSingleAsRead']);
 });
 
 

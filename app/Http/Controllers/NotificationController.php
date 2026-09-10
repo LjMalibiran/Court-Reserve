@@ -32,4 +32,12 @@ class NotificationController extends Controller
         }
         return response()->json(['success' => true]);
     }
+
+    public function markSingleAsRead($id)
+    {
+        if (Auth::check()) {
+            Auth::user()->customNotifications()->where('id', $id)->update(['is_read' => true]);
+        }
+        return response()->json(['success' => true]);
+    }
 }
