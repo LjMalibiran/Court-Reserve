@@ -178,9 +178,18 @@
             <div class="left-col">
                 <div class="status-container">
                     @if(session('reservation'))
-                        <div class="status-badge">
-                            <i class="fa-solid fa-circle-check"></i> Valid Reservation
-                        </div>
+                        @php
+                            $isPassed = \Carbon\Carbon::parse(session('reservation')->end_time)->isPast();
+                        @endphp
+                        @if($isPassed)
+                            <div class="status-badge" style="background-color: #fee2e2; color: #dc2626;">
+                                <i class="fa-solid fa-triangle-exclamation"></i> Passed Reservation
+                            </div>
+                        @else
+                            <div class="status-badge">
+                                <i class="fa-solid fa-circle-check"></i> Valid Reservation
+                            </div>
+                        @endif
                     @elseif(session('error'))
                         <div class="status-badge" style="background-color: #fce4e4; color: #cc0000;">
                             <i class="fa-solid fa-circle-xmark"></i> {{ session('error') }}
