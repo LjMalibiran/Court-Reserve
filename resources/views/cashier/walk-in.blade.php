@@ -131,6 +131,8 @@
             <div class="controls-bar">
                 <div class="filter-tabs">
                     <button class="tab-btn active" data-filter="all" onclick="filterWalkIns('all', this)">All <span id="count-all">0</span></button>
+                    <button class="tab-btn" data-filter="upcoming" onclick="filterWalkIns('upcoming', this)">Upcoming <span id="count-upcoming">0</span></button>
+                    <button class="tab-btn" data-filter="upcoming" onclick="filterWalkIns('upcoming', this)">Upcoming <span id="count-upcoming">0</span></button>
                     <button class="tab-btn" data-filter="in-play" onclick="filterWalkIns('in-play', this)">In Play <span id="count-in-play">0</span></button>
                     <button class="tab-btn" data-filter="completed" onclick="filterWalkIns('completed', this)">Completed <span id="count-completed">0</span></button>
                 </div>
@@ -155,7 +157,17 @@
                     <tbody id="tableBody">
                         @forelse($walkIns as $res)
                             <!-- Real Database Data rendered by Blade -->
-                            <tr class="walkin-row" data-status="{{ $res->status == 'confirmed' ? 'in-play' : $res->status }}">
+                            @php
+                                $walkInStatus = $res->status;
+                                if ($walkInStatus === 'confirmed') {
+                                    if (\Carbon\Carbon::parse($res->start_time)->isFuture()) {
+                                        $walkInStatus = 'upcoming';
+                                    } else {
+                                        $walkInStatus = 'in-play';
+                                    }
+                                }
+                            @endphp
+                            <tr class="walkin-row" data-status="{{ $walkInStatus }}">
                                 <td class="td-id">{{ $res->reservation_code }}</td>
                                 <td>{{ $res->user->name ?? 'Walk-In' }}</td>
                                 <td>{{ $res->sport }}</td>
@@ -797,16 +809,19 @@
         function updateTabCounts() {
             const rows = document.querySelectorAll('#tableBody .walkin-row');
             let allCount = rows.length;
+            let upcomingCount = 0;
             let inPlayCount = 0;
             let completedCount = 0;
 
             rows.forEach(row => {
                 const status = row.getAttribute('data-status') || 'in-play';
+                if (status === 'upcoming') upcomingCount++;
                 if (status === 'in-play') inPlayCount++;
                 if (status === 'completed') completedCount++;
             });
 
             if (document.getElementById('count-all')) document.getElementById('count-all').innerText = allCount;
+            if (document.getElementById('count-upcoming')) document.getElementById('count-upcoming').innerText = upcomingCount;
             if (document.getElementById('count-in-play')) document.getElementById('count-in-play').innerText = inPlayCount;
             if (document.getElementById('count-completed')) document.getElementById('count-completed').innerText = completedCount;
         }
@@ -824,3 +839,4 @@
 @include('partials.notif-script')
 </body>
 </html>
+
