@@ -350,7 +350,7 @@
             <h1>Profile</h1>
             <div class="header-right">
                 <span class="date">Wednesday, February 25, 2026</span>
-                <i class="fa-regular fa-bell"></i>
+                @include('partials.notif-bell')
             </div>
         </header>
 
@@ -413,5 +413,6 @@
         </div>
     </main>
 
+@include('partials.notif-script')
 </body>
 </html>

@@ -103,20 +103,7 @@
             <h1>Dashboard</h1>
             <div class="header-right">
                 <span>{{ now()->timezone('Asia/Manila')->format('l, F j, Y') }}</span>
-                <div class="notification-wrapper" style="position: relative;">
-                    <i class="fa-regular fa-bell" id="bellIcon" style="cursor: pointer; font-size: 20px; position: relative;" onclick="toggleNotifDropdown()">
-                        <span id="notifBadge" style="display: none; position: absolute; top: -5px; right: -5px; background: #e53935; color: white; font-size: 10px; font-weight: bold; padding: 2px 5px; border-radius: 10px; border: 2px solid var(--bg-color);">0</span>
-                    </i>
-                    
-                    <!-- Notification Dropdown -->
-                    <div id="notifDropdown" style="display: none; position: absolute; right: 0; top: 35px; width: 320px; background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); z-index: 1000; overflow: hidden; border: 1px solid #eee;">
-                        <div style="padding: 15px 20px; background: #fafbfc; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
-                            <h4 style="margin: 0; color: var(--dark-blue); font-size: 15px;">Notifications</h4>
-                            <button onclick="markNotificationsRead()" style="background: none; border: none; color: var(--primary-blue); font-size: 12px; cursor: pointer; font-weight: 600;">Mark all read</button>
-                        </div>
-                        <div id="notifList" style="max-height: 350px; overflow-y: auto; padding: 0;">
-                            <div style="padding: 20px; text-align: center; color: #999; font-size: 13px;">Loading...</div>
-                        </div>
+                @include('partials.notif-bell')
                     </div>
                 </div>
             </div>
@@ -247,76 +234,9 @@
                 });
             })
             .catch(error => console.log('Polling error, waiting for next cycle...'));
-            
-        // ALSO FETCH NOTIFICATIONS IN REAL-TIME
-        fetchNotifications();
     }, 3000); 
 
-    // Notification Logic
-    function toggleNotifDropdown() {
-        let dropdown = document.getElementById('notifDropdown');
-        dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
-        if(dropdown.style.display === 'block') {
-            fetchNotifications(); // load fresh when opened
-        }
-    }
-
-    // Close dropdown if clicked outside
-    document.addEventListener('click', function(event) {
-        let wrapper = document.querySelector('.notification-wrapper');
-        if (wrapper && !wrapper.contains(event.target)) {
-            document.getElementById('notifDropdown').style.display = 'none';
-        }
-    });
-
-    function fetchNotifications() {
-        fetch('/notifications/unread')
-            .then(res => res.json())
-            .then(data => {
-                let badge = document.getElementById('notifBadge');
-                if(data.count > 0) {
-                    badge.style.display = 'block';
-                    badge.innerHTML = data.count;
-                } else {
-                    badge.style.display = 'none';
-                }
-
-                let html = '';
-                if(data.notifications.length === 0) {
-                    html = '<div style="padding: 20px; text-align: center; color: #999; font-size: 13px;">No new notifications</div>';
-                } else {
-                    data.notifications.forEach(n => {
-                        let bg = n.is_read ? 'transparent' : '#f0f7ff';
-                        let dot = n.is_read ? '' : '<div style="width: 8px; height: 8px; background: #0044ff; border-radius: 50%; margin-top: 5px;"></div>';
-                        html += `
-                        <div style="padding: 15px 20px; border-bottom: 1px solid #eee; background: ${bg}; display: flex; gap: 15px; cursor: pointer; transition: 0.2s;" onmouseover="this.style.backgroundColor='#f9f9f9'" onmouseout="this.style.backgroundColor='${bg}'" onclick="window.location.href='/cashier/reservations?tab=pending'">
-                            <div style="flex-shrink: 0;">${dot}</div>
-                            <div>
-                                <h5 style="margin: 0 0 5px 0; color: #002277; font-size: 13px;">${n.title}</h5>
-                                <p style="margin: 0; color: #666; font-size: 12px; line-height: 1.4;">${n.message}</p>
-                                <span style="font-size: 10px; color: #999; margin-top: 5px; display: block;">${n.time_ago}</span>
-                            </div>
-                        </div>`;
-                    });
-                }
-                document.getElementById('notifList').innerHTML = html;
-            });
-    }
-
-    function markNotificationsRead() {
-        fetch('/notifications/mark-read', {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Content-Type': 'application/json'
-            }
-        }).then(() => {
-            fetchNotifications();
-        });
-    }
-    
     // Initial load
-    fetchNotifications(); 
     fetchCashierSales();
 
     let salesChartInstance = null;
@@ -535,8 +455,11 @@
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
     </style>
+@include('partials.notif-script')
 </body>
 </html>
+
+
 
 
 

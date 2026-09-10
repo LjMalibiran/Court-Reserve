@@ -91,5 +91,6 @@
         </div>
     </main>
 
+@include('partials.notif-script')
 </body>
 </html>

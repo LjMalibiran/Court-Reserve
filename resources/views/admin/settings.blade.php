@@ -82,7 +82,7 @@
             <h1>Setting</h1>
             <div class="header-right">
                 <span>{{ now()->format('l, F j, Y') }}</span>
-                <i class="fa-regular fa-bell"></i>
+                @include('partials.notif-bell')
             </div>
         </header>
 
@@ -204,5 +204,6 @@
 
     </main>
 
+@include('partials.notif-script')
 </body>
 </html>

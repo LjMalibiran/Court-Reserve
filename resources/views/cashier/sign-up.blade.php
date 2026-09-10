@@ -206,5 +206,6 @@
         
     </div>
 
+@include('partials.notif-script')
 </body>
 </html>
