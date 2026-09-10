@@ -58,7 +58,6 @@
         
         .alert { padding: 15px; margin-bottom: 20px; border-radius: 6px; font-weight: bold; background-color: #d1fae5; color: #059669; border: 1px solid #34d399; }
 
-        #formView { display: none; }
         .form-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; align-items: start; }
         .form-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 25px; margin-bottom: 20px; }
         .form-card h3 { margin: 0 0 5px 0; color: var(--dark-blue); font-size: 18px; font-weight: 600; }
@@ -114,7 +113,7 @@
         <header class="top-header">
             <div>
                 <h1>Walk - In</h1>
-                <div id="formSubtitle" class="subtitle d-none">New Walk - In Reservation</div>
+                <div class="subtitle">New Walk - In Reservation</div>
             </div>
             <div class="header-right">
                 <span>{{ now()->timezone('Asia/Manila')->format('l, F j, Y') }}</span>
@@ -126,93 +125,7 @@
             <div class="alert">{{ session('success') }}</div>
         @endif
 
-        <!-- LIST VIEW -->
-        <div id="listView">
-            <div class="controls-bar">
-                <div class="filter-tabs">
-                    <button class="tab-btn active" data-filter="all" onclick="filterWalkIns('all', this)">All <span id="count-all">0</span></button>
-                    <button class="tab-btn" data-filter="upcoming" onclick="filterWalkIns('upcoming', this)">Upcoming <span id="count-upcoming">0</span></button>
-                    <button class="tab-btn" data-filter="in-play" onclick="filterWalkIns('in-play', this)">In Play <span id="count-in-play">0</span></button>
-                    <button class="tab-btn" data-filter="completed" onclick="filterWalkIns('completed', this)">Completed <span id="count-completed">0</span></button>
-                </div>
-                
-                <div class="search-box">
-                    <button class="btn-primary" onclick="toggleView('form')">+ Add New</button>
-                    <div class="search-input-wrapper">
-                        <input type="text" id="walkInSearch" placeholder="Search..." oninput="handleSearch()">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                    </div>
-                    <button class="btn-export"><i class="fa-solid fa-file-export"></i></button>
-                </div>
-            </div>
 
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th><th>Name</th><th>Sport</th><th>Court</th><th>Date</th><th>Time</th><th>Amount</th><th>Payment</th><th style="text-align: center;">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody">
-                        @forelse($walkIns as $res)
-                            <!-- Real Database Data rendered by Blade -->
-                            @php
-                                $walkInStatus = $res->status;
-                                if ($walkInStatus === 'confirmed') {
-                                    if (\Carbon\Carbon::parse($res->start_time)->isFuture()) {
-                                        $walkInStatus = 'upcoming';
-                                    } else {
-                                        $walkInStatus = 'in-play';
-                                    }
-                                }
-                            @endphp
-                            <tr class="walkin-row" data-status="{{ $walkInStatus }}">
-                                <td class="td-id">{{ $res->reservation_code }}</td>
-                                <td>{{ $res->user->name ?? 'Walk-In' }}</td>
-                                <td>{{ $res->sport }}</td>
-                                <td>Court {{ $res->court_id }}</td>
-                                <td>{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}</td>
-                                <td>{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}</td>
-                                <td>₱{{ number_format($res->total_price, 2) }}</td>
-                                <td>{{ $res->payment_type }}</td>
-                                <td>
-                                    <div class="dropdown-container">
-                                        <button type="button" class="btn-dots" onclick="toggleMenu('menu-{{ $res->id }}')"><i class="fa-solid fa-ellipsis-vertical"></i></button>
-                                        <div id="menu-{{ $res->id }}" class="action-menu">
-                                            
-                                            <!-- Dynamic Action Buttons based on Status -->
-                                            @if($res->status == 'confirmed')
-                                                <form action="{{ url(Request::segment(1).'/walk-in/'.$res->id.'/completed') }}" method="POST" style="margin:0;">
-                                                    @csrf <button type="submit"><i class="fa-solid fa-circle-check" style="color: #059669;"></i> Mark Completed</button>
-                                                </form>
-                                            @else
-                                                <form action="{{ url(Request::segment(1).'/walk-in/'.$res->id.'/confirmed') }}" method="POST" style="margin:0;">
-                                                    @csrf <button type="submit"><i class="fa-solid fa-rotate-left" style="color: #2563eb;"></i> Mark In Play</button>
-                                                </form>
-                                            @endif
-                                            
-                                            <form action="{{ url(Request::segment(1).'/walk-in/'.$res->id.'/delete') }}" method="POST" style="margin:0;" onsubmit="return confirm('Are you sure you want to delete this walk-in?');">
-                                                @csrf <button type="submit" style="color: #dc2626;"><i class="fa-regular fa-trash-can"></i> Delete</button>
-                                            </form>
-
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr id="emptyRow">
-                                <td colspan="9" class="empty-state">No walk-in records found.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-                <div class="pagination">
-                    <a href="#" style="color:var(--text-main); text-decoration:none;"><i class="fa-solid fa-chevron-left"></i></a>
-                    <a href="#" style="background:var(--primary-blue); color:white; padding:2px 8px; border-radius:4px; text-decoration:none;">1</a>
-                    <a href="#" style="color:var(--text-main); text-decoration:none;"><i class="fa-solid fa-chevron-right"></i></a>
-                </div>
-            </div>
-        </div>
 
         <!-- FORM VIEW -->
         <div id="formView">

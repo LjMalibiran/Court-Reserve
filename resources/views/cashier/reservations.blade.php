@@ -190,6 +190,16 @@
                                             '{{ $res->status == 'cancelled' ? \Carbon\Carbon::parse($res->updated_at)->format('F j, Y \a\t g:i A') : '' }}'
                                         )"><i class="fa-regular fa-eye"></i> View Details</a>
                                         <a href="#"><i class="fa-solid fa-pen"></i> Edit</a>
+                                        @if($res->status == "confirmed" || $res->status == "in-play")
+                                            <form action="{{ url(Request::segment(1)."/walk-in/".$res->id."/completed") }}" method="POST" style="margin:0;">
+                                                @csrf <button type="submit" style="background:none; border:none; padding:10px 15px; width:100%; text-align:left; cursor:pointer; font-size:14px; color:#059669;"><i class="fa-solid fa-circle-check"></i> Mark Completed</button>
+                                            </form>
+                                            @if($res->status == "confirmed")
+                                            <form action="{{ url(Request::segment(1)."/walk-in/".$res->id."/in-play") }}" method="POST" style="margin:0;">
+                                                @csrf <button type="submit" style="background:none; border:none; padding:10px 15px; width:100%; text-align:left; cursor:pointer; font-size:14px; color:#2563eb;"><i class="fa-solid fa-play"></i> Mark In Play</button>
+                                            </form>
+                                            @endif
+                                        @endif
                                         <form action="{{ url(Request::segment(1).'/reservations/'.$res->id.'/cancel') }}" method="POST" style="margin:0;">
                                             @csrf
                                             <button type="submit" class="text-danger" onclick="return confirm('Are you sure you want to delete this reservation?');"><i class="fa-regular fa-trash-can"></i> Delete</button>
@@ -310,6 +320,16 @@
                                             '{{ $res->status == 'cancelled' ? \Carbon\Carbon::parse($res->updated_at)->format('F j, Y \a\t g:i A') : '' }}'
                                         )"><i class="fa-regular fa-eye"></i> View Details</a>
                                         <a href="#"><i class="fa-solid fa-pen"></i> Edit</a>
+                                        @if($res->status == "confirmed" || $res->status == "in-play")
+                                            <form action="{{ url(Request::segment(1)."/walk-in/".$res->id."/completed") }}" method="POST" style="margin:0;">
+                                                @csrf <button type="submit" style="background:none; border:none; padding:10px 15px; width:100%; text-align:left; cursor:pointer; font-size:14px; color:#059669;"><i class="fa-solid fa-circle-check"></i> Mark Completed</button>
+                                            </form>
+                                            @if($res->status == "confirmed")
+                                            <form action="{{ url(Request::segment(1)."/walk-in/".$res->id."/in-play") }}" method="POST" style="margin:0;">
+                                                @csrf <button type="submit" style="background:none; border:none; padding:10px 15px; width:100%; text-align:left; cursor:pointer; font-size:14px; color:#2563eb;"><i class="fa-solid fa-play"></i> Mark In Play</button>
+                                            </form>
+                                            @endif
+                                        @endif
                                         <form action="{{ url(Request::segment(1).'/reservations/'.$res->id.'/cancel') }}" method="POST" style="margin:0;">
                                             @csrf
                                             <button type="submit" class="text-danger" onclick="return confirm('Are you sure you want to delete this reservation?');"><i class="fa-regular fa-trash-can"></i> Delete</button>
@@ -376,6 +396,16 @@
                                             '{{ $res->status == 'cancelled' ? \Carbon\Carbon::parse($res->updated_at)->format('F j, Y \a\t g:i A') : '' }}'
                                         )"><i class="fa-regular fa-eye"></i> View Details</a>
                                         <a href="#"><i class="fa-solid fa-pen"></i> Edit</a>
+                                        @if($res->status == "confirmed" || $res->status == "in-play")
+                                            <form action="{{ url(Request::segment(1)."/walk-in/".$res->id."/completed") }}" method="POST" style="margin:0;">
+                                                @csrf <button type="submit" style="background:none; border:none; padding:10px 15px; width:100%; text-align:left; cursor:pointer; font-size:14px; color:#059669;"><i class="fa-solid fa-circle-check"></i> Mark Completed</button>
+                                            </form>
+                                            @if($res->status == "confirmed")
+                                            <form action="{{ url(Request::segment(1)."/walk-in/".$res->id."/in-play") }}" method="POST" style="margin:0;">
+                                                @csrf <button type="submit" style="background:none; border:none; padding:10px 15px; width:100%; text-align:left; cursor:pointer; font-size:14px; color:#2563eb;"><i class="fa-solid fa-play"></i> Mark In Play</button>
+                                            </form>
+                                            @endif
+                                        @endif
                                         <form action="{{ url(Request::segment(1).'/reservations/'.$res->id.'/cancel') }}" method="POST" style="margin:0;">
                                             @csrf
                                             <button type="submit" class="text-danger" onclick="return confirm('Are you sure you want to delete this reservation?');"><i class="fa-regular fa-trash-can"></i> Delete</button>
@@ -442,6 +472,16 @@
                                             '{{ $res->status == 'cancelled' ? \Carbon\Carbon::parse($res->updated_at)->format('F j, Y \a\t g:i A') : '' }}'
                                         )"><i class="fa-regular fa-eye"></i> View Details</a>
                                         <a href="#"><i class="fa-solid fa-pen"></i> Edit</a>
+                                        @if($res->status == "confirmed" || $res->status == "in-play")
+                                            <form action="{{ url(Request::segment(1)."/walk-in/".$res->id."/completed") }}" method="POST" style="margin:0;">
+                                                @csrf <button type="submit" style="background:none; border:none; padding:10px 15px; width:100%; text-align:left; cursor:pointer; font-size:14px; color:#059669;"><i class="fa-solid fa-circle-check"></i> Mark Completed</button>
+                                            </form>
+                                            @if($res->status == "confirmed")
+                                            <form action="{{ url(Request::segment(1)."/walk-in/".$res->id."/in-play") }}" method="POST" style="margin:0;">
+                                                @csrf <button type="submit" style="background:none; border:none; padding:10px 15px; width:100%; text-align:left; cursor:pointer; font-size:14px; color:#2563eb;"><i class="fa-solid fa-play"></i> Mark In Play</button>
+                                            </form>
+                                            @endif
+                                        @endif
                                         <form action="{{ url(Request::segment(1).'/reservations/'.$res->id.'/cancel') }}" method="POST" style="margin:0;">
                                             @csrf
                                             <button type="submit" class="text-danger" onclick="return confirm('Are you sure you want to delete this reservation?');"><i class="fa-regular fa-trash-can"></i> Delete</button>
