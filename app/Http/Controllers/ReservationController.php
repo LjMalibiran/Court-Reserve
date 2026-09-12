@@ -345,12 +345,15 @@ class ReservationController extends Controller
         ]);
 
         // 1. Create a fast "stub" user account
-        $user = \App\Models\User::create([
-            'name' => $request->name,
-            'email' => 'walkin_' . \Illuminate\Support\Str::random(6) . '@batangas.com',
-            'password' => \Illuminate\Support\Facades\Hash::make('walkin123'),
-            'role' => 'customer'
-        ]);
+        $email = $request->email ? $request->email : 'walkin_' . \Illuminate\Support\Str::random(6) . '@batangas.com';
+        $user = \App\Models\User::firstOrCreate(
+            ['email' => $email],
+            [
+                'name' => $request->name,
+                'password' => \Illuminate\Support\Facades\Hash::make('walkin123'),
+                'role' => 'customer'
+            ]
+        );
 
         // 2. Format a specific Walk-In Reservation Code (e.g. W-BC26-ABCD)
         $prefix = $request->sport == 'Pickleball' ? 'W-PC' : 'W-BC';
@@ -399,7 +402,8 @@ class ReservationController extends Controller
             ->with('flash_end', $res->end_time)
             ->with('flash_amount', $res->total_price)
             ->with('flash_paid', $res->amount_paid)
-            ->with('flash_change', $change);
+            ->with('flash_change', $change)
+            ->with('flash_email', $request->email);
     }
     
     

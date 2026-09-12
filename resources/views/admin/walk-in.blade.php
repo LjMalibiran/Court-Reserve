@@ -802,6 +802,9 @@
         <p class="modal-text">
             Reservation for<br>
             <strong>{{ session('flash_sport') }} Court {{ session('flash_court') }}</strong><br>
+            @if(session('flash_email'))
+                Email: <strong>{{ session('flash_email') }}</strong><br>
+            @endif
             on <strong>{{ session('flash_start') ? \Carbon\Carbon::parse(session('flash_start'))->format('M j, Y') : '' }}</strong><br>
             Time: <strong>{{ session('flash_start') ? \Carbon\Carbon::parse(session('flash_start'))->format('g:i A') : '' }} - {{ session('flash_end') ? \Carbon\Carbon::parse(session('flash_end'))->format('g:i A') : '' }}</strong>
             @if(session('flash_start') && session('flash_end'))
