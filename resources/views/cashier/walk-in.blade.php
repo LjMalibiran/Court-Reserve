@@ -103,11 +103,11 @@
     <style>
     /* RECEIPT MODAL CSS */
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 9999; padding: 20px; }
-    .modal-content { background: white; border-radius: 20px; padding: 40px; width: 100%; max-width: 450px; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.15); text-align: center; }
+    .modal-content { background: white; border-radius: 20px; padding: 25px 30px; width: 100%; max-width: 450px; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.15); text-align: center; }
     .modal-close { position: absolute; top: 20px; right: 24px; background: none; border: none; font-size: 26px; color: #0f2b6e; cursor: pointer; padding: 0; line-height: 1; font-weight: 300;}
     
-    .success-icon-wrap { position: relative; width: 90px; height: 90px; margin: 0 auto 20px auto; }
-    .success-circle { background: #22c55e; color: white; width: 100%; height: 100%; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 45px; position: relative; z-index: 2; box-shadow: 0 0 0 6px #dcfce7;}
+    .success-icon-wrap { position: relative; width: 60px; height: 60px; margin: 0 auto 10px auto; }
+    .success-circle { background: #22c55e; color: white; width: 100%; height: 100%; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 30px; position: relative; z-index: 2; box-shadow: 0 0 0 6px #dcfce7;}
     .confetti { position: absolute; width: 100%; height: 100%; top: 0; left: 0; z-index: 1; }
     .confetti::before, .confetti::after { content: ''; position: absolute; width: 8px; height: 8px; border-radius: 50%; }
     .confetti::before { background: #eab308; top: -15px; left: -10px; box-shadow: 60px 10px 0 #22c55e, 100px 30px 0 #0033cc, -20px 50px 0 #ef4444; }
@@ -793,52 +793,73 @@
             </div>
         </div>
         
-        <h2 class="modal-title">Walk-in Confirmed!</h2>
+                <h2 class="modal-title" style="font-size: 20px; margin-bottom: 10px;">Walk-in Confirmed!</h2>
         
-        <p class="modal-text">
-            Reservation for<br>
-            <strong>{{ session('flash_sport') }} Court {{ session('flash_court') }}</strong><br>
+        <div style="text-align: left; background: #f8fafc; padding: 12px; border-radius: 8px; margin-bottom: 10px; font-size: 13px; line-height: 1.4; color: #475569;">
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-bottom: 4px;">
+                <span><strong>Name:</strong> {{ session('flash_name') }}</span>
+                <span><strong>Phone:</strong> {{ session('flash_phone') }}</span>
+            </div>
             @if(session('flash_email'))
-                Email: <strong>{{ session('flash_email') }}</strong><br>
+            <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-bottom: 4px;">
+                <strong>Email:</strong> {{ session('flash_email') }}
+            </div>
             @endif
-            on <strong>{{ session('flash_start') ? \Carbon\Carbon::parse(session('flash_start'))->format('M j, Y') : '' }}</strong><br>
-            Time: <strong>{{ session('flash_start') ? \Carbon\Carbon::parse(session('flash_start'))->format('g:i A') : '' }} - {{ session('flash_end') ? \Carbon\Carbon::parse(session('flash_end'))->format('g:i A') : '' }}</strong>
-            @if(session('flash_start') && session('flash_end'))
-                @php
-                    $start = \Carbon\Carbon::parse(session('flash_start'));
-                    $end = \Carbon\Carbon::parse(session('flash_end'));
-                    $mins = $start->diffInMinutes($end);
-                    $hrs = floor($mins / 60);
-                    $rem = $mins % 60;
-                    $dur = ($hrs > 0 ? $hrs . ' hr ' : '') . ($rem > 0 ? $rem . ' min' : '');
-                @endphp
-                (<strong>{{ trim($dur) }}</strong>)
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-bottom: 4px;">
+                <span><strong>Sport:</strong> {{ session('flash_sport') }}</span>
+                <span><strong>Court:</strong> {{ session('flash_court') }}</span>
+            </div>
+            <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-bottom: 4px;">
+                <strong>Date & Time:</strong> {{ session('flash_start') ? \Carbon\Carbon::parse(session('flash_start'))->format('M j, Y g:i A') : '' }} - {{ session('flash_end') ? \Carbon\Carbon::parse(session('flash_end'))->format('g:i A') : '' }}
+                @if(session('flash_start') && session('flash_end'))
+                    @php
+                        $start = \Carbon\Carbon::parse(session('flash_start'));
+                        $end = \Carbon\Carbon::parse(session('flash_end'));
+                        $mins = $start->diffInMinutes($end);
+                        $hrs = floor($mins / 60);
+                        $rem = $mins % 60;
+                        $dur = ($hrs > 0 ? $hrs . 'hr ' : '') . ($rem > 0 ? $rem . 'm' : '');
+                    @endphp
+                    (<strong>{{ trim($dur) }}</strong>)
+                @endif
+            </div>
+            @if(session('flash_rackets') > 0 || session('flash_shuttles') > 0)
+            <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-bottom: 4px;">
+                <strong>Rentals:</strong> 
+                @if(session('flash_rackets') > 0) {{ session('flash_rackets') }}x Rackets @endif
+                @if(session('flash_shuttles') > 0) {{ session('flash_shuttles') }}x Shuttles @endif
+            </div>
             @endif
-            <br><br>
-            Payment Method: <strong>{{ session('flash_method') }}</strong><br>
-            @if(session('flash_method') === 'GCash')
-                Ref No: <strong>{{ session('flash_ref') }}</strong><br>
-            @endif
-            Total Amount: <strong>&#8369;{{ number_format(session('flash_amount'), 2) }}</strong><br>
-            Amount Paid: <strong>&#8369;{{ number_format(session('flash_paid'), 2) }}</strong>
-            @if(session('flash_change') > 0)
-                <br><span style="color: #ef4444;">Change: <strong>&#8369;{{ number_format(session('flash_change'), 2) }}</strong></span>
-            @endif
-        </p>
-        
-        <div class="reservation-id">
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-bottom: 4px;">
+                <span><strong>Method:</strong> {{ session('flash_method') }}</span>
+                @if(session('flash_method') === 'GCash')
+                    <span><strong>Ref:</strong> {{ session('flash_ref') }}</span>
+                @endif
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span><strong>Total:</strong> &#8369;{{ number_format(session('flash_amount'), 2) }}</span>
+                @if(session('flash_method') === 'Cash')
+                    <span><strong>Paid:</strong> &#8369;{{ number_format(session('flash_paid'), 2) }}</span>
+                    @if(session('flash_change') > 0)
+                        <span style="color: #ef4444;"><strong>Change:</strong> &#8369;{{ number_format(session('flash_change'), 2) }}</span>
+                    @endif
+                @endif
+            </div>
+        </div>
+
+        <div class="reservation-id" style="margin-bottom: 5px; font-size: 14px;">
             Reservation ID: <strong>{{ session('reservation_code') }}</strong>
         </div>
         
-        <div class="qr-box">
+        <div class="qr-box" style="padding: 10px; margin-bottom: 5px;">
             @if(session('reservation_code'))
-                <img id="qr-image" src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data={{ urlencode(session('reservation_code')) }}" crossorigin="anonymous" alt="QR Code" style="display: block;">
+                <img id="qr-image" src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data={{ urlencode(session('reservation_code')) }}" crossorigin="anonymous" alt="QR Code" style="display: block; margin: 0 auto;">
             @endif
         </div>
         
-        <div class="qr-hint">Please scan this code to enter the court.</div>
+        <div class="qr-hint" style="margin-bottom: 10px;">Please scan this code to enter the court.</div>
         
-        <button class="btn-download" onclick="downloadReceipt()">Download Receipt</button>
+        <button class="btn-download" onclick="downloadReceipt()" style="padding: 10px 20px;">Download Receipt</button>
     </div>
 </div>
 

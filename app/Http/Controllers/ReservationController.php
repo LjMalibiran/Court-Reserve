@@ -408,6 +408,10 @@ class ReservationController extends Controller
             ->with('flash_paid', $res->amount_paid)
             ->with('flash_change', $change)
             ->with('flash_email', $request->email)
+            ->with('flash_name', $request->name)
+            ->with('flash_phone', $request->phone)
+            ->with('flash_rackets', $request->racket_qty)
+            ->with('flash_shuttles', $request->shuttle_qty)
             ->with('flash_method', $res->payment_type)
             ->with('flash_ref', $res->payment_reference);
     }
