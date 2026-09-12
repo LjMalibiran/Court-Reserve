@@ -382,7 +382,13 @@ class ReservationController extends Controller
             ]);
         }
 
-        return redirect()->back()->with('success', 'Walk-in added! The time slot is now blocked for online users.');
+        return redirect()->back()->with('success', 'Walk-in added! The time slot is now blocked for online users.')
+            ->with('reservation_code', $res->reservation_code)
+            ->with('flash_sport', $res->sport)
+            ->with('flash_court', $res->court_id)
+            ->with('flash_start', $res->start_time)
+            ->with('flash_amount', $res->total_price)
+            ->with('flash_paid', $res->amount_paid);
     }
     
     public function updateWalkInStatus($id, $status)

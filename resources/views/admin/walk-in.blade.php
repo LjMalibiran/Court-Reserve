@@ -99,6 +99,33 @@
         .btn-save { background: #0033ff; color: white; border: none; padding: 12px 40px; border-radius: 6px; font-weight: 600; cursor: pointer; }
         .d-none { display: none !important; }
     </style>
+
+    <style>
+    /* RECEIPT MODAL CSS */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 9999; padding: 20px; }
+    .modal-content { background: white; border-radius: 20px; padding: 40px; width: 100%; max-width: 450px; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.15); text-align: center; }
+    .modal-close { position: absolute; top: 20px; right: 24px; background: none; border: none; font-size: 26px; color: #0f2b6e; cursor: pointer; padding: 0; line-height: 1; font-weight: 300;}
+    
+    .success-icon-wrap { position: relative; width: 90px; height: 90px; margin: 0 auto 20px auto; }
+    .success-circle { background: #22c55e; color: white; width: 100%; height: 100%; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 45px; position: relative; z-index: 2; box-shadow: 0 0 0 6px #dcfce7;}
+    .confetti { position: absolute; width: 100%; height: 100%; top: 0; left: 0; z-index: 1; }
+    .confetti::before, .confetti::after { content: ''; position: absolute; width: 8px; height: 8px; border-radius: 50%; }
+    .confetti::before { background: #eab308; top: -15px; left: -10px; box-shadow: 60px 10px 0 #22c55e, 100px 30px 0 #0033cc, -20px 50px 0 #ef4444; }
+    .confetti::after { background: #0033cc; bottom: -15px; right: -10px; box-shadow: -80px -10px 0 #ef4444, -100px -30px 0 #22c55e, 20px -50px 0 #eab308; }
+
+    .modal-title { color: #0033cc; margin: 0 0 15px 0; font-size: 24px; font-weight: 800; }
+    .modal-text { color: #64748b; font-size: 14px; line-height: 1.6; margin-bottom: 20px; font-weight: 500;}
+    .modal-text strong { color: #0033cc; font-weight: 700;}
+    
+    .reservation-id { color: #64748b; font-size: 16px; font-weight: 500; margin-bottom: 12px; }
+    .reservation-id strong { color: #0033cc; font-weight: 800;}
+    
+    .qr-box { border: 2px solid #0033cc; border-radius: 12px; padding: 15px; display: inline-block; margin-bottom: 12px; }
+    .qr-hint { color: #64748b; font-size: 11px; margin-bottom: 25px; font-weight: 600;}
+    .btn-download { background: #0033cc; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.2s; width: 100%; box-shadow: 0 4px 6px rgba(0, 51, 204, 0.2); }
+    .btn-download:hover { background: #002299; transform: translateY(-1px); box-shadow: 0 6px 12px rgba(0, 51, 204, 0.3); }
+    </style>
+
 </head>
 <body>
 
@@ -748,6 +775,87 @@
             applyFilters();
         });
     </script>
+
+<!-- RECEIPT MODAL -->
+<div class="modal-overlay" id="successModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeSuccessModal()">&times;</button>
+        
+        <div class="success-icon-wrap">
+            <div class="confetti"></div>
+            <div class="success-circle">
+                <i class="fa-solid fa-check"></i>
+            </div>
+        </div>
+        
+        <h2 class="modal-title">Walk-in Confirmed!</h2>
+        
+        <p class="modal-text">
+            Reservation for<br>
+            <strong>{{ session('flash_sport') }} Court {{ session('flash_court') }}</strong><br>
+            on <strong>{{ session('flash_start') ? \Carbon\Carbon::parse(session('flash_start'))->format('M j, Y') : '' }} at {{ session('flash_start') ? \Carbon\Carbon::parse(session('flash_start'))->format('g:i A') : '' }}</strong><br>
+            Amount Paid: <strong>?{{ number_format(session('flash_paid'), 2) }}</strong>
+        </p>
+        
+        <div class="reservation-id">
+            Reservation ID: <strong>{{ session('reservation_code') }}</strong>
+        </div>
+        
+        <div class="qr-box">
+            @if(session('reservation_code'))
+                <img id="qr-image" src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data={{ urlencode(session('reservation_code')) }}" crossorigin="anonymous" alt="QR Code" style="display: block;">
+            @endif
+        </div>
+        
+        <div class="qr-hint">Please scan this code to enter the court.</div>
+        
+        <button class="btn-download" onclick="downloadReceipt()">Download Receipt</button>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+    @if(session('reservation_code'))
+        document.getElementById('successModal').style.display = 'flex';
+    @endif
+
+    function closeSuccessModal() {
+        document.getElementById('successModal').style.display = 'none';
+    }
+
+    function downloadReceipt() {
+        const modalContent = document.querySelector('#successModal .modal-content');
+        const closeBtn = document.querySelector('#successModal .modal-close');
+        const downloadBtn = document.querySelector('#successModal .btn-download');
+
+        closeBtn.style.display = 'none';
+        downloadBtn.style.display = 'none';
+
+        html2canvas(modalContent, {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: '#ffffff'
+        }).then(canvas => {
+            const url = canvas.toDataURL('image/png');
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = 'WalkIn_Receipt_{{ session("reservation_code") }}.png';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            closeBtn.style.display = 'block';
+            downloadBtn.style.display = 'block';
+        }).catch(err => {
+            console.error(err);
+            alert('Failed to download receipt.');
+            closeBtn.style.display = 'block';
+            downloadBtn.style.display = 'block';
+        });
+    }
+</script>
+
 @include('partials.notif-script')
 </body>
 </html>
