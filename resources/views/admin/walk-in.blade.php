@@ -793,7 +793,21 @@
         <p class="modal-text">
             Reservation for<br>
             <strong>{{ session('flash_sport') }} Court {{ session('flash_court') }}</strong><br>
-            on <strong>{{ session('flash_start') ? \Carbon\Carbon::parse(session('flash_start'))->format('M j, Y') : '' }} at {{ session('flash_start') ? \Carbon\Carbon::parse(session('flash_start'))->format('g:i A') : '' }}</strong><br>
+            on <strong>{{ session('flash_start') ? \Carbon\Carbon::parse(session('flash_start'))->format('M j, Y') : '' }}</strong><br>
+            Time: <strong>{{ session('flash_start') ? \Carbon\Carbon::parse(session('flash_start'))->format('g:i A') : '' }} - {{ session('flash_end') ? \Carbon\Carbon::parse(session('flash_end'))->format('g:i A') : '' }}</strong>
+            @if(session('flash_start') && session('flash_end'))
+                @php
+                    $start = \Carbon\Carbon::parse(session('flash_start'));
+                    $end = \Carbon\Carbon::parse(session('flash_end'));
+                    $mins = $start->diffInMinutes($end);
+                    $hrs = floor($mins / 60);
+                    $rem = $mins % 60;
+                    $dur = ($hrs > 0 ? $hrs . ' hr ' : '') . ($rem > 0 ? $rem . ' min' : '');
+                @endphp
+                (<strong>{{ trim($dur) }}</strong>)
+            @endif
+            <br><br>
+            Total Amount: <strong>&#8369;{{ number_format(session('flash_amount'), 2) }}</strong><br>
             Amount Paid: <strong>&#8369;{{ number_format(session('flash_paid'), 2) }}</strong>
             @if(session('flash_change') > 0)
                 <br><span style="color: #ef4444;">Change: <strong>&#8369;{{ number_format(session('flash_change'), 2) }}</strong></span>

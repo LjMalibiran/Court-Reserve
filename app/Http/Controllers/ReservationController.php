@@ -389,6 +389,7 @@ class ReservationController extends Controller
             ->with('flash_sport', $res->sport)
             ->with('flash_court', $res->court_id)
             ->with('flash_start', $res->start_time)
+            ->with('flash_end', $res->end_time)
             ->with('flash_amount', $res->total_price)
             ->with('flash_paid', $res->amount_paid)
             ->with('flash_change', $change);
