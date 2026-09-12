@@ -348,12 +348,16 @@
                 return false; // Stops form submission
             }
             
+            const method = document.getElementById('paymentMethod').value;
             const total = parseFloat(document.getElementById('rawTotalAmount').value) || 0;
             const received = parseFloat(document.getElementById('inputReceived').value) || 0;
             
-            if (received < total) {
+            if (method === 'Cash' && received < total) {
                 alert('Amount received (Php ' + received.toFixed(2) + ') must be equal to or more than the amount payable (Php ' + total.toFixed(2) + ').');
                 return false;
+            }
+            if (method === 'GCash') {
+                document.getElementById('inputReceived').value = total;
             }
             
             return true; // Let Laravel route handle the database save
@@ -811,6 +815,10 @@
                 (<strong>{{ trim($dur) }}</strong>)
             @endif
             <br><br>
+            Payment Method: <strong>{{ session('flash_method') }}</strong><br>
+            @if(session('flash_method') === 'GCash')
+                Ref No: <strong>{{ session('flash_ref') }}</strong><br>
+            @endif
             Total Amount: <strong>&#8369;{{ number_format(session('flash_amount'), 2) }}</strong><br>
             Amount Paid: <strong>&#8369;{{ number_format(session('flash_paid'), 2) }}</strong>
             @if(session('flash_change') > 0)

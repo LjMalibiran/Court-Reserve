@@ -338,7 +338,7 @@ class ReservationController extends Controller
     public function storeWalkIn(\Illuminate\Http\Request $request)
     {
         $request->validate([
-            'amount_received' => 'required|numeric|gte:total_amount',
+            'amount_received' => 'required_if:payment_method,Cash|numeric|gte:total_amount',
             'total_amount' => 'required|numeric',
             'payment_reference' => 'required_if:payment_method,GCash',
         ], [
@@ -368,7 +368,7 @@ class ReservationController extends Controller
         $res->start_time = \Carbon\Carbon::parse($request->date . ' ' . $request->start_time);
         $res->end_time = \Carbon\Carbon::parse($request->date . ' ' . $request->end_time);
         $res->total_price = $request->total_amount;
-        $res->amount_paid = $request->amount_received ?? $request->total_amount;
+        $res->amount_paid = $request->payment_method === 'GCash' ? $request->total_amount : ($request->amount_received ?? $request->total_amount);
         $res->payment_type = $request->payment_method ?? 'Cash';
         if ($res->payment_type == 'GCash') {
             $res->payment_reference = $request->payment_reference;
@@ -407,7 +407,9 @@ class ReservationController extends Controller
             ->with('flash_amount', $res->total_price)
             ->with('flash_paid', $res->amount_paid)
             ->with('flash_change', $change)
-            ->with('flash_email', $request->email);
+            ->with('flash_email', $request->email)
+            ->with('flash_method', $res->payment_type)
+            ->with('flash_ref', $res->payment_reference);
     }
     
     
