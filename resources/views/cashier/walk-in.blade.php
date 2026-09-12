@@ -794,7 +794,10 @@
             Reservation for<br>
             <strong>{{ session('flash_sport') }} Court {{ session('flash_court') }}</strong><br>
             on <strong>{{ session('flash_start') ? \Carbon\Carbon::parse(session('flash_start'))->format('M j, Y') : '' }} at {{ session('flash_start') ? \Carbon\Carbon::parse(session('flash_start'))->format('g:i A') : '' }}</strong><br>
-            Amount Paid: <strong>?{{ number_format(session('flash_paid'), 2) }}</strong>
+            Amount Paid: <strong>&#8369;{{ number_format(session('flash_paid'), 2) }}</strong>
+            @if(session('flash_change') > 0)
+                <br><span style="color: #ef4444;">Change: <strong>&#8369;{{ number_format(session('flash_change'), 2) }}</strong></span>
+            @endif
         </p>
         
         <div class="reservation-id">
@@ -817,6 +820,48 @@
 <script>
     @if(session('reservation_code'))
         document.getElementById('successModal').style.display = 'flex';
+        
+        // Auto-save receipt to backend
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                const modalContent = document.querySelector('#successModal .modal-content');
+                const closeBtn = document.querySelector('#successModal .modal-close');
+                const downloadBtn = document.querySelector('#successModal .btn-download');
+
+                closeBtn.style.display = 'none';
+                downloadBtn.style.display = 'none';
+
+                html2canvas(modalContent, {
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: '#ffffff'
+                }).then(canvas => {
+                    closeBtn.style.display = 'block';
+                    downloadBtn.style.display = 'block';
+                    
+                    const url = canvas.toDataURL('image/png');
+                    
+                    let targetUrl = '';
+                    if (window.location.pathname.includes('/admin/')) {
+                        targetUrl = '{{ url("admin/walk-in/save-receipt") }}';
+                    } else {
+                        targetUrl = '{{ url("cashier/walk-in/save-receipt") }}';
+                    }
+
+                    fetch(targetUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            reservation_id: '{{ session("reservation_id") }}',
+                            receipt_image: url
+                        })
+                    });
+                });
+            }, 1000); // wait for QR code to load fully
+        });
     @endif
 
     function closeSuccessModal() {
@@ -855,7 +900,6 @@
         });
     }
 </script>
-
 @include('partials.notif-script')
 </body>
 </html>

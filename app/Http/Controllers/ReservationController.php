@@ -382,15 +382,45 @@ class ReservationController extends Controller
             ]);
         }
 
+        $change = max(0, $res->amount_paid - $res->total_price);
         return redirect()->back()->with('success', 'Walk-in added! The time slot is now blocked for online users.')
+            ->with('reservation_id', $res->id)
             ->with('reservation_code', $res->reservation_code)
             ->with('flash_sport', $res->sport)
             ->with('flash_court', $res->court_id)
             ->with('flash_start', $res->start_time)
             ->with('flash_amount', $res->total_price)
-            ->with('flash_paid', $res->amount_paid);
+            ->with('flash_paid', $res->amount_paid)
+            ->with('flash_change', $change);
     }
     
+    
+    public function saveWalkInReceipt(\Illuminate\Http\Request $request)
+    {
+        $request->validate([
+            'reservation_id' => 'required|exists:reservations,id',
+            'receipt_image' => 'required|string'
+        ]);
+        
+        $reservation = \App\Models\Reservation::find($request->reservation_id);
+        
+        // Convert base64 to image and save to storage/receipts
+        $image_parts = explode(';base64,', $request->receipt_image);
+        if(count($image_parts) == 2) {
+            $image_type_aux = explode('image/', $image_parts[0]);
+            $image_type = $image_type_aux[1];
+            $image_base64 = base64_decode($image_parts[1]);
+            $fileName = 'receipts/walkin_' . $reservation->reservation_code . '_' . time() . '.' . $image_type;
+            
+            \Illuminate\Support\Facades\Storage::disk('public')->put($fileName, $image_base64);
+            $reservation->receipt_path = $fileName;
+            $reservation->save();
+            
+            return response()->json(['success' => true]);
+        }
+        return response()->json(['success' => false], 400);
+    }
+
     public function updateWalkInStatus($id, $status)
     {
         $res = \App\Models\Reservation::findOrFail($id);

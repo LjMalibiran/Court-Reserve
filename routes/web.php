@@ -224,6 +224,7 @@ Route::middleware([\App\Http\Middleware\AdminMiddleware::class])->group(function
     Route::get('/admin/sales/filter', [App\Http\Controllers\AdminController::class, 'filterSales']);
     Route::get('/admin/walk-in', [ReservationController::class, 'walkInIndex']);
     Route::post('/admin/walk-in/store', [ReservationController::class, 'storeWalkIn']);
+    Route::post('/admin/walk-in/save-receipt', [ReservationController::class, 'saveWalkInReceipt']);
     Route::post('/admin/walk-in/{id}/{status}', [ReservationController::class, 'updateWalkInStatus']);
 
     // Sales & Reports
@@ -261,6 +262,7 @@ Route::middleware([\App\Http\Middleware\CashierMiddleware::class])->group(functi
     Route::get('/cashier/sales/filter', [App\Http\Controllers\CashierController::class, 'filterSales']);
     Route::get('/cashier/walk-in', [ReservationController::class, 'walkInIndex']);
     Route::post('/cashier/walk-in/store', [ReservationController::class, 'storeWalkIn']);
+    Route::post('/cashier/walk-in/save-receipt', [ReservationController::class, 'saveWalkInReceipt']);
     Route::post('/cashier/walk-in/{id}/{status}', [ReservationController::class, 'updateWalkInStatus']);
 
     Route::get('/cashier/sales/transactions', function () { return view('cashier.transactions'); });
