@@ -318,15 +318,9 @@
                                 </div>
                             </div>
 
-                            <div class="row-2 d-none" id="gcashFields">
-                                <div class="input-group">
-                                    <label>Account Name<span>*</span></label>
-                                    <input type="text" name="gcash_name" class="input-control" placeholder="Sender Name">
-                                </div>
-                                <div class="input-group">
-                                    <label>Gcash Number<span>*</span></label>
-                                    <input type="text" name="gcash_number" class="input-control" placeholder="09XXXXXXXXX">
-                                </div>
+                            <div class="input-group d-none" id="gcashFields">
+                                <label>Reference Number<span>*</span></label>
+                                <input type="text" name="payment_reference" class="input-control" placeholder="Enter GCash Ref No.">
                             </div>
 
                             <div class="form-actions">
@@ -591,13 +585,11 @@
             if(method === 'Cash') {
                 cashFields.classList.remove('d-none');
                 gcashFields.classList.add('d-none');
-                document.querySelector('input[name="gcash_name"]').removeAttribute('required');
-                document.querySelector('input[name="gcash_number"]').removeAttribute('required');
+                document.querySelector('input[name="payment_reference"]').removeAttribute('required');
             } else {
                 cashFields.classList.add('d-none');
                 gcashFields.classList.remove('d-none');
-                document.querySelector('input[name="gcash_name"]').setAttribute('required', 'true');
-                document.querySelector('input[name="gcash_number"]').setAttribute('required', 'true');
+                document.querySelector('input[name="payment_reference"]').setAttribute('required', 'true');
             }
         }
 

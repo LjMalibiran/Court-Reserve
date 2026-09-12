@@ -340,6 +340,7 @@ class ReservationController extends Controller
         $request->validate([
             'amount_received' => 'required|numeric|gte:total_amount',
             'total_amount' => 'required|numeric',
+            'payment_reference' => 'required_if:payment_method,GCash',
         ], [
             'amount_received.gte' => 'The amount received must be equal to or greater than the total amount payable.'
         ]);
@@ -369,6 +370,9 @@ class ReservationController extends Controller
         $res->total_price = $request->total_amount;
         $res->amount_paid = $request->amount_received ?? $request->total_amount;
         $res->payment_type = $request->payment_method ?? 'Cash';
+        if ($res->payment_type == 'GCash') {
+            $res->payment_reference = $request->payment_reference;
+        }
         $res->status = 'confirmed'; // Automatically blocks the slot for online users!
         $res->reservation_code = $code;
         $res->save();
