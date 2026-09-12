@@ -353,6 +353,15 @@
                 alert('Please select an available time slot before saving!');
                 return false; // Stops form submission
             }
+            
+            const total = parseFloat(document.getElementById('rawTotalAmount').value) || 0;
+            const received = parseFloat(document.getElementById('inputReceived').value) || 0;
+            
+            if (received < total) {
+                alert('Amount received (Php ' + received.toFixed(2) + ') must be equal to or more than the amount payable (Php ' + total.toFixed(2) + ').');
+                return false;
+            }
+            
             return true; // Let Laravel route handle the database save
         }
 

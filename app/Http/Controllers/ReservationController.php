@@ -337,6 +337,13 @@ class ReservationController extends Controller
 
     public function storeWalkIn(\Illuminate\Http\Request $request)
     {
+        $request->validate([
+            'amount_received' => 'required|numeric|gte:total_amount',
+            'total_amount' => 'required|numeric',
+        ], [
+            'amount_received.gte' => 'The amount received must be equal to or greater than the total amount payable.'
+        ]);
+
         // 1. Create a fast "stub" user account
         $user = \App\Models\User::create([
             'name' => $request->name,
