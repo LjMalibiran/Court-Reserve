@@ -229,7 +229,6 @@ Route::middleware([\App\Http\Middleware\AdminMiddleware::class])->group(function
 
     // Sales & Reports
     Route::get('/admin/sales-report', [AdminController::class, 'salesReportIndex']);
-    Route::get('/admin/sales/transactions', [AdminController::class, 'salesTransactionsIndex']);
     Route::get('/admin/sales/refunds', [AdminController::class, 'salesRefundsIndex']);
 
     // Settings & Profile
@@ -265,7 +264,7 @@ Route::middleware([\App\Http\Middleware\CashierMiddleware::class])->group(functi
     Route::post('/cashier/walk-in/save-receipt', [ReservationController::class, 'saveWalkInReceipt']);
     Route::post('/cashier/walk-in/{id}/{status}', [ReservationController::class, 'updateWalkInStatus']);
 
-    Route::get('/cashier/sales/transactions', function () { return view('cashier.transactions'); });
+    Route::get('/cashier/sales-report', function () { return view('cashier.sales-report'); });
     Route::get('/cashier/sales/refunds', function () { return view('cashier.refunds'); });
     Route::get('/cashier/profile', function () { return view('cashier.profile'); })->name('cashier.profile');
 

@@ -81,7 +81,6 @@
                 </a>
                 
                 <ul class="submenu">
-                    <li><a href="{{ url('/cashier/sales/transactions') }}" class="{{ request()->is('cashier/sales/transactions') ? 'active' : '' }}">Transactions</a></li>
                     <li><a href="{{ url('/cashier/sales/refunds') }}" class="{{ request()->is('cashier/sales/refunds') ? 'active' : '' }}">Refunds</a></li>
                 </ul>
             </li>

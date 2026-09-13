@@ -86,7 +86,6 @@
                 </a>
                 
                 <ul class="submenu">
-                    <li><a href="{{ url('/admin/sales/transactions') }}" class="{{ request()->is('admin/sales/transactions') ? 'active' : '' }}">Transactions</a></li>
                     <li><a href="{{ url('/admin/sales/refunds') }}" class="{{ request()->is('admin/sales/refunds') ? 'active' : '' }}">Refunds</a></li>
                 </ul>
             </li>
