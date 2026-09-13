@@ -520,7 +520,7 @@
             document.getElementById('selectedTime').value = "";
             document.getElementById('hidden_start_time').value = "";
             document.getElementById('hidden_end_time').value = "";
-            document.getElementById('durationSelect').value = "1";
+            // document.getElementById('durationSelect').value = "1";
 
             generateTimeSlots(dateVal);
             checkAvailability();

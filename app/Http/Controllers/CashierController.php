@@ -168,13 +168,22 @@ class CashierController extends Controller
         
         $activeRes = $reservations->where('status', '!=', 'cancelled');
 
-        $totalRevenue = $activeRes->sum('total_price');
-        
+        $totalRevenue = 0;
         $gcashPayments = 0;
         $cashPayments = 0;
         $pendingAmount = 0;
         
         foreach($activeRes as $r) {
+            // If the reservation is still pending, it is not realized revenue yet.
+            // All of its value goes into the pending/unpaid bucket.
+            if ($r->status === 'pending') {
+                $pendingAmount += $r->total_price;
+                continue;
+            }
+            
+            // For approved reservations (confirmed, in-play, completed)
+            $totalRevenue += $r->total_price;
+            
             // Cap the amount paid to the total price (to exclude change given to customer)
             $effectivePaid = min($r->amount_paid, $r->total_price);
             
@@ -184,6 +193,7 @@ class CashierController extends Controller
                 $cashPayments += $effectivePaid;
             }
             
+            // Any missing balance on approved reservations is also pending/unpaid
             $diff = $r->total_price - $effectivePaid;
             if($diff > 0) {
                 $pendingAmount += $diff;

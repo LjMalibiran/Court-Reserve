@@ -303,7 +303,7 @@
         document.getElementById('summaryTime').innerText = "Not selected";
         document.getElementById('hidden_start_time').value = "";
         document.getElementById('hidden_end_time').value = "";
-        document.getElementById('durationSelect').innerHTML = '<option value="1">1 Hour</option><option value="2">2 Hours</option><option value="3">3 Hours</option>';
+        // Removed duration reset
 
         generateTimeSlots(this.value);
         checkAvailability();
