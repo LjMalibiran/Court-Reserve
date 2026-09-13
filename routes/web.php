@@ -264,7 +264,7 @@ Route::middleware([\App\Http\Middleware\CashierMiddleware::class])->group(functi
     Route::post('/cashier/walk-in/save-receipt', [ReservationController::class, 'saveWalkInReceipt']);
     Route::post('/cashier/walk-in/{id}/{status}', [ReservationController::class, 'updateWalkInStatus']);
 
-    Route::get('/cashier/sales-report', function () { return view('cashier.sales-report'); });
+    Route::get('/cashier/sales-report', [App\Http\Controllers\CashierController::class, 'salesReportIndex']);
     Route::get('/cashier/sales/refunds', function () { return view('cashier.refunds'); });
     Route::get('/cashier/profile', function () { return view('cashier.profile'); })->name('cashier.profile');
 

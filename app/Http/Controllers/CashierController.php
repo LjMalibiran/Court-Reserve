@@ -24,7 +24,7 @@ class CashierController extends Controller
         $totalUsers = $registeredUsers->count();
 
         return view('cashier.dashboard', compact('totalReserved', 'pendingReservations', 'totalUsers', 'registeredUsers'));
-    }
+
 
     public function filterSales(Request $request)
     {
@@ -160,5 +160,28 @@ class CashierController extends Controller
         }
 
         return back()->with('error', 'Could not verify reservation.');
+    }
+
+    public function salesReportIndex()
+    {
+        $reservations = \App\Models\Reservation::with(['user', 'court'])->orderBy('created_at', 'desc')->get();
+        
+        $activeRes = $reservations->where('status', '!=', 'cancelled');
+
+        $totalRevenue = $activeRes->sum('amount_paid');
+        
+        // Treat 'full' and 'half' (online) as GCash.
+        $gcashPayments = $activeRes->whereIn('payment_type', ['GCash', 'full', 'half'])->sum('amount_paid');
+        $cashPayments = $activeRes->where('payment_type', 'Cash')->sum('amount_paid');
+        
+        $pendingAmount = 0;
+        foreach($activeRes as $r) {
+            $diff = $r->total_price - $r->amount_paid;
+            if($diff > 0) {
+                $pendingAmount += $diff;
+            }
+        }
+
+        return view('cashier.sales-report', compact('reservations', 'totalRevenue', 'gcashPayments', 'cashPayments', 'pendingAmount'));
     }
 }

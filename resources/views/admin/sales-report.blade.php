@@ -96,7 +96,7 @@
                 <div class="kpi-icon icon-revenue"><i class="fa-solid fa-wallet"></i></div>
                 <div class="kpi-details">
                     <div class="kpi-title">Total Revenue</div>
-                    <div class="kpi-value">₱ 0.00</div>
+                    <div class="kpi-value">&#8369; {{ number_format($totalRevenue, 2) }}</div>
                 </div>
             </div>
             
@@ -104,7 +104,7 @@
                 <div class="kpi-icon icon-gcash"><i class="fa-solid fa-mobile-screen-button"></i></div>
                 <div class="kpi-details">
                     <div class="kpi-title">GCash Payments</div>
-                    <div class="kpi-value">₱ 0.00</div>
+                    <div class="kpi-value">&#8369; {{ number_format($gcashPayments, 2) }}</div>
                 </div>
             </div>
 
@@ -112,7 +112,7 @@
                 <div class="kpi-icon icon-cash"><i class="fa-solid fa-money-bill-wave"></i></div>
                 <div class="kpi-details">
                     <div class="kpi-title">Cash Payments</div>
-                    <div class="kpi-value">₱ 0.00</div>
+                    <div class="kpi-value">&#8369; {{ number_format($cashPayments, 2) }}</div>
                 </div>
             </div>
 
@@ -120,7 +120,7 @@
                 <div class="kpi-icon icon-pending"><i class="fa-regular fa-clock"></i></div>
                 <div class="kpi-details">
                     <div class="kpi-title">Pending / Unpaid</div>
-                    <div class="kpi-value">₱ 0.00</div>
+                    <div class="kpi-value">&#8369; {{ number_format($pendingAmount, 2) }}</div>
                 </div>
             </div>
         </div>
@@ -174,13 +174,51 @@
                         <th>Amount</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td colspan="7" class="empty-state">
-                            <div class="empty-icon"><i class="fa-solid fa-receipt"></i></div>
-                            <div>No transactions found for the selected criteria.</div>
-                        </td>
-                    </tr>
+                                <tbody>
+                    @forelse($reservations as $res)
+                        <tr>
+                            <td style="color: var(--primary-blue); font-weight: 600;">{{ $res->reservation_code }}</td>
+                            <td>{{ $res->user->name ?? $res->walk_in_name ?? 'Walk-in' }}</td>
+                            <td>{{ $res->sport ?? 'Badminton' }} - Court {{ $res->court_id }}</td>
+                            <td>
+                                <div>{{ \Carbon\Carbon::parse($res->start_time)->format('M d, Y') }}</div>
+                                <div style="font-size: 12px; color: var(--text-muted);">{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }}</div>
+                            </td>
+                            <td>
+                                @if(in_array($res->payment_type, ['GCash', 'full', 'half']))
+                                    <span style="color: var(--gcash-color); font-weight: 600;"><i class="fa-solid fa-mobile-screen-button"></i> GCash</span>
+                                @else
+                                    <span style="color: var(--cash-color); font-weight: 600;"><i class="fa-solid fa-money-bill-wave"></i> Cash</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if($res->status == 'completed')
+                                    <span style="background: #dcfce7; color: #16a34a; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;">Completed</span>
+                                @elseif($res->status == 'in-play')
+                                    <span style="background: #e0e7ff; color: #4338ca; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;">In Play</span>
+                                @elseif($res->status == 'pending')
+                                    <span style="background: #fef3c7; color: #d97706; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;">Pending</span>
+                                @elseif($res->status == 'cancelled')
+                                    <span style="background: #fee2e2; color: #dc2626; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;">Cancelled</span>
+                                @else
+                                    <span style="background: #e0f2fe; color: #0284c7; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;">Confirmed</span>
+                                @endif
+                            </td>
+                            <td style="font-weight: 600;">
+                                &#8369; {{ number_format($res->amount_paid, 2) }}
+                                @if($res->total_price > $res->amount_paid)
+                                    <div style="font-size: 11px; color: #ef4444; font-weight: normal;">Balance: &#8369; {{ number_format($res->total_price - $res->amount_paid, 2) }}</div>
+                                @endif
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="empty-state">
+                                <div class="empty-icon"><i class="fa-solid fa-receipt"></i></div>
+                                <div>No transactions found.</div>
+                            </td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
             
