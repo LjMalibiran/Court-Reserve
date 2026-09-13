@@ -168,15 +168,23 @@ class CashierController extends Controller
         
         $activeRes = $reservations->where('status', '!=', 'cancelled');
 
-        $totalRevenue = $activeRes->sum('amount_paid');
+        $totalRevenue = $activeRes->sum('total_price');
         
-        // Treat 'full' and 'half' (online) as GCash.
-        $gcashPayments = $activeRes->whereIn('payment_type', ['GCash', 'full', 'half'])->sum('amount_paid');
-        $cashPayments = $activeRes->where('payment_type', 'Cash')->sum('amount_paid');
-        
+        $gcashPayments = 0;
+        $cashPayments = 0;
         $pendingAmount = 0;
+        
         foreach($activeRes as $r) {
-            $diff = $r->total_price - $r->amount_paid;
+            // Cap the amount paid to the total price (to exclude change given to customer)
+            $effectivePaid = min($r->amount_paid, $r->total_price);
+            
+            if (in_array($r->payment_type, ['GCash', 'full', 'half'])) {
+                $gcashPayments += $effectivePaid;
+            } else {
+                $cashPayments += $effectivePaid;
+            }
+            
+            $diff = $r->total_price - $effectivePaid;
             if($diff > 0) {
                 $pendingAmount += $diff;
             }
