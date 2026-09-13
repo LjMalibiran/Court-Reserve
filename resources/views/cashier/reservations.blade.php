@@ -128,10 +128,9 @@
             
             <div class="search-box">
                 <div class="search-input-wrapper">
-                    <input type="text" placeholder="Search reservations...">
-                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="searchInput" placeholder="Search by ID or Name..." onkeyup="filterTables()">
                 </div>
-                <button class="btn-export"><i class="fa-solid fa-file-export"></i></button>
+                <button class="btn-export" onclick="filterTables()"><i class="fa-solid fa-magnifying-glass"></i></button>
             </div>
         </div>
 
@@ -719,6 +718,7 @@
                         currentTbody.innerHTML = newTbody.innerHTML;
                     }
                 });
+                if(typeof filterTables === 'function') filterTables();
 
                 let newSpans = doc.querySelectorAll('.tab-btn span');
                 let currentSpans = document.querySelectorAll('.tab-btn span');
@@ -754,5 +754,25 @@
         });
     </script>
 @include('partials.notif-script')
+<script>
+function filterTables() {
+    const input = document.getElementById('searchInput').value.toLowerCase();
+    const tables = document.querySelectorAll('.data-table');
+    tables.forEach(table => {
+        const rows = table.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            if(row.cells.length > 1) {
+                const idCell = row.cells[0]?.innerText.toLowerCase() || '';
+                const nameCell = row.cells[1]?.innerText.toLowerCase() || '';
+                if (idCell.includes(input) || nameCell.includes(input)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        });
+    });
+}
+</script>
 </body>
 </html>
