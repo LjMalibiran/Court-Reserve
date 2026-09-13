@@ -94,7 +94,10 @@ class AdminController extends Controller
         
         // Update the reservation status to activate the court
         $reservation->status = 'in-play';
-        $reservation->save();
+            if ($reservation->amount_paid < $reservation->total_price) {
+                $reservation->amount_paid = $reservation->total_price;
+            }
+            $reservation->save();
 
         return redirect('/admin/dashboard')->with('success', 'Verified! Court ' . $reservation->court_id . ' is now In Play.');
     }
@@ -208,29 +211,40 @@ class AdminController extends Controller
         $pendingAmount = 0;
         
         foreach($activeRes as $r) {
-            // If the reservation is still pending, it is not realized revenue yet.
-            // All of its value goes into the pending/unpaid bucket.
+            // Determine actual paid amount safely (handle missing online amount_paid)
+            $paid = (float)$r->amount_paid;
+            if ($paid == 0 && in_array($r->payment_type, ['full', 'half'])) {
+                $paid = ($r->payment_type == 'half') ? ($r->total_price / 2) : $r->total_price;
+            }
+            
+            // Cap effective paid to avoid counting physical change/sukli as revenue
+            $effectivePaid = min($paid, $r->total_price);
+            $unpaid = $r->total_price - $effectivePaid;
+            
+            // If the reservation itself is completely unverified/pending, all of it is pending.
             if ($r->status === 'pending') {
                 $pendingAmount += $r->total_price;
                 continue;
             }
             
-            // For approved reservations (confirmed, in-play, completed)
-            $totalRevenue += $r->total_price;
+            // For approved reservations
+            $totalRevenue += $effectivePaid;
+            $pendingAmount += $unpaid;
             
-            // Cap the amount paid to the total price (to exclude change given to customer)
-            $effectivePaid = min($r->amount_paid, $r->total_price);
-            
+            // Split GCash vs Cash
             if (in_array($r->payment_type, ['GCash', 'full', 'half'])) {
-                $gcashPayments += $effectivePaid;
+                // If it was half GCash and they paid the rest, the rest was likely Cash at the counter
+                if ($r->payment_type === 'half') {
+                    $onlineHalf = $r->total_price / 2;
+                    $gcashPayments += min($effectivePaid, $onlineHalf);
+                    if ($effectivePaid > $onlineHalf) {
+                        $cashPayments += ($effectivePaid - $onlineHalf);
+                    }
+                } else {
+                    $gcashPayments += $effectivePaid;
+                }
             } else {
                 $cashPayments += $effectivePaid;
-            }
-            
-            // Any missing balance on approved reservations is also pending/unpaid
-            $diff = $r->total_price - $effectivePaid;
-            if($diff > 0) {
-                $pendingAmount += $diff;
             }
         }
 
