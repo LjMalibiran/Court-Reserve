@@ -205,9 +205,16 @@
                                 @endif
                             </td>
                             <td style="font-weight: 600;">
-                                &#8369; {{ number_format($res->amount_paid, 2) }}
-                                @if($res->total_price > $res->amount_paid)
-                                    <div style="font-size: 11px; color: #ef4444; font-weight: normal;">Balance: &#8369; {{ number_format($res->total_price - $res->amount_paid, 2) }}</div>
+                                @php
+                                    $paid = $res->amount_paid;
+                                    if ($paid == 0 && in_array($res->payment_type, ['full', 'half'])) {
+                                        $paid = $res->payment_type == 'half' ? $res->total_price / 2 : $res->total_price;
+                                    }
+                                    $effectivePaid = min($paid, $res->total_price);
+                                @endphp
+                                &#8369; {{ number_format($effectivePaid, 2) }}
+                                @if($res->total_price > $effectivePaid)
+                                    <div style="font-size: 11px; color: #ef4444; font-weight: normal;">Balance: &#8369; {{ number_format($res->total_price - $effectivePaid, 2) }}</div>
                                 @endif
                             </td>
                         </tr>
