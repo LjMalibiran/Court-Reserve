@@ -209,16 +209,6 @@
                                 </div>
                             </div>
 
-                            <div class="input-group">
-                                <label>Time<span>*</span> <span style="font-size:11px; color:var(--text-muted); font-weight:400; margin-left:5px;">Available Time Slot</span></label>
-                                <div class="time-slots" id="timeSlots">
-                                    <!-- Populated dynamically -->
-                                </div>
-                                <input type="hidden" name="time" id="selectedTime" value="">
-                                <input type="hidden" name="start_time" id="hidden_start_time" value="">
-                                <input type="hidden" name="end_time" id="hidden_end_time" value="">
-                            </div>
-
                             <div class="row-2">
                                 <div class="input-group">
                                     <label>Duration<span>*</span></label>
@@ -261,6 +251,16 @@
                                         No available equipment for Pickleball.
                                     </div>
                                 </div>
+                            </div>
+
+                            <div class="input-group">
+                                <label>Time<span>*</span> <span style="font-size:11px; color:var(--text-muted); font-weight:400; margin-left:5px;">Available Time Slot</span></label>
+                                <div class="time-slots" id="timeSlots">
+                                    <!-- Populated dynamically -->
+                                </div>
+                                <input type="hidden" name="time" id="selectedTime" value="">
+                                <input type="hidden" name="start_time" id="hidden_start_time" value="">
+                                <input type="hidden" name="end_time" id="hidden_end_time" value="">
                             </div>
                         </div>
                     </div>
