@@ -255,6 +255,39 @@
                 }
             });
         });
+        
+        document.querySelector('.btn-export')?.addEventListener('click', function() {
+            let csv = [];
+            // Headers
+            let headers = [];
+            document.querySelectorAll('.table-container thead th').forEach(th => {
+                headers.push('"' + th.innerText.trim() + '"');
+            });
+            csv.push(headers.join(','));
+
+            // Rows
+            document.querySelectorAll('.table-container tbody tr').forEach(row => {
+                if(row.style.display === 'none' || row.querySelector('.empty-state')) return;
+                let cols = [];
+                row.querySelectorAll('td').forEach(td => {
+                    let text = td.innerText.replace(/\n/g, ' ').replace(/"/g, '""').trim();
+                    cols.push('"' + text + '"');
+                });
+                csv.push(cols.join(','));
+            });
+
+            let blob = new Blob([csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
+            let link = document.createElement('a');
+            if (link.download !== undefined) { 
+                let url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', 'sales_report.csv');
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        });
         </script>
     </main>
 
