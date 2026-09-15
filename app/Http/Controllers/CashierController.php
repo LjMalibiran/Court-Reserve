@@ -165,9 +165,23 @@ class CashierController extends Controller
         return back()->with('error', 'Could not verify reservation.');
     }
 
-    public function salesReportIndex()
+    public function salesReportIndex(\Illuminate\Http\Request $request)
     {
-        $reservations = \App\Models\Reservation::with(['user', 'court'])->orderBy('created_at', 'desc')->get();
+        $query = \App\Models\Reservation::with(['user', 'court'])->orderBy('created_at', 'desc');
+        
+        if ($request->filled('court') && $request->court != 'all') {
+            $query->where('court_id', $request->court);
+        }
+        
+        if ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->start_date);
+        }
+        
+        if ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->end_date);
+        }
+        
+        $reservations = $query->get();
         
         $activeRes = $reservations->where('status', '!=', 'cancelled');
 

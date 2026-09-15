@@ -236,6 +236,23 @@
             </div>
         </div>
 
+    <script>
+        document.querySelector('.search-input-wrapper input').addEventListener('keyup', function(e) {
+            let term = e.target.value.toLowerCase();
+            let rows = document.querySelectorAll('.table-container tbody tr');
+            rows.forEach(row => {
+                if(row.querySelector('.empty-state')) return;
+                let text1 = row.children[0].innerText.toLowerCase();
+                let text2 = row.children[1].innerText.toLowerCase();
+                
+                if (text1.includes(term) || text2.includes(term)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+        </script>
     </main>
 
 @include('partials.notif-script')
