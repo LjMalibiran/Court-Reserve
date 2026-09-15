@@ -257,31 +257,39 @@
         });
         
         document.querySelector('.btn-export')?.addEventListener('click', function() {
-            let csv = [];
+            let tableHTML = '<tr>';
             // Headers
-            let headers = [];
             document.querySelectorAll('.table-container thead th').forEach(th => {
-                headers.push('"' + th.innerText.trim() + '"');
+                tableHTML += `<th style="background-color: #f3f4f6; font-weight: bold; border: 1px solid #ddd; padding: 8px; text-align: left;">${th.innerText.trim()}</th>`;
             });
-            csv.push(headers.join(','));
+            tableHTML += '</tr>';
 
             // Rows
             document.querySelectorAll('.table-container tbody tr').forEach(row => {
                 if(row.style.display === 'none' || row.querySelector('.empty-state')) return;
-                let cols = [];
+                tableHTML += '<tr>';
                 row.querySelectorAll('td').forEach(td => {
-                    let text = td.innerText.replace(/\n/g, ' ').replace(/"/g, '""').trim();
-                    cols.push('"' + text + '"');
+                    // Replace newlines with ' - ' for better Excel readability
+                    let text = td.innerText.replace(/\n/g, ' - ').trim();
+                    tableHTML += `<td style="border: 1px solid #ddd; padding: 8px;">${text}</td>`;
                 });
-                csv.push(cols.join(','));
+                tableHTML += '</tr>';
             });
 
-            let blob = new Blob([csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
+            let html = `
+            <html xmlns:x="urn:schemas-microsoft-com:office:excel">
+                <head><meta charset="utf-8"></head>
+                <body>
+                    <table style="border-collapse: collapse;">${tableHTML}</table>
+                </body>
+            </html>`;
+
+            let blob = new Blob([html], { type: 'application/vnd.ms-excel' });
             let link = document.createElement('a');
             if (link.download !== undefined) { 
                 let url = URL.createObjectURL(blob);
                 link.setAttribute('href', url);
-                link.setAttribute('download', 'sales_report.csv');
+                link.setAttribute('download', 'sales_report.xls');
                 link.style.visibility = 'hidden';
                 document.body.appendChild(link);
                 link.click();
