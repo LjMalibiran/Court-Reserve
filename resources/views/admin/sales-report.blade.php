@@ -57,7 +57,7 @@
         .search-box { display: flex; align-items: center; gap: 10px; }
         .search-input-wrapper { position: relative; }
         .search-input-wrapper i { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; }
-        .search-input-wrapper input { padding: 9px 35px 9px 15px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; width: 150px; }
+        .search-input-wrapper input { padding: 9px 35px 9px 15px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; width: 250px; }
         .btn-export { background: #fff; border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 6px; color: var(--dark-blue); cursor: pointer; font-size: 16px; }
 
         /* Tables */
