@@ -110,7 +110,7 @@
     
     .btn-solid-blue { background: #0033cc; color: white; border: none; border-radius: 8px; padding: 14px; font-size: 15px; font-weight: 600; width: 100%; cursor: pointer; transition: 0.2s;}
     .btn-solid-blue:hover { background: #002299; }
-    .btn-solid-red { background: #b91c1c; color: white; border: none; border-radius: 8px; padding: 14px; font-size: 15px; font-weight: 600; width: 100%; cursor: pointer; transition: 0.2s;}
+    .btn-solid-red { background: #b91c1c; color: white; border: 1.5px solid transparent; border-radius: 8px; padding: 14px; font-size: 15px; font-weight: 600; width: 100%; cursor: pointer; transition: 0.2s; box-sizing: border-box; }
     .btn-solid-red:hover { background: #991b1b; }
     .btn-outline-blue { background: white; color: #0033cc; border: 1.5px solid #0033cc; border-radius: 8px; padding: 14px; font-size: 15px; font-weight: 600; width: 100%; cursor: pointer; transition: 0.2s; box-sizing: border-box;}
     .btn-outline-blue:hover { background: #f0f4ff; }
