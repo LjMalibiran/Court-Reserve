@@ -127,29 +127,32 @@
 
         <!-- Filters -->
         <div class="controls-bar">
-            <div class="filter-group">
+            <form class="filter-group" method="GET" action="{{ url()->current() }}">
                 <div class="filter-item">
                     <label>Court:</label>
-                    <select class="filter-control">
-                        <option value="all">All Courts</option>
-                        <option value="1">Court 1</option>
-                        <option value="2">Court 2</option>
-                        <option value="3">Court 3</option>
+                    <select name="court" class="filter-control">
+                        <option value="all" {{ request('court') == 'all' ? 'selected' : '' }}>All Courts</option>
+                        <option value="1" {{ request('court') == '1' ? 'selected' : '' }}>Court 1</option>
+                        <option value="2" {{ request('court') == '2' ? 'selected' : '' }}>Court 2</option>
+                        <option value="3" {{ request('court') == '3' ? 'selected' : '' }}>Court 3</option>
                     </select>
                 </div>
                 
                 <div class="filter-item">
                     <label>From:</label>
-                    <input type="date" class="filter-control">
+                    <input type="date" name="start_date" class="filter-control" value="{{ request('start_date') }}">
                 </div>
 
                 <div class="filter-item">
                     <label>To:</label>
-                    <input type="date" class="filter-control">
+                    <input type="date" name="end_date" class="filter-control" value="{{ request('end_date') }}">
                 </div>
 
-                <button class="btn-filter">Apply Filter</button>
-            </div>
+                <button type="submit" class="btn-filter">Apply Filter</button>
+                @if(request()->hasAny(['court', 'start_date', 'end_date']))
+                    <a href="{{ url()->current() }}" style="margin-left: 10px; font-size: 13px; color: #ef4444; text-decoration: none;">Clear</a>
+                @endif
+            </form>
             
             <div class="search-box">
                 <div class="search-input-wrapper">
