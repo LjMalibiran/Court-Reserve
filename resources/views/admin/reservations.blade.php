@@ -600,11 +600,7 @@
                 </tbody>
             </table>
 
-            <div class="pagination">
-                <a href="#" class="page-item"><i class="fa-solid fa-chevron-left"></i></a>
-                <a href="#" class="page-item active">1</a>
-                <a href="#" class="page-item"><i class="fa-solid fa-chevron-right"></i></a>
-            </div>
+            
             
         </div>
     </main>

@@ -232,11 +232,7 @@
                 </tbody>
             </table>
             
-            <div class="pagination">
-                <a href="#"><i class="fa-solid fa-chevron-left"></i></a>
-                <a href="#" class="active">1</a>
-                <a href="#"><i class="fa-solid fa-chevron-right"></i></a>
-            </div>
+            
         </div>
 
     <script>
