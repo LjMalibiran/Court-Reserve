@@ -51,7 +51,7 @@
         .filter-control { padding: 8px 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; color: var(--text-main); outline: none; background: #fff; }
         .filter-control:focus { border-color: var(--primary-blue); }
         
-        .btn-filter { background: var(--primary-blue); color: white; border: none; padding: 9px 20px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn-filter { background: var(--primary-blue); color: white; border: none; padding: 9px 20px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; white-space: nowrap; flex-shrink: 0; }
         .btn-filter:hover { background: var(--dark-blue); }
         
         .search-box { display: flex; align-items: center; gap: 10px; }
