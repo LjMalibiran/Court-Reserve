@@ -85,7 +85,7 @@
     .res-brief-details { color: #64748b; font-size: 13px; display: flex; flex-direction: column; gap: 8px; font-weight: 500;}
     
     .form-group-row { display: flex; gap: 16px; margin-bottom: 24px; }
-    .form-group { flex: 1; }
+    .form-group { flex: 1; width: 100%; }
     .section-label { display: block; font-size: 13px; color: #0f2b6e; margin-bottom: 8px; font-weight: 600; }
     .form-control { width: 100%; padding: 14px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-family: inherit; font-size: 15px; outline: none; color: #0f2b6e; font-weight: 600; box-sizing: border-box;}
     
@@ -95,7 +95,7 @@
     .ts-btn.disabled { color: #cbd5e1; border-color: #f1f5f9; background: #f8fafc; pointer-events: none; }
     
     .rental-section { display: flex; justify-content: space-between; margin-bottom: 30px; }
-    .rental-item { display: flex; align-items: center; justify-content: space-between; flex: 1; }
+    .rental-item { display: flex; align-items: center; justify-content: space-between; flex: 1; width: 100%; }
     .rental-item:first-child { margin-right: 24px; }
     .rental-info h5 { margin: 0 0 2px 0; font-size: 15px; color: #0f2b6e; font-weight: 700; }
     .rental-info span { font-size: 10px; color: #94a3b8; font-weight: 600;}
@@ -110,9 +110,9 @@
     
     .btn-solid-blue { background: #0033cc; color: white; border: none; border-radius: 8px; padding: 14px; font-size: 15px; font-weight: 600; width: 100%; cursor: pointer; transition: 0.2s;}
     .btn-solid-blue:hover { background: #002299; }
-    .btn-solid-red { background: #b91c1c; color: white; border: 1.5px solid transparent; border-radius: 8px; padding: 14px; font-size: 15px; font-weight: 600; width: 100%; cursor: pointer; transition: 0.2s; box-sizing: border-box; }
+    .btn-solid-red { background: #b91c1c; color: white; border: 1.5px solid transparent; border-radius: 8px; padding: 0 14px; height: 48px; font-size: 15px; font-weight: 600; flex: 1; width: 100%; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; box-sizing: border-box; }
     .btn-solid-red:hover { background: #991b1b; }
-    .btn-outline-blue { background: white; color: #0033cc; border: 1.5px solid #0033cc; border-radius: 8px; padding: 14px; font-size: 15px; font-weight: 600; width: 100%; cursor: pointer; transition: 0.2s; box-sizing: border-box;}
+    .btn-outline-blue { background: white; color: #0033cc; border: 1.5px solid #0033cc; border-radius: 8px; padding: 0 14px; height: 48px; font-size: 15px; font-weight: 600; flex: 1; width: 100%; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; box-sizing: border-box; }
     .btn-outline-blue:hover { background: #f0f4ff; }
     .btn-group { display: flex; gap: 14px; }
 
