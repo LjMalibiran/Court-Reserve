@@ -43,7 +43,7 @@
         .kpi-value { font-size: 24px; font-weight: 700; color: var(--dark-blue); margin: 0; }
 
         /* Filter Controls */
-        .controls-bar { background: var(--card-bg); padding: 15px 20px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+        .controls-bar { background: var(--card-bg); padding: 15px 20px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: nowrap; overflow-x: auto; gap: 15px; }
         .filter-group { display: flex; align-items: center; gap: 15px; }
         
         .filter-item { display: flex; align-items: center; gap: 8px; }
