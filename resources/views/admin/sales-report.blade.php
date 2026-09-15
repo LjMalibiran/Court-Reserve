@@ -43,12 +43,12 @@
         .kpi-value { font-size: 24px; font-weight: 700; color: var(--dark-blue); margin: 0; }
 
         /* Filter Controls */
-        .controls-bar { background: var(--card-bg); padding: 15px 20px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: nowrap; overflow-x: auto; gap: 15px; }
-        .filter-group { display: flex; align-items: center; gap: 15px; }
+        .controls-bar { background: var(--card-bg); padding: 15px 20px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: nowrap; gap: 10px; }
+        .filter-group { display: flex; align-items: center; gap: 8px; }
         
         .filter-item { display: flex; align-items: center; gap: 8px; }
         .filter-item label { font-size: 13px; font-weight: 600; color: var(--text-main); }
-        .filter-control { padding: 9px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; color: var(--text-main); outline: none; background: #fff; }
+        .filter-control { padding: 8px 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; color: var(--text-main); outline: none; background: #fff; }
         .filter-control:focus { border-color: var(--primary-blue); }
         
         .btn-filter { background: var(--primary-blue); color: white; border: none; padding: 9px 20px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; }
@@ -57,7 +57,7 @@
         .search-box { display: flex; align-items: center; gap: 10px; }
         .search-input-wrapper { position: relative; }
         .search-input-wrapper i { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; }
-        .search-input-wrapper input { padding: 9px 35px 9px 15px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; width: 220px; }
+        .search-input-wrapper input { padding: 9px 35px 9px 15px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; width: 150px; }
         .btn-export { background: #fff; border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 6px; color: var(--dark-blue); cursor: pointer; font-size: 16px; }
 
         /* Tables */
