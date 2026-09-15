@@ -71,18 +71,16 @@
                 </a>
             </li>
             
-            <!-- Sales Report Dropdown -->
-            <li class="has-submenu {{ request()->is('cashier/sales-report') || request()->is('cashier/sales/*') ? 'open' : '' }}">
-                
-                <!-- Added logic to keep the parent tab active/white when viewing subtabs -->
-                <a href="{{ url('/cashier/sales-report') }}" class="{{ request()->is('cashier/sales-report') || request()->is('cashier/sales/*') ? 'active' : '' }}">
+            <!-- Sales Report & Refunds -->
+            <li>
+                <a href="{{ url('/cashier/sales-report') }}" class="{{ request()->is('cashier/sales-report') ? 'active' : '' }}">
                     <i class="fa-solid fa-chart-simple"></i> Sales Report 
-                    <i class="fa-solid fa-angle-down dropdown-icon" id="salesReportToggle" style="margin-left: auto; width: auto; font-size: 12px; padding: 5px; transition: transform 0.3s ease; {{ request()->is('cashier/sales-report') || request()->is('cashier/sales/*') ? 'transform: rotate(180deg);' : '' }}"></i>
                 </a>
-                
-                <ul class="submenu">
-                    <li><a href="{{ url('/cashier/sales/refunds') }}" class="{{ request()->is('cashier/sales/refunds') ? 'active' : '' }}">Refunds</a></li>
-                </ul>
+            </li>
+            <li>
+                <a href="{{ url('/cashier/sales/refunds') }}" class="{{ request()->is('cashier/sales/refunds') ? 'active' : '' }}">
+                    <i class="fa-solid fa-money-bill-transfer"></i> Refunds
+                </a>
             </li>
         </ul>
     </div>
@@ -122,26 +120,4 @@
     </div>
 </aside>
 
-<!-- Dropdown Script -->
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const salesToggle = document.getElementById('salesReportToggle');
-        
-        if(salesToggle) {
-            const submenuParent = salesToggle.closest('.has-submenu');
 
-            salesToggle.addEventListener('click', function(e) {
-                e.preventDefault(); 
-                e.stopPropagation(); 
-                
-                submenuParent.classList.toggle('open');
-                
-                if (submenuParent.classList.contains('open')) {
-                    salesToggle.style.transform = 'rotate(180deg)';
-                } else {
-                    salesToggle.style.transform = 'rotate(0deg)';
-                }
-            });
-        }
-    });
-</script>
