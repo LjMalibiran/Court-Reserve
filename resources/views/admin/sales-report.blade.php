@@ -127,7 +127,7 @@
 
         <!-- Filters -->
         <div class="controls-bar">
-            <form class="filter-group" method="GET" action="{{ url()->current() }}">
+            <form class="filter-group" style="margin: 0; width: auto; flex: 0 1 auto;" method="GET" action="{{ url()->current() }}">
                 <div class="filter-item">
                     <label>Court:</label>
                     <select name="court" class="filter-control">
@@ -150,7 +150,7 @@
 
                 <button type="submit" class="btn-filter">Apply Filter</button>
                 @if(request()->hasAny(['court', 'start_date', 'end_date']))
-                    <a href="{{ url()->current() }}" style="margin-left: 10px; font-size: 13px; color: #ef4444; text-decoration: none;">Clear</a>
+                    <a href="{{ url()->current() }}" style="font-size: 13px; color: #ef4444; text-decoration: none;">Clear</a>
                 @endif
             </form>
             
