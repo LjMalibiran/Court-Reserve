@@ -108,13 +108,13 @@
     .refund-policy-box p { color: #0f2b6e; margin: 0; font-size: 13px; line-height: 1.5; font-weight: 500;}
     .refund-policy-box p.no-refund { color: #0033cc; font-weight: 600; margin-top: 6px; }
     
-    .btn-solid-blue { background: #2563eb; color: white; border: 1px solid transparent; border-radius: 6px; padding: 0 16px; height: 46px; font-size: 14px; font-weight: 600; width: 100%; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; box-sizing: border-box; white-space: nowrap; overflow: hidden; }
+    .btn-solid-blue { background: #2563eb; color: white; border: 1px solid transparent; border-radius: 6px; padding: 0 16px; height: 46px; font-size: 14px; font-weight: 600; width: 100%; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; box-sizing: border-box; white-space: nowrap; overflow: hidden; margin: 0; }
     .btn-solid-blue:hover { background: #002299; }
-    .btn-solid-red { background: #c82318; color: white; border: 1px solid transparent; border-radius: 6px; padding: 0 16px; height: 46px; font-size: 14px; font-weight: 600; width: 100%; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; box-sizing: border-box; white-space: nowrap; overflow: hidden; }
+    .btn-solid-red { background: #c82318; color: white; border: 1px solid transparent; border-radius: 6px; padding: 0 16px; height: 46px; font-size: 14px; font-weight: 600; width: 100%; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; box-sizing: border-box; white-space: nowrap; overflow: hidden; margin: 0; }
     .btn-solid-red:hover { background: #a61c13; }
-    .btn-outline-blue { background: white; color: #2563eb; border: 1px solid #2563eb; border-radius: 6px; padding: 0 16px; height: 46px; font-size: 14px; font-weight: 600; width: 100%; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; box-sizing: border-box; white-space: nowrap; overflow: hidden; }
+    .btn-outline-blue { background: white; color: #2563eb; border: 1px solid #2563eb; border-radius: 6px; padding: 0 16px; height: 46px; font-size: 14px; font-weight: 600; width: 100%; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; box-sizing: border-box; white-space: nowrap; overflow: hidden; margin: 0; }
     .btn-outline-blue:hover { background: #f0f4ff; }
-    .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: center; }
 
     .success-icon-wrap { position: relative; width: 90px; height: 90px; margin: 0 auto 24px auto; }
     .cancel-circle { background: #dc2626; color: white; width: 100%; height: 100%; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 40px; position: relative; z-index: 2; box-shadow: 0 0 0 6px #fee2e2;}
