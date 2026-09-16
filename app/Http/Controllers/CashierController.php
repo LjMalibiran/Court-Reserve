@@ -230,4 +230,50 @@ class CashierController extends Controller
 
         return view('cashier.sales-report', compact('reservations', 'totalRevenue', 'gcashPayments', 'cashPayments', 'pendingAmount'));
     }
+
+    public function salesRefundsIndex()
+    {
+        $refunds = \App\Models\Reservation::where('status', 'cancelled')
+                    ->where('refund_status', 'pending')
+                    ->with('user', 'court')
+                    ->orderBy('cancelled_at', 'desc')
+                    ->get();
+        return view('cashier.refunds', compact('refunds')); // Note the view is cashier.refunds
+    }
+
+    public function approveRefund($id)
+    {
+        $reservation = \App\Models\Reservation::findOrFail($id);
+        if ($reservation->refund_status === 'pending') {
+            $reservation->refund_status = 'refunded';
+            $reservation->save();
+
+            // Notify user
+            \App\Models\Notification::create([
+                'user_id' => $reservation->user_id,
+                'title' => 'Refund Approved',
+                'message' => "Your refund of ₱" . number_format($reservation->refund_amount, 2) . " for booking {$reservation->reservation_code} has been approved and processed.",
+                'type' => 'refund_approved',
+            ]);
+        }
+        return back()->with('success', 'Refund approved successfully.');
+    }
+
+    public function rejectRefund($id)
+    {
+        $reservation = \App\Models\Reservation::findOrFail($id);
+        if ($reservation->refund_status === 'pending') {
+            $reservation->refund_status = 'rejected';
+            $reservation->save();
+
+            // Notify user
+            \App\Models\Notification::create([
+                'user_id' => $reservation->user_id,
+                'title' => 'Refund Rejected',
+                'message' => "Your refund request for booking {$reservation->reservation_code} was rejected by the cashier.",
+                'type' => 'refund_rejected',
+            ]);
+        }
+        return back()->with('success', 'Refund rejected successfully.');
+    }
 }

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Report | Batangas Badminton</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { 
+            --primary-blue: #1557c0;
+            --dark-blue: #002277;
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --text-muted: #777777;
+            --border-color: #e5e7eb;
+            --gcash-color: #3b82f6;
+            --cash-color: #06b6d4;
+            --pending-color: #f59e0b;
+        }
+        
+        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); display: flex; height: 100vh; overflow: hidden; }
+        .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow-y: auto; padding: 30px; }
+        
+        /* Header */
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .top-header h1 { margin: 0; font-size: 32px; color: var(--dark-blue); font-weight: 700; }
+        .header-right { display: flex; align-items: center; gap: 20px; color: var(--dark-blue); font-weight: 500; font-size: 14px; }
+        
+        /* KPI Cards */
+        .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 25px; }
+        .kpi-card { background: var(--card-bg); border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); border: 1px solid var(--border-color); }
+        .kpi-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+        
+        /* KPI Variants */
+        .icon-revenue { background-color: #e0e7ff; color: #4f46e5; }
+        .icon-gcash { background-color: #eff6ff; color: var(--gcash-color); }
+        .icon-cash { background-color: #ecfeff; color: var(--cash-color); }
+        .icon-pending { background-color: #fef3c7; color: var(--pending-color); }
+        
+        .kpi-details { flex-grow: 1; }
+        .kpi-title { font-size: 13px; color: var(--text-muted); font-weight: 500; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .kpi-value { font-size: 24px; font-weight: 700; color: var(--dark-blue); margin: 0; }
+
+        /* Filter Controls */
+        .controls-bar { background: var(--card-bg); padding: 15px 20px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: nowrap; gap: 10px; }
+        .filter-group { display: flex; align-items: center; gap: 8px; }
+        
+        .filter-item { display: flex; align-items: center; gap: 8px; }
+        .filter-item label { font-size: 13px; font-weight: 600; color: var(--text-main); }
+        .filter-control { padding: 8px 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; color: var(--text-main); outline: none; background: #fff; }
+        .filter-control:focus { border-color: var(--primary-blue); }
+        
+        .btn-filter { background: var(--primary-blue); color: white; border: none; padding: 9px 20px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; white-space: nowrap; flex-shrink: 0; }
+        .btn-filter:hover { background: var(--dark-blue); }
+        
+        .search-box { display: flex; align-items: center; gap: 10px; }
+        .search-input-wrapper { position: relative; }
+        .search-input-wrapper i { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; }
+        .search-input-wrapper input { padding: 9px 35px 9px 15px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; width: 250px; }
+        .btn-export { background: #fff; border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 6px; color: var(--dark-blue); cursor: pointer; font-size: 16px; }
+
+        /* Tables */
+        .table-container { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); flex-grow: 1; display: flex; flex-direction: column; overflow: visible; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 16px 20px; text-align: left; font-size: 14px; }
+        th { background-color: #f8fafc; color: var(--dark-blue); font-weight: 600; border-bottom: 2px solid var(--border-color); }
+        td { border-bottom: 1px solid #f0f0f0; color: #4b5563; }
+        
+        .empty-state { text-align: center !important; padding: 60px 40px !important; color: var(--text-muted) !important; font-style: italic; }
+        .empty-icon { font-size: 40px; color: #cbd5e1; margin-bottom: 15px; }
+        
+        .pagination { display: flex; justify-content: flex-end; padding: 20px; gap: 10px; margin-top: auto; }
+        .pagination a { color: var(--text-main); text-decoration: none; padding: 5px 10px; border-radius: 4px; }
+        .pagination a.active { background: var(--primary-blue); color: white; }
+    </style>
+</head>
+<body>
+
+    @include('cashier.sidebar')
+
+    <main class="main-content">
+        
+        <!-- Header -->
+        <header class="top-header">
+            <h1>Sales Report</h1>
+            <div class="header-right">
+                <span>{{ now()->format('l, F j, Y') }}</span>
+                @include('partials.notif-bell')
+            </div>
+        </header>
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-icon icon-revenue"><i class="fa-solid fa-wallet"></i></div>
+                <div class="kpi-details">
+                    <div class="kpi-title">Total Revenue</div>
+                    <div class="kpi-value">&#8369; {{ number_format($totalRevenue, 2) }}</div>
+                </div>
+            </div>
+            
+            <div class="kpi-card">
+                <div class="kpi-icon icon-gcash"><i class="fa-solid fa-mobile-screen-button"></i></div>
+                <div class="kpi-details">
+                    <div class="kpi-title">GCash Payments</div>
+                    <div class="kpi-value">&#8369; {{ number_format($gcashPayments, 2) }}</div>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon icon-cash"><i class="fa-solid fa-money-bill-wave"></i></div>
+                <div class="kpi-details">
+                    <div class="kpi-title">Cash Payments</div>
+                    <div class="kpi-value">&#8369; {{ number_format($cashPayments, 2) }}</div>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon icon-pending"><i class="fa-regular fa-clock"></i></div>
+                <div class="kpi-details">
+                    <div class="kpi-title">Pending / Unpaid</div>
+                    <div class="kpi-value">&#8369; {{ number_format($pendingAmount, 2) }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="controls-bar">
+            <form class="filter-group" style="margin: 0; width: auto; flex: 0 1 auto;" method="GET" action="{{ url()->current() }}">
+                <div class="filter-item">
+                    <label>Court:</label>
+                    <select name="court" class="filter-control">
+                        <option value="all" {{ request('court') == 'all' ? 'selected' : '' }}>All Courts</option>
+                        <option value="1" {{ request('court') == '1' ? 'selected' : '' }}>Court 1</option>
+                        <option value="2" {{ request('court') == '2' ? 'selected' : '' }}>Court 2</option>
+                        <option value="3" {{ request('court') == '3' ? 'selected' : '' }}>Court 3</option>
+                    </select>
+                </div>
+                
+                <div class="filter-item">
+                    <label>From:</label>
+                    <input type="date" name="start_date" class="filter-control" value="{{ request('start_date') }}">
+                </div>
+
+                <div class="filter-item">
+                    <label>To:</label>
+                    <input type="date" name="end_date" class="filter-control" value="{{ request('end_date') }}">
+                </div>
+
+                <button type="submit" class="btn-filter">Apply Filter</button>
+                @if(request()->hasAny(['court', 'start_date', 'end_date']))
+                    <a href="{{ url()->current() }}" style="font-size: 13px; color: #ef4444; text-decoration: none;">Clear</a>
+                @endif
+            </form>
+            
+            <div class="search-box">
+                <div class="search-input-wrapper">
+                    <input type="text" placeholder="Search Transaction ID...">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+                <button class="btn-export" title="Export Data"><i class="fa-solid fa-file-export"></i></button>
+            </div>
+        </div>
+
+        <!-- Transactions Table -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Transaction ID</th>
+                        <th>Customer</th>
+                        <th>Court</th>
+                        <th>Date & Time</th>
+                        <th>Payment Method</th>
+                        <th>Status</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                                <tbody>
+                    @forelse($reservations as $res)
+                        <tr>
+                            <td style="color: var(--primary-blue); font-weight: 600;">{{ $res->reservation_code }}</td>
+                            <td>{{ $res->user->name ?? $res->walk_in_name ?? 'Walk-in' }}</td>
+                            <td>{{ $res->sport ?? 'Badminton' }} - Court {{ $res->court_id }}</td>
+                            <td>
+                                <div>{{ \Carbon\Carbon::parse($res->start_time)->format('M d, Y') }}</div>
+                                <div style="font-size: 12px; color: var(--text-muted);">{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }}</div>
+                            </td>
+                            <td>
+                                @if(in_array($res->payment_type, ['GCash', 'full', 'half']))
+                                    <span style="color: var(--gcash-color); font-weight: 600;"><i class="fa-solid fa-mobile-screen-button"></i> GCash</span>
+                                @else
+                                    <span style="color: var(--cash-color); font-weight: 600;"><i class="fa-solid fa-money-bill-wave"></i> Cash</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if($res->status == 'completed')
+                                    <span style="background: #dcfce7; color: #16a34a; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;">Completed</span>
+                                @elseif($res->status == 'in-play')
+                                    <span style="background: #e0e7ff; color: #4338ca; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;">In Play</span>
+                                @elseif($res->status == 'pending')
+                                    <span style="background: #fef3c7; color: #d97706; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;">Pending</span>
+                                @elseif($res->status == 'cancelled')
+                                    <span style="background: #fee2e2; color: #dc2626; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;">Cancelled</span>
+                                @else
+                                    <span style="background: #e0f2fe; color: #0284c7; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;">Confirmed</span>
+                                @endif
+                            </td>
+                            <td style="font-weight: 600;">
+                                @php
+                                    $paid = $res->amount_paid;
+                                    if ($paid == 0 && in_array($res->payment_type, ['full', 'half'])) {
+                                        $paid = $res->payment_type == 'half' ? $res->total_price / 2 : $res->total_price;
+                                    }
+                                    $effectivePaid = min($paid, $res->total_price);
+                                @endphp
+                                &#8369; {{ number_format($effectivePaid, 2) }}
+                                @if($res->total_price > $effectivePaid)
+                                    <div style="font-size: 11px; color: #ef4444; font-weight: normal;">Balance: &#8369; {{ number_format($res->total_price - $effectivePaid, 2) }}</div>
+                                @endif
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="empty-state">
+                                <div class="empty-icon"><i class="fa-solid fa-receipt"></i></div>
+                                <div>No transactions found.</div>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+            
+            
+        </div>
+
+    <script>
+        document.querySelector('.search-input-wrapper input').addEventListener('keyup', function(e) {
+            let term = e.target.value.toLowerCase();
+            let rows = document.querySelectorAll('.table-container tbody tr');
+            rows.forEach(row => {
+                if(row.querySelector('.empty-state')) return;
+                let text1 = row.children[0].innerText.toLowerCase();
+                let text2 = row.children[1].innerText.toLowerCase();
+                
+                if (text1.includes(term) || text2.includes(term)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+        
+        document.querySelector('.btn-export')?.addEventListener('click', function() {
+            let tableHTML = '<tr>';
+            // Headers
+            document.querySelectorAll('.table-container thead th').forEach(th => {
+                tableHTML += `<th style="background-color: #f3f4f6; font-weight: bold; border: 1px solid #ddd; padding: 8px; text-align: left;">${th.innerText.trim()}</th>`;
+            });
+            tableHTML += '</tr>';
+
+            // Rows
+            document.querySelectorAll('.table-container tbody tr').forEach(row => {
+                if(row.style.display === 'none' || row.querySelector('.empty-state')) return;
+                tableHTML += '<tr>';
+                row.querySelectorAll('td').forEach(td => {
+                    // Replace newlines with ' - ' for better Excel readability
+                    let text = td.innerText.replace(/\n/g, ' - ').trim();
+                    tableHTML += `<td style="border: 1px solid #ddd; padding: 8px;">${text}</td>`;
+                });
+                tableHTML += '</tr>';
+            });
+
+            let html = `
+            <html xmlns:x="urn:schemas-microsoft-com:office:excel">
+                <head><meta charset="utf-8"></head>
+                <body>
+                    <table style="border-collapse: collapse;">${tableHTML}</table>
+                </body>
+            </html>`;
+
+            let blob = new Blob([html], { type: 'application/vnd.ms-excel' });
+            let link = document.createElement('a');
+            if (link.download !== undefined) { 
+                let url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', 'sales_report.xls');
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        });
+        </script>
+    </main>
+
+@include('partials.notif-script')
+</body>
+</html>

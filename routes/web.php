@@ -230,6 +230,8 @@ Route::middleware([\App\Http\Middleware\AdminMiddleware::class])->group(function
     // Sales & Reports
     Route::get('/admin/sales-report', [AdminController::class, 'salesReportIndex']);
     Route::get('/admin/sales/refunds', [AdminController::class, 'salesRefundsIndex']);
+    Route::post('/admin/sales/refunds/{id}/approve', [AdminController::class, 'approveRefund']);
+    Route::post('/admin/sales/refunds/{id}/reject', [AdminController::class, 'rejectRefund']);
 
     // Settings & Profile
     Route::get('/admin/settings', [AdminController::class, 'settingsIndex']);
@@ -265,7 +267,9 @@ Route::middleware([\App\Http\Middleware\CashierMiddleware::class])->group(functi
     Route::post('/cashier/walk-in/{id}/{status}', [ReservationController::class, 'updateWalkInStatus']);
 
     Route::get('/cashier/sales-report', [App\Http\Controllers\CashierController::class, 'salesReportIndex']);
-    Route::get('/cashier/sales/refunds', function () { return view('cashier.refunds'); });
+    Route::get('/cashier/sales/refunds', [App\Http\Controllers\CashierController::class, 'salesRefundsIndex']);
+    Route::post('/cashier/sales/refunds/{id}/approve', [App\Http\Controllers\CashierController::class, 'approveRefund']);
+    Route::post('/cashier/sales/refunds/{id}/reject', [App\Http\Controllers\CashierController::class, 'rejectRefund']);
     Route::get('/cashier/profile', function () { return view('cashier.profile'); })->name('cashier.profile');
 
 });

@@ -20,12 +20,17 @@ class Reservation extends Model
         'amount_paid',
         'payment_reference', // For GCash tracking
         'status',
+        'cancellation_reason',
+        'cancelled_at',
+        'refund_status',     // pending, refunded, rejected
+        'refund_amount',
     ];
 
     // Casts the database timestamps into Carbon date objects for easy math
     protected $casts = [
         'start_time' => 'datetime',
         'end_time' => 'datetime',
+        'cancelled_at' => 'datetime',
     ];
 
     // A reservation belongs to one specific user

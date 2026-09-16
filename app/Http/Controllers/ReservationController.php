@@ -236,8 +236,54 @@ class ReservationController extends Controller
     public function cancelUserReservation(Request $request, $id)
     {
         $reservation = Reservation::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
+
+        $reason = $request->input('reason', 'No reason provided');
+
         $reservation->status = 'cancelled';
+        $reservation->cancellation_reason = $reason;
+        $reservation->cancelled_at = now();
+
+        // Determine refund eligibility: only if reservation was confirmed and had payment
+        $paid = floatval($reservation->amount_paid);
+        if ($paid > 0) {
+            // Check 5-hour policy: must cancel at least 5 hours before reservation start
+            $reservationStart = \Carbon\Carbon::parse($reservation->start_time);
+            $hoursBeforeStart = now()->diffInHours($reservationStart, false); // positive if in the future
+
+            if ($hoursBeforeStart >= 5) {
+                // Eligible for refund
+                $reservation->refund_status = 'pending';
+                $reservation->refund_amount = min($paid, floatval($reservation->total_price));
+            } else {
+                // Too late — no refund
+                $reservation->refund_status = 'rejected';
+                $reservation->refund_amount = 0;
+            }
+        }
+
         $reservation->save();
+
+        // Notify admins
+        $adminUsers = \App\Models\User::where('usertype', 'admin')->get();
+        foreach ($adminUsers as $admin) {
+            \App\Models\Notification::create([
+                'user_id' => $admin->id,
+                'title' => 'Reservation Cancelled',
+                'message' => "Booking {$reservation->reservation_code} was cancelled by {$reservation->user->name}. Reason: {$reason}",
+                'type' => 'cancellation',
+            ]);
+        }
+
+        // Notify cashiers
+        $cashierUsers = \App\Models\User::where('usertype', 'cashier')->get();
+        foreach ($cashierUsers as $cashier) {
+            \App\Models\Notification::create([
+                'user_id' => $cashier->id,
+                'title' => 'Reservation Cancelled',
+                'message' => "Booking {$reservation->reservation_code} was cancelled by {$reservation->user->name}. Reason: {$reason}",
+                'type' => 'cancellation',
+            ]);
+        }
 
         return response()->json(['success' => true]);
     }

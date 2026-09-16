@@ -156,11 +156,11 @@
                         </td>
                         <td style="text-align: center;">
                             <div style="display: flex; gap: 8px; justify-content: center;">
-                                <form action="{{ url('/admin/sales/refunds/'.$refund->id.'/approve') }}" method="POST" style="margin: 0;">
+                                <form action="{{ url('/cashier/sales/refunds/'.$refund->id.'/approve') }}" method="POST" style="margin: 0;">
                                     @csrf
                                     <button type="submit" class="btn-dev" style="background: #16a34a; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600;">Refund</button>
                                 </form>
-                                <form action="{{ url('/admin/sales/refunds/'.$refund->id.'/reject') }}" method="POST" style="margin: 0;">
+                                <form action="{{ url('/cashier/sales/refunds/'.$refund->id.'/reject') }}" method="POST" style="margin: 0;">
                                     @csrf
                                     <button type="submit" class="btn-dev" style="background: #dc2626; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600;">Reject</button>
                                 </form>
