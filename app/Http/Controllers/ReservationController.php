@@ -264,7 +264,7 @@ class ReservationController extends Controller
         $reservation->save();
 
         // Notify admins
-        $adminUsers = \App\Models\User::where('usertype', 'admin')->get();
+        $adminUsers = \App\Models\User::where('role', 'admin')->get();
         foreach ($adminUsers as $admin) {
             \App\Models\Notification::create([
                 'user_id' => $admin->id,
@@ -275,7 +275,7 @@ class ReservationController extends Controller
         }
 
         // Notify cashiers
-        $cashierUsers = \App\Models\User::where('usertype', 'cashier')->get();
+        $cashierUsers = \App\Models\User::where('role', 'cashier')->get();
         foreach ($cashierUsers as $cashier) {
             \App\Models\Notification::create([
                 'user_id' => $cashier->id,
