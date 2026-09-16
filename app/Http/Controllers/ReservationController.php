@@ -285,7 +285,10 @@ class ReservationController extends Controller
             ]);
         }
 
-        return response()->json(['success' => true]);
+        return response()->json([
+            'success' => true,
+            'refund_eligible' => ($reservation->refund_status === 'pending')
+        ]);
     }
 
     public function markNotificationsRead()

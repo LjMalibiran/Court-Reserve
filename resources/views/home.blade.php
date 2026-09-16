@@ -498,7 +498,7 @@
             on <strong style="color: #0033cc; font-size: 16px;" id="success-cancel-datetime">June 1, 2026 at 4:00 PM</strong><br>
             has been cancelled.
         </p>
-        <p style="font-size: 13px; color: #64748b; margin-bottom: 24px; font-weight: 500;">A cancellation receipt has been sent to your email.</p>
+        <p id="success-cancel-refund-text" style="font-size: 13px; color: #64748b; margin-bottom: 24px; font-weight: 500; display: none;"></p>
         <button class="btn-solid-blue" onclick="location.reload()">Done</button>
     </div>
 </div>
@@ -777,7 +777,16 @@
             body: new FormData(document.getElementById('cancelForm'))
         }).then(response => {
             if(response.ok) {
-                document.getElementById('successCancelModal').style.display = 'flex';
+                response.json().then(data => {
+                    const msgEl = document.getElementById('success-cancel-refund-text');
+                    if(data.refund_eligible) {
+                        msgEl.innerText = "Please wait for your refund. It will take 1-2 business days to process.";
+                        msgEl.style.display = 'block';
+                    } else {
+                        msgEl.style.display = 'none';
+                    }
+                    document.getElementById('successCancelModal').style.display = 'flex';
+                });
             } else {
                 alert('Error cancelling reservation.');
                 location.reload();
