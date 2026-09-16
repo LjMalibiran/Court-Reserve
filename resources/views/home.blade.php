@@ -550,6 +550,7 @@
             actionsDiv.innerHTML += `<button class="btn-solid-blue" onclick="closeGlobalModal('resDetailsModal'); openEditModal(${id}, '${sport}', '${courtId}', '${date}', '${startTime}', '${endTime}')">Edit Reservation</button>`;
             actionsDiv.innerHTML += `<button class="btn-solid-red" onclick="closeGlobalModal('resDetailsModal'); openCancelModal(${id}, '${code}', '${sport}', '${courtId}', '${date}', '${startTime}', '${endTime}')">Cancel Reservation</button>`;
         } else if (status === 'pending') {
+            actionsDiv.innerHTML += `<button class="btn-solid-blue" onclick="closeGlobalModal('resDetailsModal'); openEditModal(${id}, '${sport}', '${courtId}', '${date}', '${startTime}', '${endTime}')">Edit Reservation</button>`;
             actionsDiv.innerHTML += `<button class="btn-solid-red" onclick="closeGlobalModal('resDetailsModal'); openCancelModal(${id}, '${code}', '${sport}', '${courtId}', '${date}', '${startTime}', '${endTime}')">Cancel Reservation</button>`;
         }
 
