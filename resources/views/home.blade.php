@@ -85,7 +85,7 @@
     .res-brief-details { color: #64748b; font-size: 13px; display: flex; flex-direction: column; gap: 8px; font-weight: 500;}
     
     .form-group-row { display: flex; gap: 16px; margin-bottom: 24px; }
-    .form-group { flex: 1; width: 100%; }
+    .form-group { flex-grow: 1; }
     .section-label { display: block; font-size: 13px; color: #0f2b6e; margin-bottom: 8px; font-weight: 600; }
     .form-control { width: 100%; padding: 14px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-family: inherit; font-size: 15px; outline: none; color: #0f2b6e; font-weight: 600; box-sizing: border-box;}
     
@@ -95,7 +95,7 @@
     .ts-btn.disabled { color: #cbd5e1; border-color: #f1f5f9; background: #f8fafc; pointer-events: none; }
     
     .rental-section { display: flex; justify-content: space-between; margin-bottom: 30px; }
-    .rental-item { display: flex; align-items: center; justify-content: space-between; flex: 1; width: 100%; }
+    .rental-item { display: flex; align-items: center; justify-content: space-between; flex-grow: 1; }
     .rental-item:first-child { margin-right: 24px; }
     .rental-info h5 { margin: 0 0 2px 0; font-size: 15px; color: #0f2b6e; font-weight: 700; }
     .rental-info span { font-size: 10px; color: #94a3b8; font-weight: 600;}
@@ -108,11 +108,11 @@
     .refund-policy-box p { color: #0f2b6e; margin: 0; font-size: 13px; line-height: 1.5; font-weight: 500;}
     .refund-policy-box p.no-refund { color: #0033cc; font-weight: 600; margin-top: 6px; }
     
-    .btn-solid-blue { background: #2563eb; color: white; border: 1px solid transparent; border-radius: 6px; padding: 0 14px; height: 42px; font-size: 13px; font-weight: 600; flex: 1; width: 100%; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; box-sizing: border-box; }
+    .btn-solid-blue { background: #2563eb; color: white; border: 1px solid transparent; border-radius: 6px; padding: 0 16px; height: 44px; font-size: 14px; font-weight: 600; flex-grow: 1; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; box-sizing: border-box; }
     .btn-solid-blue:hover { background: #002299; }
-    .btn-solid-red { background: #c82318; color: white; border: 1px solid transparent; border-radius: 6px; padding: 0 14px; height: 42px; font-size: 13px; font-weight: 600; flex: 1; width: 100%; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; box-sizing: border-box; }
+    .btn-solid-red { background: #c82318; color: white; border: 1px solid transparent; border-radius: 6px; padding: 0 16px; height: 44px; font-size: 14px; font-weight: 600; flex-grow: 1; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; box-sizing: border-box; }
     .btn-solid-red:hover { background: #a61c13; }
-    .btn-outline-blue { background: white; color: #2563eb; border: 1px solid #2563eb; border-radius: 6px; padding: 0 14px; height: 42px; font-size: 13px; font-weight: 600; flex: 1; width: 100%; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; box-sizing: border-box; }
+    .btn-outline-blue { background: white; color: #2563eb; border: 1px solid #2563eb; border-radius: 6px; padding: 0 16px; height: 44px; font-size: 14px; font-weight: 600; flex-grow: 1; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; box-sizing: border-box; }
     .btn-outline-blue:hover { background: #f0f4ff; }
     .btn-group { display: flex; gap: 10px; }
 
