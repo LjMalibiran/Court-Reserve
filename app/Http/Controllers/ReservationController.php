@@ -245,9 +245,13 @@ class ReservationController extends Controller
 
         // Determine refund eligibility: only if reservation was confirmed and had payment
         $paid = floatval($reservation->amount_paid);
+        if ($paid == 0 && in_array($reservation->payment_type, ['full', 'half'])) {
+            $paid = ($reservation->payment_type == 'half') ? (floatval($reservation->total_price) / 2) : floatval($reservation->total_price);
+        }
+
         if ($paid > 0) {
             // Check 5-hour policy: must cancel at least 5 hours before reservation start
-            $reservationStart = \Carbon\Carbon::parse($reservation->start_time);
+            $reservationStart = \Carbon\Carbon::parse($reservation->reservation_date . ' ' . \Carbon\Carbon::parse($reservation->start_time)->format('H:i:s'));
             $hoursBeforeStart = now()->diffInHours($reservationStart, false); // positive if in the future
 
             if ($hoursBeforeStart >= 5) {
