@@ -108,13 +108,13 @@
     .refund-policy-box p { color: #0f2b6e; margin: 0; font-size: 13px; line-height: 1.5; font-weight: 500;}
     .refund-policy-box p.no-refund { color: #0033cc; font-weight: 600; margin-top: 6px; }
     
-    .btn-solid-blue { background: #0033cc; color: white; border: 1.5px solid transparent; border-radius: 8px; padding: 0 14px; height: 48px; font-size: 15px; font-weight: 600; flex: 1; width: 100%; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; box-sizing: border-box; }
+    .btn-solid-blue { background: #2563eb; color: white; border: 1px solid transparent; border-radius: 6px; padding: 0 14px; height: 42px; font-size: 13px; font-weight: 600; flex: 1; width: 100%; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; box-sizing: border-box; }
     .btn-solid-blue:hover { background: #002299; }
-    .btn-solid-red { background: #b91c1c; color: white; border: 1.5px solid transparent; border-radius: 8px; padding: 0 14px; height: 48px; font-size: 15px; font-weight: 600; flex: 1; width: 100%; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; box-sizing: border-box; }
-    .btn-solid-red:hover { background: #991b1b; }
-    .btn-outline-blue { background: white; color: #0033cc; border: 1.5px solid #0033cc; border-radius: 8px; padding: 0 14px; height: 48px; font-size: 15px; font-weight: 600; flex: 1; width: 100%; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; box-sizing: border-box; }
+    .btn-solid-red { background: #c82318; color: white; border: 1px solid transparent; border-radius: 6px; padding: 0 14px; height: 42px; font-size: 13px; font-weight: 600; flex: 1; width: 100%; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; box-sizing: border-box; }
+    .btn-solid-red:hover { background: #a61c13; }
+    .btn-outline-blue { background: white; color: #2563eb; border: 1px solid #2563eb; border-radius: 6px; padding: 0 14px; height: 42px; font-size: 13px; font-weight: 600; flex: 1; width: 100%; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; box-sizing: border-box; }
     .btn-outline-blue:hover { background: #f0f4ff; }
-    .btn-group { display: flex; gap: 14px; }
+    .btn-group { display: flex; gap: 10px; }
 
     .success-icon-wrap { position: relative; width: 90px; height: 90px; margin: 0 auto 24px auto; }
     .cancel-circle { background: #dc2626; color: white; width: 100%; height: 100%; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 40px; position: relative; z-index: 2; box-shadow: 0 0 0 6px #fee2e2;}
