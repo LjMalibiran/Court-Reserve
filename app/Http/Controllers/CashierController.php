@@ -251,9 +251,9 @@ class CashierController extends Controller
             // Notify user
             \App\Models\Notification::create([
                 'user_id' => $reservation->user_id,
+                'reservation_id' => $reservation->id,
                 'title' => 'Refund Approved',
                 'message' => "Your refund of ₱" . number_format($reservation->refund_amount, 2) . " for booking {$reservation->reservation_code} has been approved and processed.",
-                'type' => 'refund_approved',
             ]);
         }
         return back()->with('success', 'Refund approved successfully.');
@@ -269,9 +269,9 @@ class CashierController extends Controller
             // Notify user
             \App\Models\Notification::create([
                 'user_id' => $reservation->user_id,
+                'reservation_id' => $reservation->id,
                 'title' => 'Refund Rejected',
                 'message' => "Your refund request for booking {$reservation->reservation_code} was rejected by the cashier.",
-                'type' => 'refund_rejected',
             ]);
         }
         return back()->with('success', 'Refund rejected successfully.');

@@ -268,9 +268,9 @@ class ReservationController extends Controller
         foreach ($adminUsers as $admin) {
             \App\Models\Notification::create([
                 'user_id' => $admin->id,
+                'reservation_id' => $reservation->id,
                 'title' => 'Reservation Cancelled',
                 'message' => "Booking {$reservation->reservation_code} was cancelled by {$reservation->user->name}. Reason: {$reason}",
-                'type' => 'cancellation',
             ]);
         }
 
@@ -279,9 +279,9 @@ class ReservationController extends Controller
         foreach ($cashierUsers as $cashier) {
             \App\Models\Notification::create([
                 'user_id' => $cashier->id,
+                'reservation_id' => $reservation->id,
                 'title' => 'Reservation Cancelled',
                 'message' => "Booking {$reservation->reservation_code} was cancelled by {$reservation->user->name}. Reason: {$reason}",
-                'type' => 'cancellation',
             ]);
         }
 
