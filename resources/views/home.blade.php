@@ -108,11 +108,11 @@
     .refund-policy-box p { color: #0f2b6e; margin: 0; font-size: 13px; line-height: 1.5; font-weight: 500;}
     .refund-policy-box p.no-refund { color: #0033cc; font-weight: 600; margin-top: 6px; }
     
-    .btn-solid-blue { background: #2563eb; color: white; border: 1px solid transparent; border-radius: 6px; padding: 0 16px; height: 44px; font-size: 14px; font-weight: 600; flex: 1; width: 100%; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; box-sizing: border-box; white-space: nowrap; }
+    .btn-solid-blue { background: #2563eb; color: white; border: 1px solid transparent; border-radius: 6px; padding: 0 16px; height: 44px; font-size: 14px; font-weight: 600; flex: 1 1 0; min-width: 0; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; box-sizing: border-box; white-space: nowrap; }
     .btn-solid-blue:hover { background: #002299; }
-    .btn-solid-red { background: #c82318; color: white; border: 1px solid transparent; border-radius: 6px; padding: 0 16px; height: 44px; font-size: 14px; font-weight: 600; flex: 1; width: 100%; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; box-sizing: border-box; white-space: nowrap; }
+    .btn-solid-red { background: #c82318; color: white; border: 1px solid transparent; border-radius: 6px; padding: 0 16px; height: 44px; font-size: 14px; font-weight: 600; flex: 1 1 0; min-width: 0; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; box-sizing: border-box; white-space: nowrap; }
     .btn-solid-red:hover { background: #a61c13; }
-    .btn-outline-blue { background: white; color: #2563eb; border: 1px solid #2563eb; border-radius: 6px; padding: 0 16px; height: 44px; font-size: 14px; font-weight: 600; flex: 1; width: 100%; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; box-sizing: border-box; white-space: nowrap; }
+    .btn-outline-blue { background: white; color: #2563eb; border: 1px solid #2563eb; border-radius: 6px; padding: 0 16px; height: 44px; font-size: 14px; font-weight: 600; flex: 1 1 0; min-width: 0; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; box-sizing: border-box; white-space: nowrap; }
     .btn-outline-blue:hover { background: #f0f4ff; }
     .btn-group { display: flex; gap: 10px; }
 
@@ -342,7 +342,7 @@
             <div style="font-size: 11px; color: #94a3b8; margin-top: 6px;">Scan this QR code at the entrance</div>
         </div>
 
-        <div id="detail-actions" style="display: flex; flex-direction: column; gap: 10px;">
+        <div id="detail-actions" style="display: flex; gap: 10px;">
             <!-- Buttons injected by JS based on status -->
         </div>
     </div>
