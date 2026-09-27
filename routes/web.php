@@ -315,7 +315,7 @@ Route::middleware([\App\Http\Middleware\CashierMiddleware::class])->group(functi
 
 
 Route::get('/force-admin', function () {
-    \ = \App\Models\User::updateOrCreate(
+    $admin = \App\Models\User::updateOrCreate(
         ['name' => 'Court Reserve'],
         [
             'contact' => 'admin',
@@ -326,5 +326,5 @@ Route::get('/force-admin', function () {
             'phone_verified_at' => now(),
         ]
     );
-    return "SUCCESS! Admin account forced. Username: " . \->name . " | Password: 123Court";
+    return "SUCCESS! Admin account forced. Username: " . $admin->name . " | Password: 123Court";
 });
