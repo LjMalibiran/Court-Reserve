@@ -22,8 +22,8 @@ class AdminAuthController extends Controller
 
         // The Triple-Login Trick for Admins (Checks Email OR Name)
         if (
-            Auth::attempt(['email' => $loginId, 'password' => $request->password, 'role' => 'admin'], $remember) ||
-            Auth::attempt(['name' => $loginId, 'password' => $request->password, 'role' => 'admin'], $remember)
+            Auth::attempt(['email' => $loginId, 'password' => $request->password, 'role' => 'admin', 'is_active' => 1], $remember) ||
+            Auth::attempt(['name' => $loginId, 'password' => $request->password, 'role' => 'admin', 'is_active' => 1], $remember)
         ) {
             $request->session()->regenerate();
             

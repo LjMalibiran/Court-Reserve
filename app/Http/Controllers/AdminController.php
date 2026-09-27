@@ -184,11 +184,21 @@ class AdminController extends Controller
                 }
                 
                 \Illuminate\Support\Facades\Http::post('https://api.semaphore.co/api/v4/messages', $payload);
-                return response()->json(['success' => true]);
             } catch (\Exception $e) {
                 \Illuminate\Support\Facades\Log::error("Failed to send reminder SMS to {$user->contact}: " . $e->getMessage());
-                return response()->json(['success' => false, 'message' => 'Failed to send SMS. Check logs.']);
             }
+
+            // Send Email Notification
+            try {
+                $emailContent = "Hello {$user->name},\n\nThis is a friendly reminder for your upcoming {$reservation->sport} reservation at Batangas Badminton Center.\n\nDate: {$date}\nTime: {$start} - {$end}\nCourt: Court {$reservation->court_id}\n\nWe look forward to seeing you!";
+                \Illuminate\Support\Facades\Mail::raw($emailContent, function ($message) use ($user) {
+                    $message->to($user->email)->subject('Friendly Reminder: Upcoming Reservation');
+                });
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error("Failed to send reminder Email to {$user->email}: " . $e->getMessage());
+            }
+
+            return response()->json(['success' => true]);
         }
         
         return response()->json(['success' => false, 'message' => 'User not found or is a walk-in.']);
@@ -196,7 +206,9 @@ class AdminController extends Controller
 
     public function walkInIndex()
     {
-        return view('admin.walk-in');
+        $settingsPath = storage_path('app/settings.json');
+        $settings = file_exists($settingsPath) ? json_decode(file_get_contents($settingsPath), true) : [];
+        return view('admin.walk-in', compact('settings'));
     }
 
         public function salesReportIndex(\Illuminate\Http\Request $request)
@@ -270,14 +282,34 @@ class AdminController extends Controller
         return view('admin.sales-transactions');
     }
 
-    public function salesRefundsIndex()
+    public function salesRefundsIndex(\Illuminate\Http\Request $request)
     {
-        $refunds = \App\Models\Reservation::where('status', 'cancelled')
-                    ->where('refund_status', 'pending')
-                    ->with('user', 'court')
-                    ->orderBy('cancelled_at', 'desc')
-                    ->get();
-        return view('admin.sales-refunds', compact('refunds'));
+        $tab = $request->get('tab', 'pending');
+        $search = $request->get('search', '');
+        $refund_status = 'pending';
+        if ($tab == 'completed') $refund_status = 'refunded';
+        // Note: Rejected tab is removed, so we only handle pending and completed
+
+        $query = \App\Models\Reservation::where('status', 'cancelled')
+                    ->where('refund_status', $refund_status)
+                    ->with('user', 'court');
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('reservation_code', 'like', "%{$search}%")
+                  ->orWhere('walk_in_name', 'like', "%{$search}%")
+                  ->orWhereHas('user', function ($uq) use ($search) {
+                      $uq->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $refunds = $query->orderBy('cancelled_at', 'desc')->get();
+                    
+        $pendingCount = \App\Models\Reservation::where('status', 'cancelled')->where('refund_status', 'pending')->count();
+        $completedCount = \App\Models\Reservation::where('status', 'cancelled')->where('refund_status', 'refunded')->count();
+
+        return view('admin.sales-refunds', compact('refunds', 'pendingCount', 'completedCount', 'tab', 'search'));
     }
 
     public function approveRefund($id)
@@ -318,12 +350,90 @@ class AdminController extends Controller
 
     public function settingsIndex()
     {
-        return view('admin.settings');
+        $settingsPath = storage_path('app/settings.json');
+        $settings = file_exists($settingsPath) ? json_decode(file_get_contents($settingsPath), true) : [
+            'price_badminton' => 230,
+            'price_pickleball' => 250,
+            'price_racket' => 50,
+            'price_shuttlecock' => 50,
+        ];
+        return view('admin.settings', compact('settings'));
+    }
+
+    public function updateSettings(\Illuminate\Http\Request $request)
+    {
+        $blockedDates = [];
+        if ($request->filled('blocked_dates')) {
+            $blockedDates = json_decode($request->input('blocked_dates'), true) ?? [];
+        }
+
+        $settings = [
+            'price_badminton' => (int) $request->input('price_badminton', 230),
+            'price_pickleball' => (int) $request->input('price_pickleball', 250),
+            'price_racket' => (int) $request->input('price_racket', 50),
+            'price_shuttlecock' => (int) $request->input('price_shuttlecock', 50),
+            'operating_hours' => $request->input('operating_hours', []),
+            'blocked_dates' => $blockedDates,
+        ];
+        file_put_contents(storage_path('app/settings.json'), json_encode($settings));
+        return redirect()->back()->with('success', 'Settings updated successfully!');
     }
 
     public function profileIndex()
     {
         return view('admin.profile');
+    }
+
+    public function helpIndex()
+    {
+        return view('admin.help');
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = \Auth::user();
+        
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,'.$user->id,
+            'contact' => 'nullable|string|max:255',
+            'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->contact = $request->contact;
+
+        if ($request->hasFile('profile_picture')) {
+            $file = $request->file('profile_picture');
+            $filename = time() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/profiles'), $filename);
+            $user->profile_picture = 'uploads/profiles/' . $filename;
+        }
+
+        $user->save();
+
+        return redirect()->back()->with('success', 'Profile updated successfully.');
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required',
+            'new_password' => 'required|string|min:8',
+            'new_password_confirmation' => 'required|same:new_password',
+        ]);
+
+        $user = \Auth::user();
+
+        if (!\Hash::check($request->current_password, $user->password)) {
+            return back()->withErrors(['current_password' => 'Current password does not match.']);
+        }
+
+        $user->password = \Hash::make($request->new_password);
+        $user->save();
+
+        return back()->with('success', 'Password updated successfully.');
     }
 
     public function createStaff()
@@ -355,3 +465,6 @@ class AdminController extends Controller
         return back()->with('success', ucfirst($request->role) . ' account created successfully! They can now log in.');
     }
 }
+
+
+

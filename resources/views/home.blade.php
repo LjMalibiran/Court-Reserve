@@ -460,7 +460,7 @@
         <form id="cancelForm" method="POST" action="">
             @csrf
             <label class="section-label" style="color: #64748b; font-weight: 500;">Please select a reason for cancellation</label>
-            <select name="reason" class="form-control" style="margin-bottom: 24px;">
+            <select name="reason" id="cancel-reason" class="form-control" style="margin-bottom: 24px;">
                 <option>Schedule Conflict</option>
                 <option>Weather Conditions</option>
                 <option>Personal Emergency</option>
@@ -483,23 +483,32 @@
 
 <!-- Success Cancel Modal -->
 <div class="modal-overlay" id="successCancelModal">
-    <div class="modal-content" style="text-align: center; max-width: 400px;">
-        <div class="success-icon-wrap">
-            <div class="confetti"></div>
+    <div class="modal-content" style="max-width: 400px;">
+        <div class="success-icon-wrap" style="margin-bottom: 20px;">
             <div class="cancel-circle">
-                <i class="fa-solid fa-xmark"></i>
+                <i class="fa-solid fa-check"></i>
             </div>
         </div>
-        
-        <h2 class="modal-header-title" style="color: #b91c1c; margin-bottom: 12px;">Reservation Cancelled</h2>
-        <p style="color: #0f2b6e; font-size: 15px; line-height: 1.5; font-weight: 500; margin-bottom: 24px;">
-            Your reservation for<br>
-            <strong style="color: #0033cc; font-size: 16px;" id="success-cancel-title">Badminton Court 1</strong><br>
-            on <strong style="color: #0033cc; font-size: 16px;" id="success-cancel-datetime">June 1, 2026 at 4:00 PM</strong><br>
-            has been cancelled.
+        <h2 class="modal-title" style="color: #dc2626;">Reservation Cancelled</h2>
+        <p style="font-size: 14px; color: #64748b; margin-bottom: 10px; line-height: 1.5; font-weight: 500; text-align: center;">
+            Your reservation has been successfully cancelled.
         </p>
-        <p id="success-cancel-refund-text" style="font-size: 13px; color: #64748b; margin-bottom: 24px; font-weight: 500; display: none;"></p>
+        <p id="success-cancel-refund-text" style="font-size: 13px; color: #0033cc; margin-bottom: 24px; font-weight: 600; display: none; background: #e0e7ff; padding: 12px; border-radius: 8px;"></p>
         <button class="btn-solid-blue" onclick="location.reload()">Done</button>
+    </div>
+</div>
+
+<!-- Warning Cancel Modal (Late Cancellation) -->
+<div class="modal-overlay" id="warningCancelModal" style="z-index: 1002; display: none;">
+    <div class="modal-content" style="max-width: 400px;">
+        <h2 class="modal-title" style="color: #dc2626; font-size: 20px; margin-bottom: 15px;">Are you sure you want to cancel?</h2>
+        <p style="font-size: 14px; color: #475569; margin-bottom: 24px; line-height: 1.5; font-weight: 500;">
+            Your reservation payment cannot be refunded as per our refund policy (cancellations must be at least 5 hours prior).
+        </p>
+        <div style="display: flex; gap: 10px; width: 100%;">
+            <button type="button" class="btn-outline-blue" style="flex: 1; padding: 10px 0; margin: 0; font-size: 14px;" onclick="closeGlobalModal('warningCancelModal'); document.getElementById('cancelModal').style.display='flex';">Go Back</button>
+            <button type="button" class="btn-solid-red" style="flex: 1; padding: 10px 0; margin: 0; font-size: 14px;" onclick="proceedLateCancel()">Yes, Cancel Anyway</button>
+        </div>
     </div>
 </div>
 
@@ -548,10 +557,10 @@
 
         if (status === 'confirmed') {
             actionsDiv.innerHTML += `<button class="btn-solid-blue" onclick="closeGlobalModal('resDetailsModal'); openEditModal(${id}, '${sport}', '${courtId}', '${date}', '${startTime}', '${endTime}')">Edit Reservation</button>`;
-            actionsDiv.innerHTML += `<button class="btn-solid-red" onclick="closeGlobalModal('resDetailsModal'); openCancelModal(${id}, '${code}', '${sport}', '${courtId}', '${date}', '${startTime}', '${endTime}')">Cancel Reservation</button>`;
+            actionsDiv.innerHTML += `<button class="btn-solid-red" onclick="closeGlobalModal('resDetailsModal'); openCancelModal(${id}, '${code}', '${sport}', '${courtId}', '${date}', '${startTime}', '${endTime}', '${status}')">Cancel Reservation</button>`;
         } else if (status === 'pending') {
             actionsDiv.innerHTML += `<button class="btn-solid-blue" onclick="closeGlobalModal('resDetailsModal'); openEditModal(${id}, '${sport}', '${courtId}', '${date}', '${startTime}', '${endTime}')">Edit Reservation</button>`;
-            actionsDiv.innerHTML += `<button class="btn-solid-red" onclick="closeGlobalModal('resDetailsModal'); openCancelModal(${id}, '${code}', '${sport}', '${courtId}', '${date}', '${startTime}', '${endTime}')">Cancel Reservation</button>`;
+            actionsDiv.innerHTML += `<button class="btn-solid-red" onclick="closeGlobalModal('resDetailsModal'); openCancelModal(${id}, '${code}', '${sport}', '${courtId}', '${date}', '${startTime}', '${endTime}', '${status}')">Cancel Reservation</button>`;
         }
 
         document.getElementById('resDetailsModal').style.display = 'flex';
@@ -747,11 +756,20 @@
         }
     }
 
-    function openCancelModal(id, code, sport, courtId, date, startTime, endTime) {
+    let cancelIsEligibleForRefund = false;
+
+    function openCancelModal(id, code, sport, courtId, date, startTime, endTime, status) {
         document.getElementById('cancelForm').action = '/reservations/' + id + '/cancel-user';
         document.getElementById('cancel-res-code').innerText = code;
         document.getElementById('cancel-res-sport').innerText = sport;
         document.getElementById('cancel-res-court').innerText = 'Court ' + courtId;
+        
+        const badge = document.getElementById('cancel-res-badge');
+        badge.innerText = status ? (status.charAt(0).toUpperCase() + status.slice(1)) : 'Confirmed';
+        badge.className = '';
+        if (status === 'confirmed' || status === 'completed' || status === 'in-play') badge.className = 'badge-confirmed';
+        else if (status === 'cancelled') badge.className = 'badge-cancelled';
+        else badge.className = 'badge-pending';
         
         const d = new Date(date);
         const dateOptions = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
@@ -762,14 +780,31 @@
         if (diff < 0) diff += 24;
         const durText = diff + (diff > 1 ? ' hrs' : ' hr');
         document.getElementById('cancel-res-time').innerText = startTime + ' - ' + endTime + ' | ' + durText;
-        
-        document.getElementById('success-cancel-title').innerText = sport + ' Court ' + courtId;
-        document.getElementById('success-cancel-datetime').innerText = d.toLocaleDateString('en-US', {month: 'long', day:'numeric', year:'numeric'}) + ' at ' + startTime;
+
+        // Check if eligible for refund (>= 5 hours) - bulletproof cross-browser parsing
+        const dateParts = date.split(/[- :]/);
+        const resStart = new Date(dateParts[0], dateParts[1] - 1, dateParts[2], dateParts[3], dateParts[4], dateParts[5] || 0);
+        const diffHours = (resStart - new Date()) / 3600000;
+        cancelIsEligibleForRefund = (diffHours >= 5);
 
         document.getElementById('cancelModal').style.display = 'flex';
     }
 
     function submitCancel() {
+        if (!cancelIsEligibleForRefund) {
+            document.getElementById('cancelModal').style.display = 'none';
+            document.getElementById('warningCancelModal').style.display = 'flex';
+            return;
+        }
+        executeCancelAction();
+    }
+
+    function proceedLateCancel() {
+        closeGlobalModal('warningCancelModal');
+        executeCancelAction();
+    }
+
+    function executeCancelAction() {
         document.getElementById('cancelModal').style.display = 'none';
         
         fetch(document.getElementById('cancelForm').action, {
@@ -780,7 +815,7 @@
                 response.json().then(data => {
                     const msgEl = document.getElementById('success-cancel-refund-text');
                     if(data.refund_eligible) {
-                        msgEl.innerText = "Please wait for your refund. It will take 1-2 business days to process.";
+                        msgEl.innerHTML = "<i class='fa-solid fa-circle-info'></i> A refund has been requested. You can track its status in the <strong>History</strong> tab.";
                         msgEl.style.display = 'block';
                     } else {
                         msgEl.style.display = 'none';

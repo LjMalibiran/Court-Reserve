@@ -7,7 +7,7 @@
     // Strictly calculate the total to ensure the updated ₱250/hr Pickleball price 
     // and correct hours are applied perfectly before the user pays.
     $sport = session('sport', 'Badminton');
-    $courtPrice = ($sport === 'Pickleball') ? 250 : 230;
+    $courtPrice = ($sport === 'Pickleball') ? ($settings['price_pickleball'] ?? 250) : ($settings['price_badminton'] ?? 230);
     
     $startTime = session('start_time') ? \Carbon\Carbon::parse(session('start_time')) : now();
     $endTime = session('end_time') ? \Carbon\Carbon::parse(session('end_time')) : now()->addHour();
@@ -16,7 +16,7 @@
 
     $rackets = session('rackets', 0);
     $shuttles = session('shuttles', 0);
-    $rentals = ($rackets * 50) + ($shuttles * 50);
+    $rentals = ($rackets * ($settings['price_racket'] ?? 50)) + ($shuttles * ($settings['price_shuttlecock'] ?? 50));
 
     $totalAmount = ($hours * $courtPrice) + $rentals;
     $halfAmount = $totalAmount / 2;
@@ -117,6 +117,16 @@
     <input type="hidden" name="end_time" value="{{ session('end_time') }}">
     <input type="hidden" name="total_amount" value="{{ $totalAmount }}">
 
+    @if($errors->any())
+        <div style="background-color: #fee2e2; border: 1px solid #ef4444; color: #b91c1c; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: 600;">
+            <ul style="margin: 0; padding-left: 20px;">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <div class="payment-grid">
         <!-- Left Panel: Summary -->
         <div>
@@ -146,7 +156,7 @@
             <div class="amount-box">
                 <div class="amount-row">
                     <span class="amount-label">Total Amount</span>
-                    <span class="amount-value">₱ {{ number_format($totalAmount, 2) }}</span>
+                    <span class="amount-value">&#8369; {{ number_format($totalAmount, 2) }}</span>
                 </div>
                 
                 <div class="gcash-details">
@@ -164,6 +174,8 @@
                         <img src="https://api.qrserver.com/v1/create-qr-code/?size=90x90&data=GcashPayment" alt="GCash QR">
                     </div>
                 </div>
+                
+                <a href="gcash://" style="display: block; width: 100%; background: #007bff; color: white; text-align: center; padding: 12px; border-radius: 8px; font-weight: 600; text-decoration: none; margin-top: 20px; font-size: 15px; box-sizing: border-box;"><i class="fa-solid fa-mobile-screen"></i> Open GCash App</a>
             </div>
         </div>
 
@@ -178,7 +190,7 @@
                         <input type="radio" name="payment_type" value="full" class="payment-radio">
                         Full Payment
                     </div>
-                    <span class="price-text">₱ {{ number_format($totalAmount, 2) }}</span>
+                    <span class="price-text">&#8369; {{ number_format($totalAmount, 2) }}</span>
                 </label>
                 
                 <label class="radio-option" style="margin-bottom: 0;">
@@ -189,7 +201,7 @@
                             <span class="radio-sub">Please pay the remaining balance<br>before your playing time.</span>
                         </div>
                     </div>
-                    <span class="price-text">₱ {{ number_format($halfAmount, 2) }}</span>
+                    <span class="price-text">&#8369; {{ number_format($halfAmount, 2) }}</span>
                 </label>
             </div>
 
@@ -300,6 +312,23 @@
             document.getElementById('receiptError').style.display = 'block';
             return false;
         }
+        
+        if (fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+            if (!validTypes.includes(file.type)) {
+                e.preventDefault();
+                alert('Invalid file format. Please upload a JPG or PNG image.');
+                return false;
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                e.preventDefault();
+                alert('File size exceeds 5MB limit. Please upload a smaller image.');
+                return false;
+            }
+        }
+        submitBtn.innerHTML = 'Processing...';
+        submitBtn.disabled = true;
         return true;
     }
 
@@ -349,3 +378,7 @@
 <!-- Add html2canvas library -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 @endsection
+
+
+
+

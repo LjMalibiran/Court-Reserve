@@ -54,6 +54,10 @@
 
         /* Hide actual file input */
         #photoUpload { display: none; }
+        
+        .alert { padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; font-weight: 500; }
+        .alert-success { background: #dcedc8; color: #2e7d32; }
+        .alert-error { background: #fecaca; color: #b91c1c; }
     </style>
 </head>
 <body>
@@ -70,66 +74,83 @@
             </div>
         </header>
 
+        @if(session('success'))
+            <div class="alert alert-success">
+                <i class="fa-solid fa-check-circle" style="margin-right: 8px;"></i> {{ session('success') }}
+            </div>
+        @endif
+        
+        @if($errors->any())
+            <div class="alert alert-error">
+                <i class="fa-solid fa-triangle-exclamation" style="margin-right: 8px;"></i> {{ $errors->first() }}
+            </div>
+        @endif
+
         <!-- Admin Information Card -->
         <div class="profile-card">
             <h2 class="card-title">Admin Information</h2>
             
-            <div class="admin-info-layout">
-                <div class="photo-section">
-                    <div class="avatar-preview" id="avatarPreview">
-                        <i class="fa-solid fa-user"></i>
+            <form action="{{ route('admin.profile.update') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="admin-info-layout">
+                    <div class="photo-section">
+                        <div class="avatar-preview" id="avatarPreview">
+                            @if(Auth::user()->profile_picture)
+                                <img src="{{ asset(Auth::user()->profile_picture) }}" alt="Profile Preview">
+                            @else
+                                <i class="fa-solid fa-user"></i>
+                            @endif
+                        </div>
+                        <label for="photoUpload" class="btn-outline">Change Photo</label>
+                        <input type="file" name="profile_picture" id="photoUpload" accept="image/*" onchange="previewImage(event)">
                     </div>
-                    <label for="photoUpload" class="btn-outline">Change Photo</label>
-                    <input type="file" id="photoUpload" accept="image/*" onchange="previewImage(event)">
-                </div>
-                
-                <div class="form-section">
-                    <form onsubmit="event.preventDefault(); alert('Profile information updated!');">
+                    
+                    <div class="form-section">
                         <div class="form-row">
                             <div class="form-group" style="margin-bottom: 0;">
                                 <label>Name</label>
-                                <input type="text" class="form-control" value="Lj Malibiran">
+                                <input type="text" name="name" class="form-control" value="{{ Auth::user()->name }}" required>
                             </div>
                             <div class="form-group" style="margin-bottom: 0;">
                                 <label>Role</label>
-                                <input type="text" class="form-control" value="Admin" readonly style="background-color: #f8fafc; color: var(--text-muted);">
+                                <input type="text" class="form-control" value="{{ ucfirst(Auth::user()->role) }}" readonly style="background-color: #f8fafc; color: var(--text-muted);">
                             </div>
                         </div>
                         
                         <div class="form-group">
                             <label>Email</label>
-                            <input type="email" class="form-control" value="admin@batangasbadminton.com">
+                            <input type="email" name="email" class="form-control" value="{{ Auth::user()->email }}" required>
                         </div>
                         
                         <div class="form-group">
-                            <label>Phone</label>
-                            <input type="text" class="form-control" value="09123456789">
+                            <label>Phone / Contact</label>
+                            <input type="text" name="contact" class="form-control" value="{{ Auth::user()->contact ?? Auth::user()->phone_number }}">
                         </div>
                         
-                        <!-- Invisible submit button to allow enter key submission if needed -->
-                        <button type="submit" style="display: none;"></button>
-                    </form>
+                        <button type="submit" class="btn-primary" style="margin-top: 15px;">Save Profile Updates</button>
+                    </div>
                 </div>
-            </div>
+            </form>
         </div>
 
         <!-- Change Password Card -->
         <div class="profile-card">
             <h2 class="card-title">Change Password</h2>
             
-            <form onsubmit="event.preventDefault(); alert('Password successfully updated!');">
+            <form action="{{ route('admin.profile.password') }}" method="POST">
+                @csrf
                 <div class="password-grid">
                     <div class="form-group" style="margin-bottom: 0;">
                         <label>Current Password</label>
-                        <input type="password" class="form-control" required>
+                        <input type="password" name="current_password" class="form-control" required>
                     </div>
                     <div class="form-group" style="margin-bottom: 0;">
                         <label>New Password</label>
-                        <input type="password" class="form-control" required>
+                        <input type="password" name="new_password" class="form-control" required minlength="8">
                     </div>
                     <div class="form-group" style="margin-bottom: 0;">
                         <label>Confirm Password</label>
-                        <input type="password" class="form-control" required>
+                        <input type="password" name="new_password_confirmation" class="form-control" required minlength="8">
                     </div>
                 </div>
                 

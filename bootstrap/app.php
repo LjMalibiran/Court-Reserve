@@ -13,6 +13,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->web(append: [
+            \App\Http\Middleware\TrackOnlineStatus::class,
+        ]);
         $middleware->append(\App\Http\Middleware\AutoUpdateWalkInStatus::class);
         $middleware->alias([
             'verified.phone' => EnsureUserIsVerified::class,

@@ -146,7 +146,7 @@
                     <div class="step-circle">3</div>
                     <div style="display: flex; flex-direction: column;">
                         <h2 class="step-title">Play Duration</h2>
-                        <span class="duration-sub" id="durationSubText">₱230.00 / hr</span>
+                        <span class="duration-sub" id="durationSubText">&#8369;{{ number_format($settings['price_badminton'] ?? 230, 2) }} / hr</span>
                     </div>
                 </div>
                 <select class="date-input" name="duration" id="durationSelect" style="margin-bottom: 0;">
@@ -183,7 +183,7 @@
                 <div class="rental-item" id="rentalRacket">
                     <div class="item-info">
                         <h4>Racket</h4>
-                        <p>₱50.00 / pc</p>
+                                            <p>&#8369;{{ number_format($settings['price_racket'] ?? 50, 2) }} / pc</p>
                         <p id="racketAvailability" style="font-size: 12px; color: #16a34a; margin-top: 4px; font-weight: bold;">(Available: 5)</p>
                     </div>
                     <div class="counter">
@@ -196,7 +196,7 @@
                 <div class="rental-item" id="rentalShuttlecock">
                     <div class="item-info">
                         <h4>Shuttlecock</h4>
-                        <p>₱50.00 / pc</p>
+                                            <p>&#8369;{{ number_format($settings['price_shuttlecock'] ?? 50, 2) }} / pc</p>
                     </div>
                     <div class="counter">
                         <button type="button" class="counter-btn" onclick="updateRental('shuttlecock', -1)">-</button>
@@ -241,7 +241,7 @@
 
                 <div class="summary-total">
                     <span>Total Amount</span>
-                    <span id="summaryTotal">₱ 230.00</span>
+                    <span id="summaryTotal">&#8369; {{ number_format($settings['price_badminton'] ?? 230, 2) }}</span>
                 </div>
 
                 <button type="submit" class="btn-proceed">Next</button>
@@ -257,32 +257,49 @@
     let currentCourtNum = 1;
     let selectedTimeString = null;
 
-    // Defines the exact closing hour based on the day
+    const sysSettings = @json($settings);
+    const blockedDates = sysSettings.blocked_dates || [];
+    const opHours = sysSettings.operating_hours || {
+        monday: {start: '07:00', end: '21:00'},
+        tuesday: {start: '07:00', end: '21:00'},
+        wednesday: {start: '07:00', end: '17:00'},
+        thursday: {start: '07:00', end: '21:00'},
+        friday: {start: '07:00', end: '21:00'},
+        saturday: {start: '07:00', end: '21:00'},
+        sunday: {start: '07:00', end: '13:00'},
+    };
+    const dayMap = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
     function getClosingHour(dateString) {
         const d = new Date(dateString);
-        const day = d.getDay();
-        if (day === 0) return 14; // Sunday closes at 2:00 PM (14:00)
-        return 21;                // Monday-Saturday closes at 9:00 PM (21:00)
+        const dayStr = dayMap[d.getDay()];
+        const endStr = opHours[dayStr] && opHours[dayStr].end ? opHours[dayStr].end : '21:00';
+        return parseInt(endStr.split(':')[0]);
     }
 
-    // Draws the clickable buttons up until 1 hour before closing
     function generateTimeSlots(dateString) {
-        const d = new Date(dateString);
-        const day = d.getDay();
-        
-        // Start times based on weekday/weekend
-        let startHour = (day === 6 || day === 0) ? 7 : 8; 
-        
-        // The last button we want to draw is 1 hour before closing
-        let endHour = (day === 0) ? 14 : 21; 
-
         const timeGrid = document.getElementById('timeSlots');
         timeGrid.innerHTML = '';
+
+
+
+        const d = new Date(dateString);
+        const dayStr = dayMap[d.getDay()];
+        const startStr = opHours[dayStr] && opHours[dayStr].start ? opHours[dayStr].start : '07:00';
+        const endStr = opHours[dayStr] && opHours[dayStr].end ? opHours[dayStr].end : '21:00';
+        
+        let startHour = parseInt(startStr.split(':')[0]);
+        let endHour = parseInt(endStr.split(':')[0]);
+
+        if (startHour >= endHour) {
+            timeGrid.innerHTML = '<div style="color:#ef4444; font-weight:600; grid-column:1/-1; text-align:center;">Closed on this day.</div>';
+            return;
+        }
 
         for (let i = startHour; i < endHour; i++) {
             let displayHour = i > 12 ? i - 12 : (i === 0 ? 12 : i);
             let ampm = i >= 12 ? 'PM' : 'AM';
-            let timeText = `${displayHour}:00 ${ampm}`;
+            let timeText = displayHour + ':00 ' + ampm;
 
             let div = document.createElement('div');
             div.className = 'time-slot';
@@ -324,12 +341,12 @@
             document.getElementById('noEquipmentMsg').style.display = 'block';
             document.getElementById('racketCount').value = 0;
             document.getElementById('shuttlecockCount').value = 0;
-            document.getElementById('durationSubText').innerText = '₱250.00 / hr';
+            document.getElementById('durationSubText').innerHTML = '&#8369;{{ number_format($settings['price_pickleball'] ?? 250, 2) }} / hr';
         } else {
             document.getElementById('rentalRacket').style.display = 'flex';
             document.getElementById('rentalShuttlecock').style.display = 'flex';
             document.getElementById('noEquipmentMsg').style.display = 'none';
-            document.getElementById('durationSubText').innerText = '₱230.00 / hr';
+            document.getElementById('durationSubText').innerHTML = '&#8369;{{ number_format($settings['price_badminton'] ?? 230, 2) }} / hr';
         }
 
         document.getElementById('summarySportText').innerText = sport;
@@ -409,14 +426,14 @@
         let durationStr = durationSelect ? durationSelect.value : 1;
         let durationHours = parseInt(durationStr) || 1;
         
-        let courtPrice = currentSport === 'Pickleball' ? 250 : 230;
+        let courtPrice = currentSport === 'Pickleball' ? {{ $settings['price_pickleball'] ?? 250 }} : {{ $settings['price_badminton'] ?? 230 }};
        
         let total = durationHours * courtPrice;
 
         if (currentSport === 'Badminton') {
             let rackets = parseInt(document.getElementById('racketCount').value);
             let shuttles = parseInt(document.getElementById('shuttlecockCount').value);
-            total += (rackets * 50) + (shuttles * 50);
+            total += (rackets * {{ $settings['price_racket'] ?? 50 }}) + (shuttles * {{ $settings['price_shuttlecock'] ?? 50 }});
 
             let rentalText = [];
             if (rackets > 0) rentalText.push(rackets + 'x Racket');
@@ -427,7 +444,7 @@
         }
 
         document.getElementById('summaryDuration').innerText = durationHours + (durationHours > 1 ? ' Hours' : ' Hour');
-        document.getElementById('summaryTotal').innerText = '₱ ' + total.toFixed(2);
+        document.getElementById('summaryTotal').innerHTML = '&#8369; ' + total.toFixed(2);
     }
 
     function selectTime(element) {
@@ -475,10 +492,24 @@
 
         if(!date || !courtId) return;
 
-        fetch(`/api/check-availability?date=${date}&court_id=${courtId}`)
+        fetch('/api/check-availability?date=' + date + '&court_id=' + courtId)
             .then(response => response.json())
             .then(data => {
                 currentBookedSlots = data.booked_slots || [];
+                
+                const blocks = blockedDates.filter(b => typeof b === 'string' ? b === date : b.date === date);
+                blocks.forEach(b => {
+                    let bStart = typeof b === 'string' ? 0 : parseInt(b.start.split(':')[0]);
+                    let bEnd = typeof b === 'string' ? 24 : parseInt(b.end.split(':')[0]);
+                    
+                    for (let i = bStart; i < bEnd; i++) {
+                        let displayHour = i > 12 ? i - 12 : (i === 0 ? 12 : i);
+                        let ampm = i >= 12 ? 'PM' : 'AM';
+                        let timeText = displayHour + ':00 ' + ampm;
+                        currentBookedSlots.push(timeText);
+                    }
+                });
+
                 applySlotLogic();
             });
     }
@@ -649,3 +680,15 @@
     });
 </script>
 @endsection
+
+
+
+
+
+
+
+
+
+
+
+

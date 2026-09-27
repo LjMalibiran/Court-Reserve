@@ -71,23 +71,23 @@
         .status-play { background-color: var(--success-bg); color: var(--success-text); }
         .court-time { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
 
-        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .calendar-title { font-size: 20px; font-weight: 700; color: var(--dark-blue); }
-        .calendar-days { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; gap: 5px; margin-bottom: 10px; }
-        .cal-day-name { font-size: 13px; font-weight: 500; color: var(--text-muted); margin-bottom: 5px; }
-        .cal-date { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; margin: auto; border-radius: 50%; font-size: 13px; color: #d1d5db; }
-        .cal-date.active { background-color: var(--primary-blue); color: white; font-weight: bold; }
-        .cal-date.current-month { color: var(--text-main); }
-
-        /* Bottom Row (Today Reservation + Upcoming) */
-        .bottom-row { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; }
+        .calendar-header { color: var(--dark-blue); font-size: 22px; font-weight: 700; margin: 0 0 20px 0; }
         
-        .reservation-list { display: flex; flex-direction: column; gap: 15px; }
-        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); font-style: italic; background: #f8fafc; border-radius: 12px; font-size: 14px; }
+        /* Dynamic Calendar Grid */
+        .calendar-grid { display: flex; justify-content: space-between; margin-bottom: 20px; text-align: center; border-bottom: 2px solid var(--primary-blue); padding-bottom: 15px; }
+        .cal-day { display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: var(--text-muted); font-weight: 500; }
+        .cal-date { font-size: 12px; }
+        .cal-day.active .cal-date { background: var(--primary-blue); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin: 0 auto; font-weight: bold; }
+        .cal-day.active { color: var(--primary-blue); }
 
+        .upcoming-header { color: var(--dark-blue); font-size: 20px; font-weight: 600; margin: 20px 0 15px 0; }
+        
         .upcoming-table { width: 100%; border-collapse: collapse; }
-        .upcoming-table th { text-align: left; font-size: 12px; color: var(--text-muted); font-weight: 500; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); }
-        .upcoming-table td { padding: 15px 0; font-size: 14px; color: var(--text-main); border-bottom: 1px solid #f1f5f9; }
+        .upcoming-table th { text-align: left; padding: 10px 5px; font-size: 11px; color: var(--dark-blue); text-transform: capitalize; font-weight: 500; border-bottom: 2px solid #f0f0f0; }
+        .upcoming-table td { padding: 12px 5px; font-size: 13px; color: var(--text-muted); border-bottom: 1px solid #f0f0f0; }
+        .upcoming-table tr:last-child td { border-bottom: none; }
+
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); font-style: italic; background: #f8fafc; border-radius: 12px; font-size: 14px; }
         
     </style>
 </head>
@@ -149,60 +149,67 @@
             <div class="middle-row">
                 <div class="card" style="display: flex; flex-direction: column;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                        <h2 class="section-title" style="margin: 0; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-chart-line" style="color: #2e7d32;"></i> Total Sales</h2>
-                        <div style="display: flex; gap: 10px; align-items: center;">
-                            <input type="date" id="cashierSalesStart" style="padding: 8px; border-radius: 6px; border: 1px solid #ddd; font-size: 13px; color: var(--text-main); outline: none;">
-                            <span style="font-size: 13px; color: var(--text-muted);">to</span>
-                            <input type="date" id="cashierSalesEnd" style="padding: 8px; border-radius: 6px; border: 1px solid #ddd; font-size: 13px; color: var(--text-main); outline: none;">
-                            <button onclick="fetchCashierSales()" style="background: var(--primary-blue); color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; transition: 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">Filter</button>
-                        </div>
+                        <h2 class="section-title" style="margin: 0; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-calendar-day" style="color: var(--primary-blue);"></i> Today's Reservation</h2>
                     </div>
-                    <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px 0; width: 100%;">
-                        <p style="margin: 0; font-size: 14px; color: var(--text-muted); font-weight: 600;">Revenue</p>
-                        <h3 id="cashierTotalSales" style="margin: 5px 0 15px 0; font-size: 42px; color: var(--dark-blue); font-weight: bold;">Loading...</h3>
-                        <div style="position: relative; height: 200px; width: 100%;">
-                            <canvas id="salesChart"></canvas>
+                    <div style="flex-grow: 1; overflow-y: auto; max-height: 350px;">
+                        @if(isset($todayReservations) && $todayReservations->count() > 0)
+                        <table class="upcoming-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th style="text-align: center;">Court</th>
+                                    <th style="text-align: right;">Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($todayReservations as $res)
+                                <tr>
+                                    <td style="font-weight: 500; color: var(--dark-blue);">{{ $res->walk_in_name ?? ($res->user ? $res->user->name : 'Walk-In') }}</td>
+                                    <td style="text-align: center;"><span style="background: var(--primary-blue); color: #ffffff; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; white-space: nowrap; display: inline-block;">Court {{ $res->court_id }}</span></td>
+                                    <td style="text-align: right;">{{ \Carbon\Carbon::parse($res->start_time)->format('h:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('h:i A') }}</td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                        @else
+                        <div class="empty-state">
+                            No reservations for today.
                         </div>
+                        @endif
                     </div>
                 </div>
 
-                <div class="card">
+                <div class="right-column" style="background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); padding: 25px; display: flex; flex-direction: column;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                        <div class="calendar-title" id="calendarMonthYear" style="margin: 0; font-size: 18px; font-weight: bold; color: var(--dark-blue);">{{ date('F Y') }}</div>
+                        <h2 class="calendar-header" id="calendarMonthYear" style="color: var(--dark-blue); font-size: 22px; font-weight: 700; margin: 0;">{{ date('F Y') }}</h2>
                         <div style="display: flex; gap: 5px;">
                             <button onclick="changeMonth(-1)" style="background: white; border: 1px solid #ddd; border-radius: 4px; padding: 5px 10px; cursor: pointer; color: var(--dark-blue); transition: 0.2s;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='white'"><i class="fa-solid fa-chevron-left"></i></button>
                             <button onclick="changeMonth(1)" style="background: white; border: 1px solid #ddd; border-radius: 4px; padding: 5px 10px; cursor: pointer; color: var(--dark-blue); transition: 0.2s;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='white'"><i class="fa-solid fa-chevron-right"></i></button>
                         </div>
                     </div>
                     
-                    <div class="calendar-days" id="calendarGrid">
+                    <div class="calendar-grid" id="calendarGrid" style="display: flex; justify-content: space-between; margin-bottom: 20px; text-align: center; border-bottom: 2px solid var(--primary-blue); padding-bottom: 15px;">
                         <!-- Populated by JS -->
                     </div>
-                    <hr style="border: 0; border-top: 2px solid var(--dark-blue); margin-top: 20px;">
-                </div>
-            </div>
 
-            <!-- Bottom Row -->
-            <div class="bottom-row" style="display: block;">
-                <div>
-                    <div class="section-title">Confirmed Reservations</div>
-                    <div class="card">
-                        <table class="upcoming-table">
-                            <thead>
-                                <tr>
-                                    <th>Names</th>
-                                    <th style="text-align: center;">Court</th>
-                                    <th style="text-align: center;">Time</th>
-                                    <th style="text-align: right;">Date</th>
-                                </tr>
-                            </thead>
-                            <tbody id="upcomingTableBody">
-                                <tr>
-                                    <td colspan="4" style="text-align: center; color: var(--text-muted); font-style: italic; padding: 20px;">Loading...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                    <h2 class="upcoming-header" style="color: var(--dark-blue); font-size: 20px; font-weight: 600; margin: 20px 0 15px 0;">Confirmed Reservations</h2>
+                    
+                    <table class="upcoming-table" style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr>
+                                <th style="text-align: left; padding: 10px 5px; font-size: 11px; color: var(--dark-blue); text-transform: capitalize; font-weight: 500; border-bottom: 2px solid #f0f0f0;">Names</th>
+                                <th style="text-align: center; padding: 10px 5px; font-size: 11px; color: var(--dark-blue); text-transform: capitalize; font-weight: 500; border-bottom: 2px solid #f0f0f0;">Court</th>
+                                <th style="text-align: center; padding: 10px 5px; font-size: 11px; color: var(--dark-blue); text-transform: capitalize; font-weight: 500; border-bottom: 2px solid #f0f0f0;">Time</th>
+                                <th style="text-align: right; padding: 10px 5px; font-size: 11px; color: var(--dark-blue); text-transform: capitalize; font-weight: 500; border-bottom: 2px solid #f0f0f0;">Date</th>
+                                <th style="text-align: right; width: 40px; border-bottom: 2px solid #f0f0f0;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="upcomingTableBody">
+                            <tr>
+                                <td colspan="4" style="text-align: center; color: #9ca3af; padding: 20px; border-bottom: 1px solid #f0f0f0;">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -236,68 +243,7 @@
             .catch(error => console.log('Polling error, waiting for next cycle...'));
     }, 3000); 
 
-    // Initial load
-    fetchCashierSales();
-
-    let salesChartInstance = null;
-
-    function fetchCashierSales() {
-        let start = document.getElementById('cashierSalesStart').value;
-        let end = document.getElementById('cashierSalesEnd').value;
-        let url = '/cashier/sales/filter';
-        if (start && end) {
-            url += `?start_date=${start}&end_date=${end}`;
-        }
-        
-        fetch(url)
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById('cashierTotalSales').innerText = data.total;
-                
-                // Render Chart
-                const ctx = document.getElementById('salesChart').getContext('2d');
-                if (salesChartInstance) {
-                    salesChartInstance.destroy();
-                }
-                
-                salesChartInstance = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: data.labels,
-                        datasets: [{
-                            label: 'Sales (₱)',
-                            data: data.data,
-                            borderColor: '#1557c0',
-                            backgroundColor: 'rgba(21, 87, 192, 0.1)',
-                            borderWidth: 2,
-                            fill: true,
-                            tension: 0.3,
-                            pointBackgroundColor: '#1557c0'
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false }
-                        },
-                        scales: {
-                            y: { 
-                                beginAtZero: true,
-                                grid: { color: '#f0f0f0' }
-                            },
-                            x: {
-                                grid: { display: false }
-                            }
-                        }
-                    }
-                });
-            })
-            .catch(err => {
-                console.error(err);
-                document.getElementById('cashierTotalSales').innerText = 'Error';
-            });
-    }
+    
 
     // Call fetch for today on initial load
     let currentMonthOffset = 0;
@@ -314,16 +260,17 @@
         let monthYearStr = targetMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
         document.getElementById('calendarMonthYear').innerText = monthYearStr;
         
-        let weekDays = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
         let html = '';
+        let weekDays = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
         
-        for (let i = 0; i < 7; i++) {
-            html += `<div class="cal-day-name">${weekDays[i]}</div>`;
+        // Add header row for days of the week
+        for (let w of weekDays) {
+            html += `<div style="font-size: 13px; color: var(--text-muted); font-weight: bold; margin-bottom: 10px; text-align: center;">${w}</div>`;
         }
         
         let firstDayIndex = targetMonth.getDay();
         let daysInMonth = new Date(targetMonth.getFullYear(), targetMonth.getMonth() + 1, 0).getDate();
-
+        
         let realTodayDate = new Date();
         let realTodayStr = `${realTodayDate.getFullYear()}-${String(realTodayDate.getMonth()+1).padStart(2,'0')}-${String(realTodayDate.getDate()).padStart(2,'0')}`;
         
@@ -344,22 +291,28 @@
             
             if (i === 1) firstDayToFetch = formattedDate;
 
-            let isToday = (formattedDate === realTodayStr) ? 'active' : 'current-month';
+            let isToday = (formattedDate === realTodayStr) ? 'active' : '';
             if (currentMonthOffset !== 0 && i === 1) {
                 isToday = 'active'; 
-            } else if (currentMonthOffset !== 0) {
-                isToday = 'current-month';
+            } else if (currentMonthOffset !== 0 && isToday === 'active') {
+                isToday = ''; // Should not happen since we're not in current month, but just in case
             }
             if (currentMonthOffset !== 0 && formattedDate !== firstDayToFetch) {
-                 isToday = 'current-month';
+                 isToday = '';
             }
             
-            html += `<div class="cal-date ${isToday} cashier-cal-day" onclick="fetchReservationsByDate('${formattedDate}', this)" style="cursor: pointer; transition: 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='none'">
-                        ${d}
+            html += `<div class="cal-day ${isToday}" onclick="fetchReservationsByDate('${formattedDate}', this)" style="cursor: pointer; transition: 0.2s; align-items: center;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='none'">
+                        <span class="cal-date">${d}</span>
                      </div>`;
         }
         
-        document.getElementById('calendarGrid').innerHTML = html;
+        let grid = document.getElementById('calendarGrid');
+        grid.innerHTML = html;
+        grid.style.display = 'grid';
+        grid.style.gridTemplateColumns = 'repeat(7, 1fr)';
+        grid.style.rowGap = '15px';
+        grid.style.borderBottom = 'none';
+        grid.style.paddingBottom = '0';
         
         let dayToFetch = (currentMonthOffset === 0) ? realTodayStr : firstDayToFetch;
         fetchReservationsByDate(dayToFetch, null);
@@ -371,18 +324,18 @@
     function fetchReservationsByDate(date, element) {
         // Handle active state
         if (element) {
-            document.querySelectorAll('.cashier-cal-day').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.cal-day').forEach(el => el.classList.remove('active'));
             element.classList.add('active');
         }
 
         let tbody = document.getElementById('upcomingTableBody');
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-muted); font-style: italic; padding: 20px;">Loading...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #9ca3af; padding: 20px;">Loading...</td></tr>';
 
         fetch(`/api/reservations/by-date?date=${date}`)
             .then(res => res.json())
             .then(data => {
                 if (data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-muted); font-style: italic; padding: 20px;">No reservations found for this date.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #9ca3af; padding: 20px;">No reservations found for this date.</td></tr>';
                     return;
                 }
 
@@ -391,9 +344,14 @@
                     html += `
                         <tr>
                             <td style="font-weight: 500; color: var(--dark-blue);">${res.name}</td>
-                            <td style="text-align: center;"><span style="background: #e3f2fd; color: #1557c0; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">${res.court}</span></td>
+                            <td style="text-align: center;"><span style="background: var(--primary-blue); color: #ffffff; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; white-space: nowrap; display: inline-block;">${res.court}</span></td>
                             <td style="text-align: center;">${res.time}</td>
                             <td style="text-align: right;">${res.date}</td>
+                              <td style="text-align: right;">
+                                  <button onclick="sendReminder(${res.id}, this)" title="Send Reminder Email" style="background: none; border: none; cursor: pointer; color: #f59e0b; font-size: 16px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='none'">
+                                      <i class="fa-solid fa-bell"></i>
+                                  </button>
+                              </td>
                         </tr>
                     `;
                 });
@@ -403,6 +361,39 @@
                 console.error(err);
                 tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #e53935; padding: 20px;">Error loading data.</td></tr>';
             });
+    }
+    function sendReminder(id, btn) {
+        let originalIcon = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+        btn.disabled = true;
+
+        fetch('/cashier/reservations/' + id + '/remind', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                btn.innerHTML = '<i class="fa-solid fa-check" style="color: #10b981;"></i>';
+                setTimeout(() => {
+                    btn.innerHTML = originalIcon;
+                    btn.disabled = false;
+                }, 2000);
+            } else {
+                alert(data.message || 'Error sending reminder.');
+                btn.innerHTML = originalIcon;
+                btn.disabled = false;
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('An error occurred.');
+            btn.innerHTML = originalIcon;
+            btn.disabled = false;
+        });
     }
 </script>
 
@@ -458,6 +449,16 @@
 @include('partials.notif-script')
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -5,11 +5,12 @@
         --dark-blue: #002277;
     }
     
-    .sidebar { width: 250px; background-color: var(--primary-blue); color: white; display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto; height: 100vh; }
+    .sidebar { width: 250px; background-color: var(--primary-blue); color: white; display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto; height: 100vh; -ms-overflow-style: none; scrollbar-width: none; }
+    .sidebar::-webkit-scrollbar { display: none; }
     
     /* Reduced padding here to save space */
-    .logo-container { padding: 20px 20px 10px 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
-    .logo-container img { max-width: 140px; } 
+    .logo-container { padding: 20px 20px 10px 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); min-height: 65px; display: flex; justify-content: center; align-items: center; }
+    .logo-container img { width: 140px; height: auto; } 
     
     /* Reduced top margin here */
     .menu-group { margin-top: 10px; padding: 0 15px; }
@@ -49,7 +50,7 @@
 <!-- Sidebar HTML -->
 <aside class="sidebar">
     <div class="logo-container">
-        <img src="{{ asset('images/logo.png') }}" alt="Batangas Badminton Logo" style="filter: brightness(0) invert(1);"> 
+        <img src="{{ asset('images/logo.png') }}" alt="Batangas Badminton Logo" style="filter: brightness(0) invert(1); transform: translateZ(0); backface-visibility: hidden;"> 
     </div>
     
     <div class="menu-group">
@@ -90,7 +91,7 @@
 
             <!-- Manage Staff (Moved outside of the Sales Report dropdown) -->
             <li>
-                <a href="{{ route('admin.staff.create') }}">
+                <a href="{{ route('admin.staff.index') }}" class="{{ request()->is('admin/staff*') ? 'active' : '' }}">
                     <i class="fa-solid fa-users-gear"></i> Manage Staff
                 </a>
             </li>

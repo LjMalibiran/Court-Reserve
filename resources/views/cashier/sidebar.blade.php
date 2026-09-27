@@ -5,7 +5,8 @@
         --dark-blue: #002277;
     }
     
-    .sidebar { width: 250px; background-color: var(--primary-blue); color: white; display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto; height: 100vh; }
+    .sidebar { width: 250px; background-color: var(--primary-blue); color: white; display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto; height: 100vh; -ms-overflow-style: none; scrollbar-width: none; }
+    .sidebar::-webkit-scrollbar { display: none; }
     .logo-container { padding: 30px 20px 20px 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
     .logo-container img { max-width: 150px; }
     
@@ -70,40 +71,25 @@
                     <i class="fa-solid fa-shoe-prints"></i> Walk-In
                 </a>
             </li>
-            
-            <!-- Sales Report & Refunds -->
             <li>
-                <a href="{{ url('/cashier/sales-report') }}" class="{{ request()->is('cashier/sales-report') ? 'active' : '' }}">
-                    <i class="fa-solid fa-chart-simple"></i> Sales Report 
-                </a>
-            </li>
-            <li>
-                <a href="{{ url('/cashier/sales/refunds') }}" class="{{ request()->is('cashier/sales/refunds') ? 'active' : '' }}">
-                    <i class="fa-solid fa-money-bill-transfer"></i> Refunds
+                <a href="{{ url('/cashier/transactions') }}" class="{{ request()->is('cashier/transactions') ? 'active' : '' }}">
+                    <i class="fa-solid fa-chart-column"></i> Transactions
                 </a>
             </li>
         </ul>
     </div>
 
-    <div class="menu-group">
-        <div class="menu-title">Support</div>
-        <ul class="nav-menu">
-            <li>
-                <a href="{{ url('/cashier/settings') }}" class="{{ request()->is('cashier/settings') ? 'active' : '' }}">
-                    <i class="fa-solid fa-gear"></i> Setting
-                </a>
-            </li>
-            <li>
-                <a href="{{ url('/cashier/help') }}" class="{{ request()->is('cashier/help') ? 'active' : '' }}">
-                    <i class="fa-regular fa-circle-question"></i> Help
-                </a>
-            </li>
-        </ul>
-    </div>
+
 
     <div class="user-profile-section">
         <a href="{{ url('/cashier/profile') }}" class="profile-info" style="text-decoration: none; color: inherit; display: flex;">
-            <div class="profile-avatar"><i class="fa-solid fa-user"></i></div>
+            <div class="profile-avatar" style="overflow: hidden;">
+                @if(Auth::check() && Auth::user()->profile_picture)
+                    <img src="{{ asset(Auth::user()->profile_picture) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
+                @else
+                    <i class="fa-solid fa-user"></i>
+                @endif
+            </div>
             <div>
                 <!-- This will now show 'Not Logged In' if there is no active session -->
                 <div class="profile-name">{{ Auth::user()->name ?? 'Not Logged In' }}</div>
@@ -119,5 +105,9 @@
         </form>
     </div>
 </aside>
+
+
+
+
 
 

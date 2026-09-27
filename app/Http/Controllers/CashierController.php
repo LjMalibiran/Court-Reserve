@@ -13,19 +13,21 @@ class CashierController extends Controller
     // ==========================================
     public function dashboard()
     {
-        // 1. Exact same calculation as Admin
         $totalReserved = Reservation::where('status', '!=', 'cancelled')->count();
         $pendingReservations = Reservation::where('status', 'pending')->count();
-        // This counts everyone EXCEPT the admin, cashier, and walk-in users
         $registeredUsers = User::whereNotIn('role', ['admin', 'cashier'])
             ->where('email', 'NOT LIKE', 'walkin_%')
             ->get();
             
         $totalUsers = $registeredUsers->count();
 
-        return view('cashier.dashboard', compact('totalReserved', 'pendingReservations', 'totalUsers', 'registeredUsers'));
+        $todayReservations = Reservation::whereDate('start_time', \Carbon\Carbon::today())
+            ->whereIn('status', ['confirmed', 'in-play'])
+            ->orderBy('start_time', 'asc')
+            ->get();
 
-
+        return view('cashier.dashboard', compact('totalReserved', 'pendingReservations', 'totalUsers', 'registeredUsers', 'todayReservations'));
+    }
     public function filterSales(Request $request)
     {
         $query = \App\Models\Reservation::whereNotIn('status', ['pending', 'cancelled']);
@@ -69,6 +71,113 @@ class CashierController extends Controller
         $reservations = Reservation::with('user')->orderBy('created_at', 'desc')->get();
         
         return view('cashier.reservations', compact('reservations'));
+    }
+
+
+
+
+
+    public function transactionsIndex(\Illuminate\Http\Request $request)
+    {
+        $query = \App\Models\Reservation::with(['user', 'court'])->orderBy('created_at', 'desc');
+        
+        if ($request->filled('search')) {
+            $searchTerm = $request->search;
+            $query->where(function($q) use ($searchTerm) {
+                $q->whereHas('user', function($q2) use ($searchTerm) {
+                    $q2->where('name', 'like', "%{$searchTerm}%");
+                })->orWhere('walk_in_name', 'like', "%{$searchTerm}%")
+                  ->orWhere('reservation_code', 'like', "%{$searchTerm}%");
+            });
+        }
+        
+        if ($request->filled('court') && $request->court != 'all') {
+            $query->where('court_id', $request->court);
+        }
+        
+        if ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->start_date);
+        }
+        
+        if ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->end_date);
+        }
+        
+        $reservations = $query->get();
+        
+        $activeRes = $reservations->where('status', '!=', 'cancelled');
+
+        // Export logic
+        if ($request->has('export') && $request->export == 1) {
+            $totalRevenue = 0;
+            $cashPayments = 0;
+            $pendingAmount = 0;
+            
+            foreach($activeRes as $r) {
+                $paid = (float)$r->amount_paid;
+                if ($paid == 0 && in_array($r->payment_type, ['full', 'half'])) {
+                    $paid = ($r->payment_type == 'half') ? ($r->total_price / 2) : $r->total_price;
+                }
+                $effectivePaid = min($paid, $r->total_price);
+                $unpaid = $r->total_price - $effectivePaid;
+                
+                if ($r->status === 'pending') {
+                    $pendingAmount += $r->total_price;
+                    continue;
+                }
+                $totalRevenue += $effectivePaid;
+                $pendingAmount += $unpaid;
+                
+                if (in_array($r->payment_type, ['GCash', 'full', 'half'])) {
+                    if ($r->payment_type === 'half') {
+                        $onlineHalf = $r->total_price / 2;
+                        if ($effectivePaid > $onlineHalf) {
+                            $cashPayments += ($effectivePaid - $onlineHalf);
+                        }
+                    }
+                } else {
+                    $cashPayments += $effectivePaid;
+                }
+            }
+            return view('cashier.transactions_pdf', compact('reservations', 'totalRevenue', 'cashPayments', 'pendingAmount'));
+        }
+
+        $totalRevenue = 0;
+        $gcashPayments = 0;
+        $cashPayments = 0;
+        $pendingAmount = 0;
+        
+        foreach($activeRes as $r) {
+            $paid = (float)$r->amount_paid;
+            if ($paid == 0 && in_array($r->payment_type, ['full', 'half'])) {
+                $paid = ($r->payment_type == 'half') ? ($r->total_price / 2) : $r->total_price;
+            }
+            $effectivePaid = min($paid, $r->total_price);
+            $unpaid = $r->total_price - $effectivePaid;
+            
+            if ($r->status === 'pending') {
+                $pendingAmount += $r->total_price;
+                continue;
+            }
+            $totalRevenue += $effectivePaid;
+            $pendingAmount += $unpaid;
+            
+            if (in_array($r->payment_type, ['GCash', 'full', 'half'])) {
+                if ($r->payment_type === 'half') {
+                    $onlineHalf = $r->total_price / 2;
+                    $gcashPayments += min($effectivePaid, $onlineHalf);
+                    if ($effectivePaid > $onlineHalf) {
+                        $cashPayments += ($effectivePaid - $onlineHalf);
+                    }
+                } else {
+                    $gcashPayments += $effectivePaid;
+                }
+            } else {
+                $cashPayments += $effectivePaid;
+            }
+        }
+
+        return view('cashier.transactions', compact('reservations', 'totalRevenue', 'gcashPayments', 'cashPayments', 'pendingAmount'));
     }
 
     public function confirmReservation(\Illuminate\Http\Request $request, $id)
@@ -231,14 +340,34 @@ class CashierController extends Controller
         return view('cashier.sales-report', compact('reservations', 'totalRevenue', 'gcashPayments', 'cashPayments', 'pendingAmount'));
     }
 
-    public function salesRefundsIndex()
+    public function salesRefundsIndex(\Illuminate\Http\Request $request)
     {
-        $refunds = \App\Models\Reservation::where('status', 'cancelled')
-                    ->where('refund_status', 'pending')
-                    ->with('user', 'court')
-                    ->orderBy('cancelled_at', 'desc')
-                    ->get();
-        return view('cashier.refunds', compact('refunds')); // Note the view is cashier.refunds
+        $tab = $request->get('tab', 'pending');
+        $search = $request->get('search', '');
+        $refund_status = 'pending';
+        if ($tab == 'completed') $refund_status = 'refunded';
+        // Note: Rejected tab is removed, so we only handle pending and completed
+
+        $query = \App\Models\Reservation::where('status', 'cancelled')
+                    ->where('refund_status', $refund_status)
+                    ->with('user', 'court');
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('reservation_code', 'like', "%{$search}%")
+                  ->orWhere('walk_in_name', 'like', "%{$search}%")
+                  ->orWhereHas('user', function ($uq) use ($search) {
+                      $uq->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $refunds = $query->orderBy('cancelled_at', 'desc')->get();
+                    
+        $pendingCount = \App\Models\Reservation::where('status', 'cancelled')->where('refund_status', 'pending')->count();
+        $completedCount = \App\Models\Reservation::where('status', 'cancelled')->where('refund_status', 'refunded')->count();
+
+        return view('cashier.refunds', compact('refunds', 'pendingCount', 'completedCount', 'tab', 'search'));
     }
 
     public function approveRefund($id)
@@ -275,5 +404,29 @@ class CashierController extends Controller
             ]);
         }
         return back()->with('success', 'Refund rejected successfully.');
+    }
+    public function updateProfilePicture(\Illuminate\Http\Request $request)
+    {
+        $request->validate([
+            'profile_picture' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $user = \Illuminate\Support\Facades\Auth::user();
+        
+        if ($request->hasFile('profile_picture')) {
+            // Delete old picture if exists and not default
+            if ($user->profile_picture && \Illuminate\Support\Facades\File::exists(public_path($user->profile_picture))) {
+                \Illuminate\Support\Facades\File::delete(public_path($user->profile_picture));
+            }
+
+            $file = $request->file('profile_picture');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('uploads/profiles'), $filename);
+            
+            $user->profile_picture = 'uploads/profiles/' . $filename;
+            $user->save();
+        }
+
+        return redirect()->back()->with('success', 'Profile picture updated successfully!');
     }
 }

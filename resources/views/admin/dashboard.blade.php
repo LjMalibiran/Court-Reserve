@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -394,7 +394,7 @@
                     html += `
                         <tr>
                             <td style="font-weight: 500; color: var(--dark-blue);">${res.name}</td>
-                            <td style="text-align: center;"><span style="background: #e3f2fd; color: #1557c0; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">${res.court}</span></td>
+                            <td style="text-align: center;"><span style="background: var(--primary-blue); color: #ffffff; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; white-space: nowrap; display: inline-block;">${res.court}</span></td>
                             <td style="text-align: center;">${res.time}</td>
                             <td style="text-align: right;">${res.date}</td>
                             <td style="text-align: right;">
@@ -499,5 +499,6 @@
 @include('partials.notif-script')
 </body>
 </html>
+
 
 

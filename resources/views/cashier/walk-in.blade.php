@@ -98,7 +98,12 @@
         .btn-cancel { background: #fff; border: 1px solid var(--border-color); color: var(--text-main); padding: 12px 30px; border-radius: 6px; font-weight: 600; cursor: pointer; }
         .btn-save { background: #0033ff; color: white; border: none; padding: 12px 40px; border-radius: 6px; font-weight: 600; cursor: pointer; }
         .d-none { display: none !important; }
-    </style>
+        body.dark-mode .counter button {
+        background-color: #334155 !important;
+        color: #f8fafc !important;
+        border: 1px solid #475569 !important;
+    }
+</style>
 
     <style>
     /* RECEIPT MODAL CSS */
@@ -124,7 +129,12 @@
     .qr-hint { color: #64748b; font-size: 11px; margin-bottom: 25px; font-weight: 600;}
     .btn-download { background: #0033cc; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.2s; width: 100%; box-shadow: 0 4px 6px rgba(0, 51, 204, 0.2); }
     .btn-download:hover { background: #002299; transform: translateY(-1px); box-shadow: 0 6px 12px rgba(0, 51, 204, 0.3); }
-    </style>
+        body.dark-mode .counter button {
+        background-color: #334155 !important;
+        color: #f8fafc !important;
+        border: 1px solid #475569 !important;
+    }
+</style>
 
 </head>
 <body>
@@ -140,7 +150,6 @@
         <header class="top-header">
             <div>
                 <h1>Walk - In</h1>
-                <div class="subtitle">New Walk - In Reservation</div>
             </div>
             <div class="header-right">
                 <span>{{ now()->timezone('Asia/Manila')->format('l, F j, Y') }}</span>
@@ -191,8 +200,8 @@
                                 <div class="input-group">
                                     <label>Sport<span>*</span></label>
                                     <select name="sport" id="sportSelect" class="input-control" onchange="handleSportChange()">
-                                        <option value="Badminton">🏸 Badminton (₱230/hr)</option>
-                                        <option value="Pickleball">🏓 Pickleball (₱250/hr)</option>
+                                        <option value="Badminton">&#127992; Badminton (&#8369;{{ $settings['price_badminton'] ?? 230 }}/hr)</option>
+                                        <option value="Pickleball">&#127997; Pickleball (&#8369;{{ $settings['price_pickleball'] ?? 250 }}/hr)</option>
                                     </select>
                                 </div>
                                 <div class="input-group">
@@ -225,7 +234,7 @@
                                     <div class="rental-item" id="rentalRacket">
                                         <div class="rental-info">
                                             <h4>Racket</h4>
-                                            <p>₱50.00 / pc</p>
+                                            <p>&#8369;{{ number_format($settings['price_racket'] ?? 50, 2) }} / pc</p>
                                             <p id="racketAvailability" style="font-size: 12px; color: #16a34a; margin-top: 4px; font-weight: bold;">(Available: 5)</p>
                                         </div>
                                         <div class="counter">
@@ -238,7 +247,7 @@
                                     <div class="rental-item" id="rentalShuttlecock">
                                         <div class="rental-info">
                                             <h4>Shuttlecock</h4>
-                                            <p>₱50.00 / pc</p>
+                                            <p>&#8369;{{ number_format($settings['price_shuttlecock'] ?? 50, 2) }} / pc</p>
                                         </div>
                                         <div class="counter">
                                             <button type="button" onclick="updateCount('shuttle', -1)">-</button>
@@ -282,7 +291,7 @@
                             </table>
                             <div class="total-row">
                                 <span>Total Amount</span>
-                                <h3 id="sumTotalText">₱ 230.00</h3>
+                                <h3 id="sumTotalText">&#8369; {{ number_format($settings['price_badminton'] ?? 230, 2) }}</h3>
                             </div>
                         </div>
 
@@ -300,10 +309,10 @@
                                 </div>
                                 <div class="input-group">
                                     <label>Amount Payable</label>
-                                    <input type="text" id="inputPayable" class="input-control" value="₱ 230.00" readonly style="background:#f8fafc;">
+                                    <input type="text" id="inputPayable" class="input-control" value="&#8369; {{ number_format($settings['price_badminton'] ?? 230, 2) }}" readonly style="background:#f8fafc;">
                                     
                                     <!-- CRITICAL: Captures Total Amount for backend submission -->
-                                    <input type="hidden" name="total_amount" id="rawTotalAmount" value="230">
+                                    <input type="hidden" name="total_amount" id="rawTotalAmount" value="{{ $settings['price_badminton'] ?? 230 }}">
                                 </div>
                             </div>
 
@@ -336,9 +345,10 @@
     </main>
 
     <script>
-        const badmintonRatePerHour = 230;
-        const pickleballRatePerHour = 250;
-        const rentalItemRate = 50;
+        const badmintonRatePerHour = {{ $settings['price_badminton'] ?? 230 }};
+        const pickleballRatePerHour = {{ $settings['price_pickleball'] ?? 250 }};
+        const rentalRacketRate = {{ $settings['price_racket'] ?? 50 }};
+        const rentalShuttleRate = {{ $settings['price_shuttlecock'] ?? 50 }};
         let selectedTimeString = null;
         let currentFilter = 'all';
 
@@ -363,27 +373,49 @@
             return true; // Let Laravel route handle the database save
         }
 
+        const sysSettings = @json($settings);
+        const blockedDates = sysSettings.blocked_dates || [];
+        const opHours = sysSettings.operating_hours || {
+            monday: {start: '07:00', end: '21:00'},
+            tuesday: {start: '07:00', end: '21:00'},
+            wednesday: {start: '07:00', end: '17:00'},
+            thursday: {start: '07:00', end: '21:00'},
+            friday: {start: '07:00', end: '21:00'},
+            saturday: {start: '07:00', end: '21:00'},
+            sunday: {start: '07:00', end: '13:00'},
+        };
+        const dayMap = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
         function getClosingHour(dateString) {
-            const d = new Date(dateString + "T00:00:00");
-            const day = d.getDay();
-            if (day === 0) return 14; 
-            return 21;                
+            const d = new Date(dateString);
+            const dayStr = dayMap[d.getDay()];
+            const endStr = opHours[dayStr] && opHours[dayStr].end ? opHours[dayStr].end : '21:00';
+            return parseInt(endStr.split(':')[0]);
         }
 
         function generateTimeSlots(dateString) {
-            const d = new Date(dateString + "T00:00:00");
-            const day = d.getDay();
-            
-            let startHour = (day === 6 || day === 0) ? 7 : 8; 
-            let endHour = (day === 0) ? 14 : 21; 
-
             const timeGrid = document.getElementById('timeSlots');
             timeGrid.innerHTML = '';
+
+
+
+            const d = new Date(dateString);
+            const dayStr = dayMap[d.getDay()];
+            const startStr = opHours[dayStr] && opHours[dayStr].start ? opHours[dayStr].start : '07:00';
+            const endStr = opHours[dayStr] && opHours[dayStr].end ? opHours[dayStr].end : '21:00';
+            
+            let startHour = parseInt(startStr.split(':')[0]);
+            let endHour = parseInt(endStr.split(':')[0]);
+
+            if (startHour >= endHour) {
+                timeGrid.innerHTML = '<div style="color:#ef4444; font-weight:600; grid-column:1/-1; text-align:center;">Closed on this day.</div>';
+                return;
+            }
 
             for (let i = startHour; i < endHour; i++) {
                 let displayHour = i > 12 ? i - 12 : (i === 0 ? 12 : i);
                 let ampm = i >= 12 ? 'PM' : 'AM';
-                let timeText = `${displayHour}:00 ${ampm}`;
+                let timeText = displayHour + ':00 ' + ampm;
 
                 let div = document.createElement('div');
                 div.className = 'time-slot';
@@ -403,7 +435,19 @@
             fetch(`{{ url('/api/check-availability') }}?date=${date}&court_id=${courtId}`)
                 .then(response => response.json())
                 .then(data => {
-                    renderTimeSlotsWithAvailability(data.booked_slots || []);
+                    let currentBookedSlots = data.booked_slots || [];
+                    const blocks = blockedDates.filter(b => typeof b === 'string' ? b === date : b.date === date);
+                    blocks.forEach(b => {
+                        let bStart = typeof b === 'string' ? 0 : parseInt(b.start.split(':')[0]);
+                        let bEnd = typeof b === 'string' ? 24 : parseInt(b.end.split(':')[0]);
+                        for (let i = bStart; i < bEnd; i++) {
+                            let displayHour = i > 12 ? i - 12 : (i === 0 ? 12 : i);
+                            let ampm = i >= 12 ? 'PM' : 'AM';
+                            let timeText = displayHour + ':00 ' + ampm;
+                            currentBookedSlots.push(timeText);
+                        }
+                    });
+                    renderTimeSlotsWithAvailability(currentBookedSlots);
                 })
                 .catch(err => {
                     console.error('Availability check failed:', err);
@@ -678,7 +722,7 @@
             if (sportVal === 'Badminton') {
                 const racketQty = parseInt(document.getElementById('racketCount').value) || 0;
                 const shuttleQty = parseInt(document.getElementById('shuttleCount').value) || 0;
-                total += (racketQty * rentalItemRate) + (shuttleQty * rentalItemRate);
+                total += (racketQty * rentalRacketRate) + (shuttleQty * rentalShuttleRate);
 
                 let rentalArr = [];
                 if (racketQty > 0) rentalArr.push(`${racketQty}x Racket`);
@@ -853,7 +897,7 @@
         
         <div class="qr-box" style="padding: 10px; margin-bottom: 5px;">
             @if(session('reservation_code'))
-                <img id="qr-image" src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data={{ urlencode(session('reservation_code')) }}" crossorigin="anonymous" alt="QR Code" style="display: block; margin: 0 auto;">
+                <img id="qr-image" src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data={{ urlencode(session('reservation_code')) }}" crossorigin="anonymous" alt="QR Code" style="display: block; margin: 0 auto; background: white !important; padding: 10px; border-radius: 8px;">
             @endif
         </div>
         
@@ -950,5 +994,18 @@
 @include('partials.notif-script')
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

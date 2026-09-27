@@ -1,3 +1,13 @@
+@php
+    $timeOptions = [];
+    for($i=0; $i<24; $i++) {
+        $hour24 = str_pad($i, 2, '0', STR_PAD_LEFT) . ':00';
+        $ampm = $i >= 12 ? 'PM' : 'AM';
+        $hour12 = $i > 12 ? $i - 12 : ($i == 0 ? 12 : $i);
+        $hour12 = str_pad($hour12, 2, '0', STR_PAD_LEFT);
+        $timeOptions[$hour24] = "$hour12:00 $ampm";
+    }
+@endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -46,7 +56,7 @@
         input:checked + .slider { background-color: var(--primary-blue); }
         input:checked + .slider:before { transform: translateX(26px); }
 
-        /* Logo & Branding */
+        /* Logo */
         .branding-section { display: flex; align-items: center; justify-content: space-between; margin-bottom: 40px; gap: 20px; }
         .current-logo { flex-grow: 1; text-align: center; }
         .current-logo img { max-width: 180px; }
@@ -63,8 +73,8 @@
         .day-row:last-child { border-bottom: none; }
         .day-name { font-weight: 500; width: 90px; }
         .time-inputs { display: flex; align-items: center; gap: 10px; }
-        .time-inputs input { border: 1px solid #d1d5db; border-radius: 6px; padding: 4px 8px; font-size: 13px; color: var(--text-muted); outline: none; }
-        .time-inputs input:focus { border-color: var(--primary-blue); }
+        .time-inputs input, .time-inputs select { border: 1px solid #d1d5db; border-radius: 6px; padding: 4px 8px; font-size: 13px; color: var(--text-muted); outline: none; }
+        .time-inputs input:focus, .time-inputs select:focus { border-color: var(--primary-blue); }
 
         /* Action Footer */
         .settings-footer { text-align: center; margin-top: 20px; }
@@ -86,113 +96,205 @@
             </div>
         </header>
 
-        <form action="#" method="POST" onsubmit="event.preventDefault(); alert('Settings saved successfully!');">
+        @if(session('success'))
+            <div style="background: #dcfce7; color: #166534; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: 500;">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        <form action="{{ url('/admin/settings') }}" method="POST">
+            @csrf
             <div class="settings-card">
                 <div class="settings-grid">
                     
-                    <!-- Left Column: General Information -->
+                    <!-- Left Column: Logo -->
                     <div class="left-col">
-                        <div class="section-title">General Information</div>
-                        
-                        <div class="form-group">
-                            <label>System Name</label>
-                            <input type="text" class="form-control" value="Batangas Badminton Court Reserve">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Reservation Duration</label>
-                            <input type="text" class="form-control" value="1 Hour, 2 Hours, 3 Hours">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Time Format</label>
-                            <input type="text" class="form-control" value="12 Hours (AM/PM)">
-                        </div>
-
-                        <div class="toggle-row">
-                            <span class="toggle-label">Allow Same day Reserve</span>
-                            <label class="switch">
-                                <input type="checkbox" checked>
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Right Column: Logo & Branding / System Settings -->
-                    <div class="right-col">
-                        <div class="section-title">Logo & Branding</div>
+                        <div class="section-title">Court Reserve: Batangas Badminton Center</div>
                         
                         <div class="branding-section">
                             <div class="current-logo">
-                                <!-- Placeholder for actual logo -->
                                 <img src="{{ asset('images/logo.png') }}" alt="System Logo" onerror="this.onerror=null; this.src='https://via.placeholder.com/180x60?text=Batangas+Badminton';">
                             </div>
-                            
-                            <label class="upload-logo-btn">
-                                <i class="fa-solid fa-cloud-arrow-up"></i>
-                                <span>Upload new logo here</span>
-                                <input type="file" accept="image/*">
-                            </label>
                         </div>
-
-                        <div class="section-title" style="margin-top: 30px;">System Setting</div>
                         
-                        <div class="toggle-row">
-                            <span class="toggle-label">Maintenance Mode</span>
-                            <label class="switch">
-                                <input type="checkbox">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
+                        <div class="section-title" style="margin-top: 40px;">Pricing Configuration</div>
+                        
+                        <div style="display: flex; gap: 20px; margin-bottom: 15px;">
+                            <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                                <label>Badminton (per hour)</label>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span style="font-weight: bold; color: var(--text-muted);">&#8369;</span>
+                                    <input type="number" name="price_badminton" class="form-control" value="{{ $settings['price_badminton'] ?? 230 }}" min="0" step="10" style="width: 100%;">
+                                </div>
+                            </div>
 
-                        <!-- Operating Hours based on provided schedule -->
+                            <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                                <label>Pickleball (per hour)</label>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span style="font-weight: bold; color: var(--text-muted);">&#8369;</span>
+                                    <input type="number" name="price_pickleball" class="form-control" value="{{ $settings['price_pickleball'] ?? 250 }}" min="0" step="10" style="width: 100%;">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 20px; margin-bottom: 15px;">
+                            <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                                <label>Racket (per item)</label>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span style="font-weight: bold; color: var(--text-muted);">&#8369;</span>
+                                    <input type="number" name="price_racket" class="form-control" value="{{ $settings['price_racket'] ?? 50 }}" min="0" step="10" style="width: 100%;">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                                <label>Shuttlecock (per item)</label>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span style="font-weight: bold; color: var(--text-muted);">&#8369;</span>
+                                    <input type="number" name="price_shuttlecock" class="form-control" value="{{ $settings['price_shuttlecock'] ?? 50 }}" min="0" step="10" style="width: 100%;">
+                                </div>
+                            </div>
+                        </div>                    </div>
+                    <!-- Right Column: Operating Hours -->
+                    <div class="right-col">
                         <div class="hours-container">
                             <div class="hours-title">Reservation Day & Time</div>
                             
                             <div class="day-row">
                                 <span class="day-name">Monday</span>
                                 <div class="time-inputs">
-                                    <input type="time" value="07:00"> - <input type="time" value="21:00">
+                                    <select name="operating_hours[monday][start]" class="form-control" style="width: auto; appearance: auto; text-align: center; text-align-last: center;">
+                                        @foreach($timeOptions as $val => $label)
+                                            <option value="{{ $val }}" {{ ($settings['operating_hours']['monday']['start'] ?? '07:00') == $val ? 'selected' : '' }}>{{ $label }}</option>
+                                        @endforeach
+                                    </select> - 
+                                    <select name="operating_hours[monday][end]" class="form-control" style="width: auto; appearance: auto; text-align: center; text-align-last: center;">
+                                        @foreach($timeOptions as $val => $label)
+                                            <option value="{{ $val }}" {{ ($settings['operating_hours']['monday']['end'] ?? '21:00') == $val ? 'selected' : '' }}>{{ $label }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
                             <div class="day-row">
                                 <span class="day-name">Tuesday</span>
                                 <div class="time-inputs">
-                                    <input type="time" value="07:00"> - <input type="time" value="21:00">
+                                    <select name="operating_hours[tuesday][start]" class="form-control" style="width: auto; appearance: auto; text-align: center; text-align-last: center;">
+                                        @foreach($timeOptions as $val => $label)
+                                            <option value="{{ $val }}" {{ ($settings['operating_hours']['tuesday']['start'] ?? '07:00') == $val ? 'selected' : '' }}>{{ $label }}</option>
+                                        @endforeach
+                                    </select> - 
+                                    <select name="operating_hours[tuesday][end]" class="form-control" style="width: auto; appearance: auto; text-align: center; text-align-last: center;">
+                                        @foreach($timeOptions as $val => $label)
+                                            <option value="{{ $val }}" {{ ($settings['operating_hours']['tuesday']['end'] ?? '21:00') == $val ? 'selected' : '' }}>{{ $label }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
                             <div class="day-row">
                                 <span class="day-name">Wednesday</span>
                                 <div class="time-inputs">
-                                    <input type="time" value="07:00"> - <input type="time" value="17:00">
+                                    <select name="operating_hours[wednesday][start]" class="form-control" style="width: auto; appearance: auto; text-align: center; text-align-last: center;">
+                                        @foreach($timeOptions as $val => $label)
+                                            <option value="{{ $val }}" {{ ($settings['operating_hours']['wednesday']['start'] ?? '07:00') == $val ? 'selected' : '' }}>{{ $label }}</option>
+                                        @endforeach
+                                    </select> - 
+                                    <select name="operating_hours[wednesday][end]" class="form-control" style="width: auto; appearance: auto; text-align: center; text-align-last: center;">
+                                        @foreach($timeOptions as $val => $label)
+                                            <option value="{{ $val }}" {{ ($settings['operating_hours']['wednesday']['end'] ?? '17:00') == $val ? 'selected' : '' }}>{{ $label }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
                             <div class="day-row">
                                 <span class="day-name">Thursday</span>
                                 <div class="time-inputs">
-                                    <input type="time" value="07:00"> - <input type="time" value="21:00">
+                                    <select name="operating_hours[thursday][start]" class="form-control" style="width: auto; appearance: auto; text-align: center; text-align-last: center;">
+                                        @foreach($timeOptions as $val => $label)
+                                            <option value="{{ $val }}" {{ ($settings['operating_hours']['thursday']['start'] ?? '07:00') == $val ? 'selected' : '' }}>{{ $label }}</option>
+                                        @endforeach
+                                    </select> - 
+                                    <select name="operating_hours[thursday][end]" class="form-control" style="width: auto; appearance: auto; text-align: center; text-align-last: center;">
+                                        @foreach($timeOptions as $val => $label)
+                                            <option value="{{ $val }}" {{ ($settings['operating_hours']['thursday']['end'] ?? '21:00') == $val ? 'selected' : '' }}>{{ $label }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
                             <div class="day-row">
                                 <span class="day-name">Friday</span>
                                 <div class="time-inputs">
-                                    <input type="time" value="07:00"> - <input type="time" value="21:00">
+                                    <select name="operating_hours[friday][start]" class="form-control" style="width: auto; appearance: auto; text-align: center; text-align-last: center;">
+                                        @foreach($timeOptions as $val => $label)
+                                            <option value="{{ $val }}" {{ ($settings['operating_hours']['friday']['start'] ?? '07:00') == $val ? 'selected' : '' }}>{{ $label }}</option>
+                                        @endforeach
+                                    </select> - 
+                                    <select name="operating_hours[friday][end]" class="form-control" style="width: auto; appearance: auto; text-align: center; text-align-last: center;">
+                                        @foreach($timeOptions as $val => $label)
+                                            <option value="{{ $val }}" {{ ($settings['operating_hours']['friday']['end'] ?? '21:00') == $val ? 'selected' : '' }}>{{ $label }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
                             <div class="day-row">
                                 <span class="day-name">Saturday</span>
                                 <div class="time-inputs">
-                                    <input type="time" value="07:00"> - <input type="time" value="21:00">
+                                    <select name="operating_hours[saturday][start]" class="form-control" style="width: auto; appearance: auto; text-align: center; text-align-last: center;">
+                                        @foreach($timeOptions as $val => $label)
+                                            <option value="{{ $val }}" {{ ($settings['operating_hours']['saturday']['start'] ?? '07:00') == $val ? 'selected' : '' }}>{{ $label }}</option>
+                                        @endforeach
+                                    </select> - 
+                                    <select name="operating_hours[saturday][end]" class="form-control" style="width: auto; appearance: auto; text-align: center; text-align-last: center;">
+                                        @foreach($timeOptions as $val => $label)
+                                            <option value="{{ $val }}" {{ ($settings['operating_hours']['saturday']['end'] ?? '21:00') == $val ? 'selected' : '' }}>{{ $label }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
                             <div class="day-row">
                                 <span class="day-name">Sunday</span>
                                 <div class="time-inputs">
-                                    <input type="time" value="07:00"> - <input type="time" value="13:00">
+                                    <select name="operating_hours[sunday][start]" class="form-control" style="width: auto; appearance: auto; text-align: center; text-align-last: center;">
+                                        @foreach($timeOptions as $val => $label)
+                                            <option value="{{ $val }}" {{ ($settings['operating_hours']['sunday']['start'] ?? '07:00') == $val ? 'selected' : '' }}>{{ $label }}</option>
+                                        @endforeach
+                                    </select> - 
+                                    <select name="operating_hours[sunday][end]" class="form-control" style="width: auto; appearance: auto; text-align: center; text-align-last: center;">
+                                        @foreach($timeOptions as $val => $label)
+                                            <option value="{{ $val }}" {{ ($settings['operating_hours']['sunday']['end'] ?? '13:00') == $val ? 'selected' : '' }}>{{ $label }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
                         </div>
-
+                        
+                        <!-- Blocked Dates Section -->
+                        <div class="hours-container" style="margin-top: 20px;">
+                            <div class="hours-title">Blocked Dates (Events/Tournaments)</div>
+                            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">Select dates to prevent users from booking.</p>
+                            
+                            <div class="time-inputs" style="margin-bottom: 15px;">
+                                <input type="date" id="blockDateInput" class="form-control" style="width: auto;">
+                                <select id="blockStartInput" class="form-control" style="width: auto; appearance: auto; text-align: center; text-align-last: center;" title="Start Time">
+                                    <option value="">Start</option>
+                                    @foreach($timeOptions as $val => $label)
+                                        <option value="{{ $val }}">{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                                -
+                                <select id="blockEndInput" class="form-control" style="width: auto; appearance: auto; text-align: center; text-align-last: center;" title="End Time">
+                                    <option value="">End</option>
+                                    @foreach($timeOptions as $val => $label)
+                                        <option value="{{ $val }}">{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                                <button type="button" onclick="addBlockedDate()" style="background: var(--primary-blue); color: white; border: none; border-radius: 6px; padding: 6px 20px; cursor: pointer; font-weight: 600; box-shadow: 0 2px 4px rgba(21, 87, 192, 0.2); transition: 0.2s;">Add</button>
+                            </div>
+                            
+                            <div id="blockedDatesList" style="display: flex; flex-direction: column; gap: 8px;">
+                                <!-- Dates will be rendered here by JS -->
+                            </div>
+                            
+                            <input type="hidden" name="blocked_dates" id="blockedDatesHidden" value="{{ json_encode($settings['blocked_dates'] ?? []) }}">
+                        </div>
                     </div>
                 </div>
 
@@ -204,6 +306,60 @@
 
     </main>
 
+<script>
+    let rawBlocked = document.getElementById('blockedDatesHidden').value;
+    let blockedDates = [];
+    try {
+        let parsed = JSON.parse(rawBlocked || '[]');
+        blockedDates = parsed.map(b => typeof b === 'string' ? {date: b, start: '00:00', end: '23:59'} : b);
+    } catch(e) {}
+    
+    function renderBlockedDates() {
+        const list = document.getElementById('blockedDatesList');
+        list.innerHTML = '';
+        blockedDates.forEach((b, index) => {
+            let timeStr = (b.start === '00:00' && b.end === '23:59') ? 'All Day' : (b.start + ' - ' + b.end);
+            list.innerHTML += '<div style="display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 8px 12px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 14px;"><span><i class="fa-regular fa-calendar-xmark" style="color: #ef4444; margin-right: 8px;"></i> <strong>' + b.date + '</strong> <span style="color:#64748b; margin-left:10px;">(' + timeStr + ')</span></span><button type="button" onclick="removeBlockedDate(' + index + ')" style="background: none; border: none; color: #ef4444; cursor: pointer;"><i class="fa-solid fa-trash"></i></button></div>';
+        });
+        document.getElementById('blockedDatesHidden').value = JSON.stringify(blockedDates);
+    }
+    
+    function addBlockedDate() {
+        const dateInput = document.getElementById('blockDateInput');
+        const startInput = document.getElementById('blockStartInput');
+        const endInput = document.getElementById('blockEndInput');
+        
+        if(dateInput.value) {
+            let start = startInput.value || '00:00';
+            let end = endInput.value || '23:59';
+            blockedDates.push({date: dateInput.value, start: start, end: end});
+            
+            blockedDates.sort((a,b) => a.date.localeCompare(b.date));
+            renderBlockedDates();
+            
+            dateInput.value = '';
+            startInput.value = '';
+            endInput.value = '';
+        }
+    }
+    
+    function removeBlockedDate(index) {
+        blockedDates.splice(index, 1);
+        renderBlockedDates();
+    }
+    
+    window.onload = function() {
+        renderBlockedDates();
+    }
+</script>
 @include('partials.notif-script')
 </body>
 </html>
+
+
+
+
+
+
+
+

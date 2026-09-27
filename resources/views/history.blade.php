@@ -58,7 +58,14 @@
 
 <div class="history-list">
     @forelse($historyReservations ?? collect() as $res)
-        <div class="history-card" data-search="{{ strtolower($res->sport . ' ' . $res->court_id . ' ' . $res->reservation_code . ' ' . \Carbon\Carbon::parse($res->start_time)->format('F j, Y M j, Y Y-m-d')) }}" onclick="openNotificationDetails('null', '{{ $res->id }}', '{{ $res->sport ?? 'Badminton' }} Court {{ $res->court_id }}', '{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}', '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}', '{{ $res->reservation_code }}', '{{ ucfirst($res->status) }}', '')">
+        @php
+            $paid = (float)$res->amount_paid;
+            if ($paid == 0 && in_array($res->payment_type, ['full', 'half'])) {
+                $paid = ($res->payment_type == 'half') ? ((float)$res->total_price / 2) : (float)$res->total_price;
+            }
+            $displayRefundAmt = (float)$res->refund_amount > 0 ? (float)$res->refund_amount : $paid;
+        @endphp
+        <div class="history-card" data-search="{{ strtolower($res->sport . ' ' . $res->court_id . ' ' . $res->reservation_code . ' ' . \Carbon\Carbon::parse($res->start_time)->format('F j, Y M j, Y Y-m-d')) }}" onclick="openHistoryDetails('{{ $res->id }}', '{{ $res->sport ?? 'Badminton' }} Court {{ $res->court_id }}', '{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}', '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}', '{{ $res->reservation_code }}', '{{ ucfirst($res->status) }}', '{{ $res->refund_status }}', '{{ $displayRefundAmt }}')">
             <div class="res-info">
                 <div class="crc-icon {{ strtolower($res->sport ?? 'badminton') }}">
                     @if(($res->sport ?? 'Badminton') == 'Pickleball')
@@ -87,6 +94,49 @@
             <p>You don't have any completed or cancelled reservations yet.</p>
         </div>
     @endforelse
+</div>
+@endsection
+
+@section('modals')
+<div class="modal-overlay" id="historyDetailsModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeGlobalModal('historyDetailsModal')">&times;</button>
+        <h2 class="modal-title" style="font-size: 20px; color: var(--primary-blue); margin-bottom: 20px;">Reservation Details</h2>
+        
+        <div style="margin-bottom: 20px; text-align: center;">
+            <h3 id="hd-title" style="margin: 0; color: var(--primary-blue);"></h3>
+            <span id="hd-badge" style="padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; display: inline-block; margin-top: 5px;"></span>
+        </div>
+
+        <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <div style="display: flex; gap: 10px; margin-bottom: 10px; font-size: 14px; color: var(--text-gray);">
+                <i class="fa-regular fa-calendar" style="width: 20px; text-align: center;"></i>
+                <span id="hd-date"></span>
+            </div>
+            <div style="display: flex; gap: 10px; font-size: 14px; color: var(--text-gray);">
+                <i class="fa-regular fa-clock" style="width: 20px; text-align: center;"></i>
+                <span id="hd-time"></span>
+            </div>
+        </div>
+
+        <!-- Refund Section -->
+        <div id="hd-refund-section" style="display: none; background: #fff5f5; border: 1px solid #fed7d7; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: left;">
+            <h4 style="margin: 0 0 10px 0; color: #c53030; font-size: 14px;">Refund Details</h4>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 13px;">
+                <span style="color: var(--text-gray);">Status:</span>
+                <strong id="hd-refund-status" style="text-transform: capitalize;"></strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px;">
+                <span style="color: var(--text-gray);">Amount Requested:</span>
+                <strong id="hd-refund-amount"></strong>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-bottom: 10px;">
+            <img id="hd-qr" src="" alt="QR" width="100" height="100" style="border-radius: 8px; border: 1px solid #eee; margin-bottom: 10px;">
+            <span style="display: block; font-size: 11px; color: var(--text-gray); margin-top: 5px;">Reservation Code: <strong id="hd-code"></strong></span>
+        </div>
+    </div>
 </div>
 @endsection
 
@@ -133,5 +183,50 @@
             }
         });
     });
+
+    function openHistoryDetails(id, title, date, time, code, status, refundStatus, refundAmount) {
+        document.getElementById('hd-title').innerText = title;
+        document.getElementById('hd-date').innerText = date;
+        document.getElementById('hd-time').innerText = time;
+        document.getElementById('hd-code').innerText = code;
+        
+        const badge = document.getElementById('hd-badge');
+        badge.innerText = status;
+        if(status === 'Completed') {
+            badge.style.backgroundColor = '#e0e7ff'; badge.style.color = '#4338ca';
+        } else if(status === 'Cancelled') {
+            badge.style.backgroundColor = '#fee2e2'; badge.style.color = '#dc2626';
+        }
+
+        const qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=" + encodeURIComponent(code);
+        document.getElementById('hd-qr').src = qrUrl;
+
+        // Refund Logic
+        const refundSection = document.getElementById('hd-refund-section');
+        if (refundStatus && refundStatus !== 'null' && refundStatus !== '') {
+            refundSection.style.display = 'block';
+            document.getElementById('hd-refund-status').innerText = refundStatus;
+            document.getElementById('hd-refund-amount').innerText = '₱ ' + parseFloat(refundAmount).toFixed(2);
+            
+            const rsElem = document.getElementById('hd-refund-status');
+            if (refundStatus === 'refunded') {
+                rsElem.style.color = '#16a34a';
+                refundSection.style.backgroundColor = '#f0fdf4';
+                refundSection.style.borderColor = '#bbf7d0';
+            } else if (refundStatus === 'rejected') {
+                rsElem.style.color = '#dc2626';
+                refundSection.style.backgroundColor = '#fef2f2';
+                refundSection.style.borderColor = '#fecaca';
+            } else {
+                rsElem.style.color = '#d97706';
+                refundSection.style.backgroundColor = '#fffbeb';
+                refundSection.style.borderColor = '#fde68a';
+            }
+        } else {
+            refundSection.style.display = 'none';
+        }
+
+        document.getElementById('historyDetailsModal').style.display = 'flex';
+    }
 </script>
 @endsection

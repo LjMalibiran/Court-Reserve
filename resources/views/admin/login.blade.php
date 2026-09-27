@@ -313,6 +313,7 @@
             passwordInput.addEventListener('input', checkInputs);
         });
     </script>
-@include('partials.notif-script')
+
 </body>
 </html>
+

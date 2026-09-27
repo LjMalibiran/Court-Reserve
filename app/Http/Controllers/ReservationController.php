@@ -47,17 +47,26 @@ class ReservationController extends Controller
         }
 
         $court = Court::find($courtId);
+        $settingsPath = storage_path('app/settings.json');
+        $settings = file_exists($settingsPath) ? json_decode(file_get_contents($settingsPath), true) : [
+            'price_badminton' => 230,
+            'price_pickleball' => 250,
+            'price_racket' => 50,
+            'price_shuttlecock' => 50,
+        ];
+
         $durationInHours = $start->diffInMinutes($end) / 60;
         
         $sport = $request->sport ?? 'Badminton';
-        $courtPrice = $sport === 'Pickleball' ? 250 : 230;
+        $courtPrice = $sport === 'Pickleball' ? $settings['price_pickleball'] : $settings['price_badminton'];
         $totalPrice = $durationInHours * $courtPrice; 
 
         if ($sport === 'Badminton') {
             $rackets = intval($request->rackets ?? 0);
             $shuttles = min(10, intval($request->shuttlecocks ?? 0));
-            $totalPrice += ($rackets * 50) + ($shuttles * 50);
+            $totalPrice += ($rackets * $settings['price_racket']) + ($shuttles * $settings['price_shuttlecock']);
         }
+
 
         session()->put([
             'court_id' => $courtId,
@@ -239,6 +248,7 @@ class ReservationController extends Controller
 
         $reason = $request->input('reason', 'No reason provided');
 
+        $reservation->previous_status = $reservation->status;
         $reservation->status = 'cancelled';
         $reservation->cancellation_reason = $reason;
         $reservation->cancelled_at = now();
@@ -250,22 +260,22 @@ class ReservationController extends Controller
         }
 
         if ($paid > 0) {
-            // Check 5-hour policy: must cancel at least 5 hours before reservation start
-            $reservationStart = \Carbon\Carbon::parse($reservation->reservation_date . ' ' . \Carbon\Carbon::parse($reservation->start_time)->format('H:i:s'));
-            $hoursBeforeStart = now()->diffInHours($reservationStart, false); // positive if in the future
-
-            if ($hoursBeforeStart >= 5) {
-                // Eligible for refund
+            $reservation->refund_amount = min($paid, floatval($reservation->total_price));
+            $hoursBefore = now()->diffInHours(\Carbon\Carbon::parse($reservation->start_time), false);
+            if ($hoursBefore >= 5) {
                 $reservation->refund_status = 'pending';
-                $reservation->refund_amount = min($paid, floatval($reservation->total_price));
             } else {
-                // Too late — no refund
-                $reservation->refund_status = 'rejected';
-                $reservation->refund_amount = 0;
+                $reservation->refund_status = 'not_eligible';
             }
         }
 
         $reservation->save();
+
+        // Determine notification title and message based on refund eligibility
+        $notifTitle = ($reservation->refund_status === 'pending') ? 'Refund Requested' : 'Reservation Cancelled';
+        $notifMessage = ($reservation->refund_status === 'pending') 
+            ? "Booking {$reservation->reservation_code} was cancelled by {$reservation->user->name} and they have requested a refund of ₱" . number_format($reservation->refund_amount, 2) . "."
+            : "Booking {$reservation->reservation_code} was cancelled by {$reservation->user->name}. Reason: {$reason}";
 
         // Notify admins
         $adminUsers = \App\Models\User::where('role', 'admin')->get();
@@ -273,8 +283,8 @@ class ReservationController extends Controller
             \App\Models\Notification::create([
                 'user_id' => $admin->id,
                 'reservation_id' => $reservation->id,
-                'title' => 'Reservation Cancelled',
-                'message' => "Booking {$reservation->reservation_code} was cancelled by {$reservation->user->name}. Reason: {$reason}",
+                'title' => $notifTitle,
+                'message' => $notifMessage,
             ]);
         }
 
@@ -284,8 +294,8 @@ class ReservationController extends Controller
             \App\Models\Notification::create([
                 'user_id' => $cashier->id,
                 'reservation_id' => $reservation->id,
-                'title' => 'Reservation Cancelled',
-                'message' => "Booking {$reservation->reservation_code} was cancelled by {$reservation->user->name}. Reason: {$reason}",
+                'title' => $notifTitle,
+                'message' => $notifMessage,
             ]);
         }
 
@@ -381,11 +391,19 @@ class ReservationController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
             
+        $settingsPath = storage_path('app/settings.json');
+        $settings = file_exists($settingsPath) ? json_decode(file_get_contents($settingsPath), true) : [
+            'price_badminton' => 230,
+            'price_pickleball' => 250,
+            'price_racket' => 50,
+            'price_shuttlecock' => 50,
+        ];
+            
         // Automatically returns the correct view depending on if Admin or Cashier is logged in
         if (request()->segment(1) == 'cashier') {
-            return view('cashier.walk-in', compact('walkIns'));
+            return view('cashier.walk-in', compact('walkIns', 'settings'));
         }
-        return view('admin.walk-in', compact('walkIns'));
+        return view('admin.walk-in', compact('walkIns', 'settings'));
     }
 
     public function storeWalkIn(\Illuminate\Http\Request $request)
@@ -532,3 +550,6 @@ class ReservationController extends Controller
         return response()->json($formatted);
     }
 }
+
+
+

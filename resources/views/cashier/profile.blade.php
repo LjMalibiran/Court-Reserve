@@ -3,416 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile - Batangas Badminton Court Reserve</title>
-    <!-- Using FontAwesome for icons -->
+    <title>Profile | Batangas Badminton</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
-        :root {
-            --sidebar-bg: #1c52b8;
-            --main-bg: #f5f6fa;
-            --text-dark: #1a202c;
-            --text-light: #718096;
-            --border-color: #e2e8f0;
-            --primary-btn: #0044ff;
-            --sidebar-text: #ffffff;
-            --card-radius: 12px;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
-        }
-
-        body {
-            display: flex;
-            height: 100vh;
-            background-color: var(--main-bg);
-            color: var(--text-dark);
-        }
-
-        /* Sidebar Styles */
-        .sidebar {
-            width: 260px;
-            background-color: var(--sidebar-bg);
-            color: var(--sidebar-text);
-            display: flex;
-            flex-direction: column;
-            padding: 20px 0;
-        }
-
-        .logo-container {
-            padding: 0 20px 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            margin-bottom: 20px;
-        }
-
-        .logo-container h2 {
-            font-size: 14px;
-            font-weight: 500;
+        :root { 
+            --primary-blue: #1557c0;
+            --dark-blue: #002277;
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --text-muted: #777777;
         }
         
-        .logo-container h2 strong {
-            font-size: 24px;
-            font-weight: 800;
-            display: block;
-            margin: -2px 0;
+        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); display: flex; height: 100vh; overflow: hidden; transition: background-color 0.3s; }
+        
+        .main-content { flex-grow: 1; overflow-y: auto; padding: 30px; }
+        
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .top-header h1 { margin: 0; font-size: 32px; color: var(--dark-blue); font-weight: 700; }
+        .header-right { display: flex; align-items: center; gap: 20px; color: var(--dark-blue); font-weight: 500; font-size: 14px; }
+        
+        .profile-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            max-width: 1000px;
         }
 
-        .logo-container h2 span {
-            font-size: 12px;
-            font-weight: 400;
-            display: block;
-            margin-top: 2px;
+        .profile-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            border: 1px solid #e5e7eb;
         }
 
-        .nav-section {
-            margin-bottom: 30px;
-        }
-
-        .nav-label {
-            font-size: 12px;
-            padding: 0 20px;
-            margin-bottom: 10px;
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .nav-menu {
-            list-style: none;
-        }
-
-        .nav-menu li a {
-            display: flex;
-            align-items: center;
-            padding: 12px 20px;
-            color: var(--sidebar-text);
-            text-decoration: none;
-            font-size: 14px;
-            transition: background 0.2s;
-        }
-
-        .nav-menu li a i {
-            width: 24px;
-            margin-right: 10px;
-            font-size: 16px;
-        }
-
-        .nav-menu li.active a, .nav-menu li a:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-
-        .user-profile-sidebar {
-            margin-top: auto;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .user-profile-sidebar .avatar-mini {
-            width: 36px;
-            height: 36px;
-            background-color: #fff;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--sidebar-bg);
-        }
-
-        .user-details .name {
-            font-size: 14px;
-            font-weight: 600;
-            display: block;
-        }
-
-        .user-details .role {
-            font-size: 11px;
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .logout-btn {
-            padding: 0 20px;
-            color: var(--sidebar-text);
-            text-decoration: none;
-            font-size: 14px;
+        .profile-card h3 {
+            margin: 0 0 20px 0;
+            color: var(--dark-blue);
+            font-size: 18px;
             display: flex;
             align-items: center;
             gap: 10px;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 15px;
         }
 
-        /* Main Content Styles */
-        .main-content {
-            flex: 1;
-            padding: 30px 40px;
-            overflow-y: auto;
-        }
+        /* Form Group */
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px; font-weight: 500; }
+        .form-group input { width: 100%; padding: 12px 15px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; color: var(--text-main); box-sizing: border-box; outline: none; }
+        .form-group input:disabled { background: #f8fafc; color: #9ca3af; cursor: not-allowed; }
 
-        .top-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-
-        .top-header h1 {
-            color: #1a365d;
-            font-size: 28px;
-            font-weight: 700;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            color: var(--text-dark);
-            font-size: 14px;
-        }
-
-        .header-right i {
-            font-size: 20px;
-            color: var(--text-dark);
-        }
-
-        /* Card Styles */
-        .card {
-            background: #ffffff;
-            border-radius: var(--card-radius);
-            padding: 30px;
-            margin-bottom: 25px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        }
-
-        .card h3 {
-            color: #1a365d;
-            font-size: 18px;
-            margin-bottom: 25px;
-            font-weight: 600;
-        }
-
-        /* Cashier Information Layout */
-        .cashier-info-grid {
-            display: flex;
-            gap: 40px;
-        }
-
-        .profile-photo-col {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            width: 150px;
-        }
-
-        .avatar-large {
-            width: 120px;
-            height: 120px;
-            background-color: #e2e8f0;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .avatar-large::before {
-            content: "\f007";
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-            font-size: 60px;
-            color: #1c52b8;
-            position: absolute;
-            bottom: -10px;
-        }
+        /* Toggle Switch */
+        .toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #f1f5f9; }
+        .toggle-row:last-child { border-bottom: none; }
+        .toggle-label { display: flex; flex-direction: column; }
+        .toggle-title { font-size: 15px; font-weight: 600; color: var(--text-main); }
+        .toggle-desc { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
         
-        .avatar-bg-circle {
-            width: 100%;
-            height: 100%;
-            background-color: #dbeafe;
-            border-radius: 50%;
-        }
+        .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--primary-blue); }
+        input:checked + .slider:before { transform: translateX(24px); }
 
-        .btn-outline {
-            background: transparent;
-            border: 1px solid #1c52b8;
-            color: #1c52b8;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 14px;
-            cursor: pointer;
-            width: 100%;
-        }
-
-        .form-col {
-            flex: 1;
-        }
-
-        .form-row {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .form-group label {
-            font-size: 14px;
-            color: var(--text-light);
-        }
-
-        .form-control {
-            padding: 12px 15px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            font-size: 14px;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        .form-control:focus {
-            border-color: var(--primary-btn);
-        }
-
-        /* Change Password Layout */
-        .password-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            margin-bottom: 25px;
-        }
-
-        .btn-primary {
-            background-color: var(--primary-btn);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-        }
+        body.dark-mode .profile-card { border-color: #334155; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        body.dark-mode .form-group input { background: #0f172a; border-color: #334155; color: #f8fafc; }
+        body.dark-mode .profile-card h3, body.dark-mode .toggle-row, body.dark-mode form { border-color: #334155 !important; }
     </style>
 </head>
 <body>
 
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="logo-container">
-            <h2>Batangas<br><strong>Badminton</strong><br><span>Court Reserve</span></h2>
-        </div>
+    @include('cashier.sidebar')
 
-        <div class="nav-section">
-            <div class="nav-label">Main</div>
-            <ul class="nav-menu">
-                <li><a href="#"><i class="fa-solid fa-border-all"></i> Dashboard</a></li>
-                <li><a href="#"><i class="fa-solid fa-qrcode"></i> QR Verification</a></li>
-                <li><a href="#"><i class="fa-regular fa-calendar-check"></i> Reservations</a></li>
-                <li><a href="#"><i class="fa-solid fa-person-walking"></i> Walk-In</a></li>
-                <li><a href="#"><i class="fa-solid fa-chart-simple"></i> Sales Report <i class="fa-solid fa-chevron-down" style="margin-left:auto; font-size: 12px;"></i></a></li>
-            </ul>
-        </div>
-
-        <div class="nav-section">
-            <div class="nav-label">Support</div>
-            <ul class="nav-menu">
-                <li><a href="#"><i class="fa-solid fa-gear"></i> Setting</a></li>
-                <li><a href="#"><i class="fa-regular fa-circle-question"></i> Help</a></li>
-            </ul>
-        </div>
-
-        <div class="user-profile-sidebar">
-            <div class="avatar-mini">
-                <i class="fa-solid fa-user"></i>
-            </div>
-            <div class="user-details">
-                <span class="name">Lj Malibiran</span>
-                <span class="role">Admin</span>
-            </div>
-        </div>
-        
-        <a href="#" class="logout-btn">
-            <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
-        </a>
-    </aside>
-
-    <!-- Main Content -->
     <main class="main-content">
         <header class="top-header">
             <h1>Profile</h1>
             <div class="header-right">
-                <span class="date">Wednesday, February 25, 2026</span>
+                <span>{{ now()->format('l, F j, Y') }}</span>
                 @include('partials.notif-bell')
             </div>
         </header>
 
-        <!-- Cashier Information Card -->
-        <div class="card">
-            <h3>Cashier Information</h3>
-            <div class="cashier-info-grid">
-                <div class="profile-photo-col">
-                    <div class="avatar-large">
-                        <div class="avatar-bg-circle"></div>
-                    </div>
-                    <button class="btn-outline">Change Photo</button>
-                </div>
+        <div class="profile-container">
+            
+            <!-- Card 1: Profile Details & Picture -->
+            <div class="profile-card">
+                <h3><i class="fa-regular fa-address-card"></i> Profile Details</h3>
                 
-                <div class="form-col">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Name</label>
-                            <input type="text" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label>Role</label>
-                            <input type="text" class="form-control">
-                        </div>
+                @if(session('success'))
+                    <div style="background: #dcfce7; color: #166534; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 13px;">
+                        {{ session('success') }}
                     </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Email</label>
-                            <input type="email" class="form-control">
-                        </div>
+                @endif
+                @if($errors->any())
+                    <div style="background: #fee2e2; color: #991b1b; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 13px;">
+                        {{ $errors->first() }}
                     </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Phone</label>
-                            <input type="tel" class="form-control">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+                @endif
 
-        <!-- Change Password Card -->
-        <div class="card">
-            <h3>Change Password</h3>
-            <div class="password-grid">
+                <form action="{{ url('/cashier/profile/photo') }}" method="POST" enctype="multipart/form-data" style="display: flex; align-items: center; gap: 20px; margin-bottom: 25px; padding-bottom: 25px; border-bottom: 1px solid #f1f5f9;">
+                    @csrf
+                    <div style="width: 80px; height: 80px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 2px solid var(--primary-blue);">
+                        @if(Auth::user()->profile_picture)
+                            <img src="{{ asset(Auth::user()->profile_picture) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
+                        @else
+                            <i class="fa-solid fa-user" style="font-size: 35px; color: #94a3b8;"></i>
+                        @endif
+                    </div>
+                    <div>
+                        <label for="profile_picture" style="display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px; font-weight: 500;">Change Profile Picture</label>
+                        <input type="file" name="profile_picture" id="profile_picture" accept="image/*" style="font-size: 12px; margin-bottom: 10px; color: var(--text-main);" required>
+                        <button type="submit" style="display: block; background: var(--primary-blue); color: white; border: none; padding: 6px 15px; border-radius: 4px; font-size: 12px; cursor: pointer;">Upload Photo</button>
+                    </div>
+                </form>
+
                 <div class="form-group">
-                    <label>Current Password</label>
-                    <input type="password" class="form-control">
+                    <label>Full Name</label>
+                    <input type="text" value="{{ Auth::user()->name ?? 'Cashier' }}" disabled>
                 </div>
                 <div class="form-group">
-                    <label>New Password</label>
-                    <input type="password" class="form-control">
+                    <label>Email Address</label>
+                    <input type="email" value="{{ Auth::user()->email ?? 'cashier@batangasbadminton.com' }}" disabled>
                 </div>
                 <div class="form-group">
-                    <label>Confirm Password</label>
-                    <input type="password" class="form-control">
+                    <label>Role</label>
+                    <input type="text" value="Cashier" disabled>
                 </div>
             </div>
-            <button class="btn-primary">Update Password</button>
+
+            <!-- Card 2: Display Preferences (Moved from Settings) -->
+            <div class="profile-card">
+                <h3><i class="fa-solid fa-desktop"></i> Display Preferences</h3>
+                
+                <div class="toggle-row">
+                    <div class="toggle-label">
+                        <span class="toggle-title">Dark Mode</span>
+                        <span class="toggle-desc">Switch the dashboard to a darker color theme</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="darkModeToggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
         </div>
     </main>
 
-@include('partials.notif-script')
+    <script>
+        const toggle = document.getElementById('darkModeToggle');
+        
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+            toggle.checked = true;
+        }
+
+        toggle.addEventListener('change', function() {
+            if (this.checked) {
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.body.classList.remove('dark-mode');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+    </script>
+    @include('partials.notif-script')
 </body>
 </html>
+
+

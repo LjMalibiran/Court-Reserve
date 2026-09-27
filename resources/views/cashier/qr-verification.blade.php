@@ -199,9 +199,9 @@
 
                 <div class="scan-box">
                     <h4>Scan Qr Code</h4>
-                    <div id="reader" style="width: 100%; max-width: 300px;"></div>
-                    <button id="start-camera-btn" type="button" class="btn-go" style="margin-top: 15px; padding: 10px 20px; font-size: 14px; background: #2563eb;">Use Phone Camera</button>
-                    <!-- <img src="{{ asset('images/qr-placeholder.png') }}" alt="QR Code" class="qr-placeholder" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg'"> -->
+                    <div id="reader" style="width: 100%; max-width: 100%; display: none;"></div>
+                    <img id="qr-placeholder" src="https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg" alt="QR Code" class="qr-placeholder" style="width: 250px; margin-bottom: 20px; opacity: 0.7; background: white !important; padding: 10px; border-radius: 8px;">
+                    <button id="start-camera-btn" type="button" class="btn-go" style="padding: 10px 20px; font-size: 14px; background: #2563eb;">Start Camera</button>
                 </div>
 
                 <div class="manual-entry">
@@ -335,9 +335,58 @@
                                 </button>
                             </form>
                         @else
-                            <div style="text-align: center; color: var(--text-muted); padding: 50px 0;">
-                                <i class="fa-solid fa-qrcode" style="font-size: 40px; color: #ccc; margin-bottom: 15px;"></i>
-                                <p style="margin: 0;">No reservation scanned yet.<br>Scan a QR code or enter a code manually to see details here.</p>
+                            <div class="user-profile">
+                                <img src="{{ asset('images/default-avatar.png') }}" alt="Avatar" onerror="this.src='https://ui-avatars.com/api/?name=Waiting+Scan&background=e5e7eb&color=9ca3af'">
+                                <h4 style="color: #9ca3af;">Awaiting Scan...</h4>
+                            </div>
+
+                            <table class="details-table" style="color: #9ca3af;">
+                                <tr>
+                                    <td>Reservation ID</td>
+                                    <td>---</td>
+                                </tr>
+                                <tr>
+                                    <td>Sport</td>
+                                    <td>---</td>
+                                </tr>
+                                <tr>
+                                    <td>Court</td>
+                                    <td>---</td>
+                                </tr>
+                                <tr>
+                                    <td>Date & Time</td>
+                                    <td>---</td>
+                                </tr>
+                                <tr>
+                                    <td>Rent Item</td>
+                                    <td>---</td>
+                                </tr>
+                                <tr>
+                                    <td>Duration</td>
+                                    <td>---</td>
+                                </tr>
+                                <tr>
+                                    <td>Payment Type</td>
+                                    <td>---</td>
+                                </tr>
+                                <tr>
+                                    <td>Payment Details</td>
+                                    <td>---</td>
+                                </tr>
+                                <tr>
+                                    <td>Receipt</td>
+                                    <td>---</td>
+                                </tr>
+                                <tr>
+                                    <td>Status</td>
+                                    <td>---</td>
+                                </tr>
+                            </table>
+
+                            <div class="verify-container">
+                                <button type="button" class="btn-verify" style="background: #e5e7eb; color: #9ca3af; cursor: not-allowed;" disabled>
+                                    Verify
+                                </button>
                             </div>
                         @endif
                     </div>
@@ -383,6 +432,8 @@
 
             startCameraBtn.addEventListener('click', function() {
                 startCameraBtn.style.display = 'none';
+                document.getElementById('qr-placeholder').style.display = 'none';
+                document.getElementById('reader').style.display = 'block';
                 
                 Html5Qrcode.getCameras().then(devices => {
                     if (devices && devices.length) {
@@ -430,3 +481,5 @@
 @include('partials.notif-script')
 </body>
 </html>
+
+

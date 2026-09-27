@@ -128,9 +128,6 @@ Route::get('/cashier/login', function () {
     return response()->view('cashier.login')->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0'); 
 })->name('cashier.login');
 
-Route::get('/cashier/sign-up', function () {
-    return view('cashier.sign-up');
-});
 
 Route::redirect('/admin', '/admin/login');
 
@@ -160,11 +157,13 @@ Route::middleware(['auth', 'verified.phone'])->group(function () {
     Route::get('/home', function () {
         $todayReservations = \App\Models\Reservation::where('user_id', Auth::id())
             ->whereDate('start_time', \Carbon\Carbon::today())
+            ->whereNotIn('status', ['cancelled', 'completed'])
             ->orderBy('created_at', 'desc')
             ->get();
 
         $upcomingReservations = \App\Models\Reservation::where('user_id', Auth::id())
             ->whereDate('start_time', '>', \Carbon\Carbon::today())
+            ->whereNotIn('status', ['cancelled', 'completed'])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -172,14 +171,23 @@ Route::middleware(['auth', 'verified.phone'])->group(function () {
     })->name('home');
 
     // Reservation 
-    Route::get('/reservation', function () { return view('reservation'); })->name('reservation.index');
+    Route::get('/reservation', function () { 
+        $settingsPath = storage_path('app/settings.json');
+        $settings = file_exists($settingsPath) ? json_decode(file_get_contents($settingsPath), true) : [
+            'price_badminton' => 230,
+            'price_pickleball' => 250,
+            'price_racket' => 50,
+            'price_shuttlecock' => 50,
+        ];
+        return view('reservation', compact('settings')); 
+    })->name('reservation.index');
     Route::post('/reservations', [ReservationController::class, 'store'])->name('reservations.store');
 
     // History Route
     Route::get('/history', function () {
         $historyReservations = \App\Models\Reservation::where('user_id', Auth::id())
             ->whereIn('status', ['completed', 'cancelled'])
-            ->orderBy('start_time', 'desc')
+            ->orderBy('updated_at', 'desc')
             ->get();
         return view('history', compact('historyReservations')); 
     })->name('history.index');
@@ -191,7 +199,16 @@ Route::middleware(['auth', 'verified.phone'])->group(function () {
     Route::post('/profile/toggle-2fa', [\App\Http\Controllers\ProfileController::class, 'toggle2FA'])->name('profile.toggle-2fa');
 
     // Payment
-    Route::get('/payment', function () { return view('payment'); })->name('payment.index');
+    Route::get('/payment', function () { 
+        $settingsPath = storage_path('app/settings.json');
+        $settings = file_exists($settingsPath) ? json_decode(file_get_contents($settingsPath), true) : [
+            'price_badminton' => 230,
+            'price_pickleball' => 250,
+            'price_racket' => 50,
+            'price_shuttlecock' => 50,
+        ];
+        return view('payment', compact('settings')); 
+    })->name('payment.index');
     Route::post('/reserve/process-payment', [ReservationController::class, 'processPayment']);
 
     // User Reservation Management
@@ -235,11 +252,19 @@ Route::middleware([\App\Http\Middleware\AdminMiddleware::class])->group(function
 
     // Settings & Profile
     Route::get('/admin/settings', [AdminController::class, 'settingsIndex']);
+    Route::post('/admin/settings', [AdminController::class, 'updateSettings']);
     Route::get('/admin/profile', [AdminController::class, 'profileIndex']);
+    Route::post('/admin/profile/update', [AdminController::class, 'updateProfile'])->name('admin.profile.update');
+    Route::post('/admin/profile/password', [AdminController::class, 'updatePassword'])->name('admin.profile.password');
+    Route::get('/admin/help', [AdminController::class, 'helpIndex']);
 
     // Manage Staff
-    Route::get('/admin/staff/create', [AdminController::class, 'createStaff'])->name('admin.staff.create');
-    Route::post('/admin/staff/store', [AdminController::class, 'storeStaff'])->name('admin.staff.store');
+    Route::get('/admin/staff', [\App\Http\Controllers\StaffController::class, 'index'])->name('admin.staff.index');
+    Route::get('/admin/staff/{id}/attendance', [\App\Http\Controllers\StaffController::class, 'attendance'])->name('admin.staff.attendance');
+    Route::post('/admin/staff', [\App\Http\Controllers\StaffController::class, 'store'])->name('admin.staff.store');
+    Route::post('/admin/staff/{id}/update', [\App\Http\Controllers\StaffController::class, 'update'])->name('admin.staff.update');
+    Route::post('/admin/staff/{id}/toggle-status', [\App\Http\Controllers\StaffController::class, 'toggleStatus'])->name('admin.staff.toggle-status');
+    Route::post('/admin/staff/{id}/delete', [\App\Http\Controllers\StaffController::class, 'destroy'])->name('admin.staff.destroy');
 });
 
 
@@ -256,8 +281,10 @@ Route::middleware([\App\Http\Middleware\CashierMiddleware::class])->group(functi
     Route::post('/cashier/qr-verification/verify/{id}', [CashierController::class, 'qrVerify']);
 
     Route::get('/cashier/reservations', [CashierController::class, 'reservationsIndex']);
+        Route::get('/cashier/transactions', [CashierController::class, 'transactionsIndex']);
     Route::post('/cashier/reservations/{id}/confirm', [CashierController::class, 'confirmReservation']);
     Route::post('/cashier/reservations/{id}/cancel', [CashierController::class, 'cancelReservation']);
+    Route::post('/cashier/reservations/{id}/remind', [\App\Http\Controllers\AdminController::class, 'sendReminder']);
 
     // Cashier Walk-Ins
     Route::get('/cashier/sales/filter', [App\Http\Controllers\CashierController::class, 'filterSales']);
@@ -271,5 +298,18 @@ Route::middleware([\App\Http\Middleware\CashierMiddleware::class])->group(functi
     Route::post('/cashier/sales/refunds/{id}/approve', [App\Http\Controllers\CashierController::class, 'approveRefund']);
     Route::post('/cashier/sales/refunds/{id}/reject', [App\Http\Controllers\CashierController::class, 'rejectRefund']);
     Route::get('/cashier/profile', function () { return view('cashier.profile'); })->name('cashier.profile');
+    Route::post('/cashier/profile/photo', [CashierController::class, 'updateProfilePicture']);
 
 });
+
+
+
+
+
+
+
+
+
+
+
+

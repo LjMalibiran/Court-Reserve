@@ -83,8 +83,10 @@
 
         /* Footer / Action Button */
         .modal-footer { margin-top: 40px; display: flex; justify-content: center; }
-        .btn-confirm { background: var(--primary-blue); color: white; border: none; padding: 12px 45px; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer; transition: 0.2s; }
+        .btn-confirm { background: var(--primary-blue); color: white; border: none; padding: 12px 45px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.2s; }
         .btn-confirm:hover { background: var(--dark-blue); }
+        .btn-reject { background: #dc2626; color: white; border: none; padding: 12px 45px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn-reject:hover { background: #b91c1c; }
     </style>
 </head>
 <body>
@@ -103,17 +105,20 @@
 
         <div class="controls-bar">
             <div class="filter-tabs">
-                <button class="tab-btn active">Pending <span>0</span></button>
-                <button class="tab-btn">Completed <span>0</span></button>
-                <button class="tab-btn">Rejected <span>0</span></button>
+                <button class="tab-btn {{ $tab == 'pending' ? 'active' : '' }}" onclick="window.location.href='?tab=pending'">Pending <span>{{ $pendingCount }}</span></button>
+                <button class="tab-btn {{ $tab == 'completed' ? 'active' : '' }}" onclick="window.location.href='?tab=completed'">Completed <span>{{ $completedCount }}</span></button>
             </div>
             
             <div class="search-box">
-                <button class="btn-dev" onclick="openRefundModal()"><i class="fa-solid fa-eye"></i> View Modal Layout</button>
-                <div class="search-input-wrapper">
-                    <input type="text" placeholder="Search Refund ID...">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                </div>
+                <form action="" method="GET" style="margin: 0;">
+                    <input type="hidden" name="tab" value="{{ $tab }}">
+                    <div class="search-input-wrapper">
+                        <input type="text" name="search" placeholder="Search ID or Name..." value="{{ $search ?? '' }}">
+                        <button type="submit" style="background: none; border: none; padding: 0; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; cursor: pointer;">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
 
@@ -124,13 +129,14 @@
                         <th>Refund ID</th>
                         <th>Customer</th>
                         <th>Reservation Ref</th>
-                        <th>Amount</th>
-                        <th>Status</th>
                         <th>Date Requested</th>
-                        <th style="text-align: center;">Action</th>
+                        <th>Amount</th>
+                        <th>Res. Status</th>
+                        <th style="text-align: center;">Receipt</th>
+                        <th style="text-align: center;">{{ $tab == 'pending' ? 'Action' : 'Status' }}</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="refundsTableBody">
                     @forelse($refunds as $refund)
                     <tr>
                         <td style="font-family: monospace; font-weight: 600; color: #0033cc;">{{ $refund->reservation_code }}</td>
@@ -140,31 +146,125 @@
                             </div>
                         </td>
                         <td>
-                            <div style="font-weight: 500;">{{ \Carbon\Carbon::parse($refund->reservation_date)->format('M d, Y') }}</div>
+                            <div style="font-weight: 500;">{{ \Carbon\Carbon::parse($refund->start_time)->format('M d, Y') }}</div>
                             <div style="font-size: 12px; color: #64748b;">{{ \Carbon\Carbon::parse($refund->start_time)->format('g:i A') }}</div>
-                        </td>
-                        <td>
-                            <div style="font-weight: 600;">₱{{ number_format($refund->amount_paid, 2) }}</div>
-                            <div style="font-size: 11px; color: #64748b; text-transform: uppercase;">{{ $refund->payment_type }}</div>
-                        </td>
-                        <td>
-                            <div style="font-weight: 600; color: #dc2626;">₱{{ number_format($refund->refund_amount, 2) }} Refund</div>
                         </td>
                         <td>
                             <div style="font-weight: 500;">{{ \Carbon\Carbon::parse($refund->cancelled_at)->format('M d, Y') }}</div>
                             <div style="font-size: 12px; color: #64748b;">{{ \Carbon\Carbon::parse($refund->cancelled_at)->format('g:i A') }}</div>
                         </td>
+                        <td>
+                            @php
+                                $paid = (float)$refund->amount_paid;
+                                if ($paid == 0 && in_array($refund->payment_type, ['full', 'half'])) {
+                                    $paid = ($refund->payment_type == 'half') ? ($refund->total_price / 2) : $refund->total_price;
+                                }
+                            @endphp
+                            <div style="font-weight: 600;">₱{{ number_format($paid, 2) }}</div>
+                            <div style="font-size: 11px; color: #64748b; text-transform: uppercase;">{{ $refund->payment_type }}</div>
+                        </td>
+                        <td>
+                            <div style="font-weight: 600; text-transform: capitalize; color: {{ $refund->previous_status == 'confirmed' ? '#16a34a' : ($refund->previous_status == 'pending' ? '#d97706' : '#64748b') }};">{{ $refund->previous_status ?? 'Unknown' }}</div>
+                        </td>
                         <td style="text-align: center;">
-                            <div style="display: flex; gap: 8px; justify-content: center;">
-                                <form action="{{ url('/admin/sales/refunds/'.$refund->id.'/approve') }}" method="POST" style="margin: 0;">
-                                    @csrf
-                                    <button type="submit" class="btn-dev" style="background: #16a34a; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600;">Refund</button>
-                                </form>
-                                <form action="{{ url('/admin/sales/refunds/'.$refund->id.'/reject') }}" method="POST" style="margin: 0;">
-                                    @csrf
-                                    <button type="submit" class="btn-dev" style="background: #dc2626; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600;">Reject</button>
-                                </form>
-                            </div>
+                            @if($refund->receipt_path)
+                                <button type="button" class="btn-dev" style="background: transparent; color: var(--primary-blue); border: 1px solid var(--primary-blue);" onclick="viewReceipt('{{ asset('storage/' . $refund->receipt_path) }}')"><i class="fa-regular fa-image"></i> View</button>
+                            @else
+                                <span style="color: #999; font-size: 12px;">N/A</span>
+                            @endif
+                        </td>
+                        <td style="text-align: center;">
+                            @if($tab == 'pending')
+                                <button class="btn-dev" style="background: var(--primary-blue); color: white; border: none; padding: 6px 12px; border-radius: 6px;" onclick="document.getElementById('refundModal_{{ $refund->id }}').style.display='flex'">Proceed to Refund</button>
+                                
+                                <!-- REFUND MODAL FOR THIS ROW -->
+                                <div class="modal-overlay" id="refundModal_{{ $refund->id }}" style="text-align: left;">
+                                    <div class="modal-card">
+                                        <div class="modal-header">
+                                            <h2>Refund Process</h2>
+                                            <button class="btn-close" onclick="document.getElementById('refundModal_{{ $refund->id }}').style.display='none'"><i class="fa-solid fa-xmark"></i></button>
+                                        </div>
+                                        
+                                        <div class="modal-grid">
+                                            <!-- Left Column -->
+                                            <div>
+                                                <div class="section-title">Reservation Summary</div>
+                                                <div class="summary-row">
+                                                    <div class="summary-label">Reservation ID</div>
+                                                    <div class="summary-value">{{ $refund->reservation_code }}</div>
+                                                </div>
+                                                <div class="summary-row">
+                                                    <div class="summary-label">Sport</div>
+                                                    <div class="summary-value">{{ $refund->sport ?? 'Badminton' }}</div>
+                                                </div>
+                                                <div class="summary-row">
+                                                    <div class="summary-label">Court</div>
+                                                    <div class="summary-value">Court {{ $refund->court_id }}</div>
+                                                </div>
+                                                <div class="summary-row">
+                                                    <div class="summary-label">Date & Time</div>
+                                                    <div class="summary-value">{{ \Carbon\Carbon::parse($refund->start_time)->format('M d, Y, g:i A') }} - {{ \Carbon\Carbon::parse($refund->end_time)->format('g:i A') }}</div>
+                                                </div>
+                                                <div class="summary-row">
+                                                    <div class="summary-label">Rent Item</div>
+                                                    <div class="summary-value">
+                                                        @if($refund->rentalItems && $refund->rentalItems->count() > 0)
+                                                            @foreach($refund->rentalItems as $rental)
+                                                                {{ $rental->quantity }} {{ $rental->item_name }}@if(!$loop->last), @endif
+                                                            @endforeach
+                                                        @else
+                                                            None
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                                <div class="summary-row">
+                                                    <div class="summary-label">Payment</div>
+                                                    <div class="summary-value">
+                                                        Paid
+                                                        @if($refund->receipt_path)
+                                                            <span class="icon-receipt" style="cursor:pointer;" onclick="viewReceipt('{{ asset('storage/' . $refund->receipt_path) }}')"><i class="fa-regular fa-image"></i></span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                                <div class="summary-row">
+                                                    <div class="summary-label">Status</div>
+                                                    <div class="summary-value status-confirmed" style="text-transform: capitalize;">{{ $refund->status }}</div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Right Column -->
+                                            <div>
+                                                <form action="{{ url('/admin/sales/refunds/'.$refund->id.'/approve') }}" method="POST" enctype="multipart/form-data" id="refundForm_{{ $refund->id }}">
+                                                    @csrf
+                                                    <div class="section-title">Refund Information</div>
+                                                    <div class="form-group">
+                                                        <label>Refund Amount</label>
+                                                        <input type="text" class="form-control" value="₱ {{ number_format($refund->refund_amount ?? $paid, 2) }}" readonly>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Refund Reason</label>
+                                                        <input type="text" class="form-control" value="{{ $refund->cancellation_reason ?? 'Customer Cancelled' }}" readonly>
+                                                    </div>
+                                                    <div class="upload-section">
+                                                        <label>Gcash Receipt</label>
+                                                        <label class="file-upload-wrapper" for="receiptUpload_{{ $refund->id }}">
+                                                            <i class="fa-solid fa-cloud-arrow-up" id="uploadIcon_{{ $refund->id }}"></i>
+                                                            <input type="file" id="receiptUpload_{{ $refund->id }}" name="refund_receipt" accept="image/*" required onchange="handleFileUpload(event, {{ $refund->id }})">
+                                                        </label>
+                                                        <div class="upload-hint" id="uploadText_{{ $refund->id }}">Accepted file: JPG, PNG (Max.5MB)</div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+
+                                        <div class="modal-footer" style="display:flex; justify-content: flex-end;">
+                                            <button type="button" class="btn-confirm" id="confirmBtn_{{ $refund->id }}" disabled style="opacity: 0.5; cursor: not-allowed;" onclick="document.getElementById('refundForm_{{ $refund->id }}').submit()">Confirm Refund</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            @else
+                                <span style="color: {{ $refund->refund_status == 'refunded' ? '#16a34a' : '#dc2626' }}; font-weight: 600; text-transform: capitalize;">{{ $refund->refund_status }}</span>
+                            @endif
                         </td>
                     </tr>
                     @empty
@@ -179,90 +279,19 @@
             </table>
         </div>
 
-        <!-- NEW REFUND PROCESSING MODAL -->
-        <div class="modal-overlay" id="refundModal">
-            <div class="modal-card">
-                <div class="modal-header">
-                    <h2>Refund Process</h2>
-                    <button class="btn-close" onclick="closeRefundModal()"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-                
-                <div class="modal-grid">
-                    <!-- Left Column -->
-                    <div>
-                        <div class="section-title">Reservation Summary</div>
-                        
-                        <div class="summary-row">
-                            <div class="summary-label">Reservation ID</div>
-                            <div class="summary-value">BC26-02</div>
-                        </div>
-                        <div class="summary-row">
-                            <div class="summary-label">Sport</div>
-                            <div class="summary-value">Badminton</div>
-                        </div>
-                        <div class="summary-row">
-                            <div class="summary-label">Court</div>
-                            <div class="summary-value">Court 1</div>
-                        </div>
-                        <div class="summary-row">
-                            <div class="summary-label">Date & Time</div>
-                            <div class="summary-value">Mon, June 1, 2026, 4:00 - 5:00 PM</div>
-                        </div>
-                        <div class="summary-row">
-                            <div class="summary-label">Rent Item</div>
-                            <div class="summary-value">1 Racket, 1 Shuttlecock</div>
-                        </div>
-                        <div class="summary-row">
-                            <div class="summary-label">Duration</div>
-                            <div class="summary-value">1 Hour</div>
-                        </div>
-                        <div class="summary-row">
-                            <div class="summary-label">Payment</div>
-                            <div class="summary-value">
-                                Paid <span class="icon-receipt"><i class="fa-regular fa-image"></i></span>
-                            </div>
-                        </div>
-                        <div class="summary-row">
-                            <div class="summary-label">Status</div>
-                            <div class="summary-value status-confirmed">Confirmed</div>
-                        </div>
-                    </div>
-
-                    <!-- Right Column -->
-                    <div>
-                        <div class="section-title">Refund Information</div>
-                        
-                        <div class="form-group">
-                            <label>Refund Amount</label>
-                            <input type="text" class="form-control" value="₱ 280.00" readonly>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Refund Reason</label>
-                            <input type="text" class="form-control" value="Schedule Conflict" readonly>
-                        </div>
-                        
-                        <div class="upload-section">
-                            <label>Gcash Receipt</label>
-                            <label class="file-upload-wrapper" for="receiptUpload">
-                                <i class="fa-solid fa-cloud-arrow-up" id="uploadIcon"></i>
-                                <input type="file" id="receiptUpload" accept="image/*" onchange="handleFileUpload(event)">
-                            </label>
-                            <div class="upload-hint" id="uploadText">Accepted file: JPG, PNG (Max.5MB)</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="modal-footer">
-                    <button class="btn-confirm" onclick="confirmRefund()">Confirm Refund</button>
-                </div>
+        <!-- RECEIPT MODAL -->
+        <div class="modal-overlay" id="receiptModal">
+            <div class="modal-card" style="width: auto; max-width: 90%; text-align: center; padding: 20px;">
+                <button class="btn-close" onclick="document.getElementById('receiptModal').style.display='none';" style="position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 24px; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+                <h3 style="margin-top: 0; color: var(--primary-blue);">Uploaded Receipt</h3>
+                <img id="receiptImage" src="" alt="Receipt" style="max-width: 100%; max-height: 70vh; border-radius: 8px; margin-top: 10px; border: 1px solid #e2e8f0;">
             </div>
         </div>
-
     </main>
 
     <script>
         const modal = document.getElementById('refundModal');
+        const receiptModal = document.getElementById('receiptModal');
         const uploadIcon = document.getElementById('uploadIcon');
         const uploadText = document.getElementById('uploadText');
 
@@ -280,14 +309,22 @@
             document.getElementById('receiptUpload').value = "";
         }
 
-        function handleFileUpload(event) {
+        function handleFileUpload(event, id) {
             const file = event.target.files[0];
             if (file) {
-                // Change icon to show success
+                const uploadIcon = document.getElementById('uploadIcon_' + id);
+                const uploadText = document.getElementById('uploadText_' + id);
                 uploadIcon.className = "fa-solid fa-circle-check";
                 uploadIcon.style.color = "var(--success-color)";
                 uploadIcon.style.fontSize = "40px";
                 uploadText.innerHTML = `<span style="color:var(--success-color); font-weight:bold;">${file.name} attached</span>`;
+                
+                const confirmBtn = document.getElementById('confirmBtn_' + id);
+                if (confirmBtn) {
+                    confirmBtn.disabled = false;
+                    confirmBtn.style.opacity = '1';
+                    confirmBtn.style.cursor = 'pointer';
+                }
             }
         }
 
@@ -296,12 +333,48 @@
             closeRefundModal();
         }
 
+        function viewReceipt(url) {
+            document.getElementById('receiptImage').src = url;
+            document.getElementById('receiptModal').style.display = 'flex';
+        }
+
+        function closeReceiptModal() {
+            document.getElementById('receiptModal').style.display = 'none';
+        }
+
         // Close when clicking outside the modal
         window.onclick = function(event) {
-            if (event.target === modal) {
-                closeRefundModal();
+            if (event.target.classList.contains('modal-overlay')) {
+                event.target.style.display = 'none';
             }
         }
+
+        // Real-time intelligent polling
+        setInterval(() => {
+            // Do not refresh if any modal is open to prevent interrupting the user
+            const isModalOpen = Array.from(document.querySelectorAll('.modal-overlay')).some(m => window.getComputedStyle(m).display === 'flex' || m.style.display === 'flex');
+            if (isModalOpen) return;
+
+            fetch(window.location.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(res => res.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    
+                    const newTbody = doc.getElementById('refundsTableBody');
+                    const currentTbody = document.getElementById('refundsTableBody');
+                    if (newTbody && currentTbody && newTbody.innerHTML !== currentTbody.innerHTML) {
+                        currentTbody.innerHTML = newTbody.innerHTML;
+                    }
+
+                    const newTabs = doc.querySelector('.filter-tabs');
+                    const currentTabs = document.querySelector('.filter-tabs');
+                    if (newTabs && currentTabs && newTabs.innerHTML !== currentTabs.innerHTML) {
+                        currentTabs.innerHTML = newTabs.innerHTML;
+                    }
+                })
+                .catch(err => console.error('Polling error:', err));
+        }, 5000); // 5 seconds
     </script>
 @include('partials.notif-script')
 </body>

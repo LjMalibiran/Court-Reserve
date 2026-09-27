@@ -80,13 +80,21 @@ class AuthController extends Controller
 
         // 2. The Triple-Login Trick (Checks Contact OR Name OR Email)
         if (
-            Auth::attempt(['contact' => $loginId, 'password' => $request->password], $remember) ||
-            Auth::attempt(['name' => $loginId, 'password' => $request->password], $remember) ||
-            Auth::attempt(['email' => $loginId, 'password' => $request->password], $remember)
+            Auth::attempt(['contact' => $loginId, 'password' => $request->password, 'is_active' => 1], $remember) ||
+            Auth::attempt(['name' => $loginId, 'password' => $request->password, 'is_active' => 1], $remember) ||
+            Auth::attempt(['email' => $loginId, 'password' => $request->password, 'is_active' => 1], $remember)
         ) {
             
             $user = Auth::user();
             $request->session()->regenerate();
+
+            // Record attendance for staff members
+            if (in_array($user->role, ['admin', 'cashier'])) {
+                \App\Models\Attendance::create([
+                    'user_id' => $user->id,
+                    'login_time' => now(),
+                ]);
+            }
 
             // 3. STAFF CHECK: Are they an Admin or Cashier?
             if ($user->role === 'admin') {
@@ -131,8 +139,22 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
+        $user = Auth::user();
+        
+        // Record logout time for staff members
+        if ($user && in_array($user->role, ['admin', 'cashier'])) {
+            $latestAttendance = \App\Models\Attendance::where('user_id', $user->id)
+                ->whereNull('logout_time')
+                ->latest('login_time')
+                ->first();
+                
+            if ($latestAttendance) {
+                $latestAttendance->update(['logout_time' => now()]);
+            }
+        }
+
         // 1. Get the user's role before logging them out
-        $role = Auth::user() ? Auth::user()->role : 'customer';
+        $role = $user ? $user->role : 'customer';
 
         // 2. Log the user out of the system
         Auth::logout();
