@@ -55,9 +55,7 @@ class VerificationController extends Controller
 
         // Send via Email (temporary while Semaphore sender name is pending)
         try {
-            \Illuminate\Support\Facades\Mail::raw("Your new Court Reserve verification code is: {$newCode}", function ($message) use ($user) {
-                $message->to($user->email)->subject('Court Reserve - Verification Code');
-            });
+            \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\VerificationCodeMail($newCode));
             \Illuminate\Support\Facades\Log::info("EMAIL SENT TO {$user->email}: {$newCode}");
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error("Failed to send email to {$user->email}: " . $e->getMessage());

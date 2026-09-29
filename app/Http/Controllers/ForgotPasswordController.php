@@ -24,9 +24,7 @@ class ForgotPasswordController extends Controller
 
         // Send via Email (temporary while Semaphore sender name is pending)
         try {
-            Mail::raw("Your Court Reserve password reset code is: {$newCode}", function ($message) use ($user) {
-                $message->to($user->email)->subject('Court Reserve - Password Reset Code');
-            });
+            Mail::to($user->email)->send(new \App\Mail\PasswordResetMail($newCode));
             Log::info("PASSWORD RESET EMAIL SENT TO {$user->email}: {$newCode}");
         } catch (\Throwable $e) {
             Log::error("Failed to send email to {$user->email}: " . $e->getMessage() . " | Code: {$newCode}");
@@ -98,9 +96,7 @@ class ForgotPasswordController extends Controller
         $user->save();
 
         try {
-            Mail::raw("Your new Court Reserve password reset code is: {$newCode}", function ($message) use ($user) {
-                $message->to($user->email)->subject('Court Reserve - New Password Reset Code');
-            });
+            Mail::to($user->email)->send(new \App\Mail\PasswordResetMail($newCode));
         } catch (\Throwable $e) {}
 
         return back()->with('success', 'A new code has been sent to your email.');

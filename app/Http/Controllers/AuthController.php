@@ -19,6 +19,14 @@ class AuthController extends Controller
 
     // Handle the registration logic
     public function register(Request $request) {
+        // Automatically delete any abandoned/unverified accounts that match this email or name
+        // so the user isn't blocked from trying to register again.
+        \App\Models\User::whereNull('phone_verified_at')
+            ->where(function($query) use ($request) {
+                $query->where('email', $request->email)
+                      ->orWhere('name', $request->name);
+            })->delete();
+
         $request->validate([
             'name' => 'required|unique:users,name',
             'email' => 'required|email|unique:users,email|ends_with:@gmail.com',
@@ -51,10 +59,7 @@ class AuthController extends Controller
 
         // 3. SEND VERIFICATION CODE VIA EMAIL (temporary while Semaphore sender name is pending)
         try {
-            Mail::raw("Your Court Reserve verification code is: {$verificationCode}", function ($message) use ($user) {
-                $message->to($user->email)
-                        ->subject('Court Reserve - Verification Code');
-            });
+            Mail::to($user->email)->send(new \App\Mail\VerificationCodeMail($verificationCode));
             Log::info("EMAIL SENT TO {$user->email}: {$verificationCode}");
         } catch (\Throwable $e) {
             // If email fails (e.g. SMTP blocked), still proceed — code is saved in DB
@@ -115,10 +120,7 @@ class AuthController extends Controller
 
                 // Send fresh code via Email (temporary while Semaphore sender name is pending)
                 try {
-                    Mail::raw("Your fresh Court Reserve verification code is: {$newCode}", function ($message) use ($user) {
-                        $message->to($user->email)
-                                ->subject('Court Reserve - New Verification Code');
-                    });
+                    Mail::to($user->email)->send(new \App\Mail\VerificationCodeMail($newCode));
                     Log::info("NEW EMAIL SENT TO {$user->email}: {$newCode}");
                 } catch (\Throwable $e) {
                     Log::error("Failed to send email to {$user->email}: " . $e->getMessage() . " | Code: {$newCode}");

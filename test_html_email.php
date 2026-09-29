@@ -1,0 +1,1 @@
+<?php require 'vendor/autoload.php'; $app = require_once 'bootstrap/app.php'; $app->make('Illuminate\Contracts\Console\Kernel')->bootstrap(); try { \Illuminate\Support\Facades\Mail::to('143LJMALIBIRAN@gmail.com')->send(new \App\Mail\VerificationCodeMail('9999')); echo 'HTML_SUCCESS'; } catch (\Throwable $e) { echo 'FAILED: ' . $e->getMessage(); }
