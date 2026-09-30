@@ -3,7 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\URL; // <-- ADD THIS LINE
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Mail;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -14,6 +15,13 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot()
     {
+        // Register Brevo email transport (sends via HTTPS API, bypasses SMTP port blocks)
+        Mail::extend('brevo', function (array $config = []) {
+            return new \Symfony\Component\Mailer\Bridge\Brevo\Transport\BrevoApiTransport(
+                $config['key'] ?? config('services.brevo.key') ?? env('BREVO_API_KEY')
+            );
+        });
+
         // Force HTTPS if the website is live
         if (config('app.env') === 'production') {
             URL::forceScheme('https');

@@ -66,7 +66,7 @@ return [
         ],
 
         'brevo' => [
-            'transport' => 'brevo+api',
+            'transport' => 'brevo',
             'key' => env('BREVO_API_KEY'),
         ],
 
