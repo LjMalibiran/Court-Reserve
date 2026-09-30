@@ -17,6 +17,7 @@ class CashierController extends Controller
         $pendingReservations = Reservation::where('status', 'pending')->count();
         $registeredUsers = User::whereNotIn('role', ['admin', 'cashier'])
             ->where('email', 'NOT LIKE', 'walkin_%')
+            ->whereNotNull('phone_verified_at')
             ->get();
             
         $totalUsers = $registeredUsers->count();
