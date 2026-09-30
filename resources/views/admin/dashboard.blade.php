@@ -409,28 +409,7 @@
             });
     }
 
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                btn.innerHTML = '<i class="fa-solid fa-check" style="color: #10b981;"></i>';
-                setTimeout(() => {
-                    btn.innerHTML = originalIcon;
-                    btn.disabled = false;
-                }, 2000);
-            } else {
-                alert(data.message || 'Error sending reminder.');
-                btn.innerHTML = originalIcon;
-                btn.disabled = false;
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            alert('Server error.');
-            btn.innerHTML = originalIcon;
-            btn.disabled = false;
-        });
-    }
+
 </script>
     <!-- USERS MODAL -->
     <div id="usersModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(4px);">
@@ -484,6 +463,9 @@
 @include('partials.notif-script')
 </body>
 </html>
+
+
+
 
 
 

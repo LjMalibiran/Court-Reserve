@@ -357,28 +357,7 @@
                 tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #e53935; padding: 20px;">Error loading data.</td></tr>';
             });
     }
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                btn.innerHTML = '<i class="fa-solid fa-check" style="color: #10b981;"></i>';
-                setTimeout(() => {
-                    btn.innerHTML = originalIcon;
-                    btn.disabled = false;
-                }, 2000);
-            } else {
-                alert(data.message || 'Error sending reminder.');
-                btn.innerHTML = originalIcon;
-                btn.disabled = false;
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            alert('An error occurred.');
-            btn.innerHTML = originalIcon;
-            btn.disabled = false;
-        });
-    }
+
 </script>
 
     <!-- USERS MODAL -->
@@ -433,6 +412,7 @@
 @include('partials.notif-script')
 </body>
 </html>
+
 
 
 
