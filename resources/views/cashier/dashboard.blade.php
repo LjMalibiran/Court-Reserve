@@ -347,11 +347,6 @@
                             <td style="text-align: center;"><span style="background: var(--primary-blue); color: #ffffff; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; white-space: nowrap; display: inline-block;">${res.court}</span></td>
                             <td style="text-align: center;">${res.time}</td>
                             <td style="text-align: right;">${res.date}</td>
-                              <td style="text-align: right;">
-                                  <button onclick="sendReminder(${res.id}, this)" title="Send Reminder Email" style="background: none; border: none; cursor: pointer; color: #f59e0b; font-size: 16px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='none'">
-                                      <i class="fa-solid fa-bell"></i>
-                                  </button>
-                              </td>
                         </tr>
                     `;
                 });
@@ -362,17 +357,6 @@
                 tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #e53935; padding: 20px;">Error loading data.</td></tr>';
             });
     }
-    function sendReminder(id, btn) {
-        let originalIcon = btn.innerHTML;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-        btn.disabled = true;
-
-        fetch('/cashier/reservations/' + id + '/remind', {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Accept': 'application/json'
-            }
         })
         .then(res => res.json())
         .then(data => {
@@ -449,6 +433,8 @@
 @include('partials.notif-script')
 </body>
 </html>
+
+
 
 
 

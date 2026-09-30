@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -191,7 +191,7 @@
                             <th style="text-align: center;">Court</th>
                             <th style="text-align: center;">Time</th>
                             <th style="text-align: right;">Date</th>
-                            <th style="text-align: right; width: 40px;"></th>
+                            
                         </tr>
                     </thead>
                     <tbody id="upcomingTableBody">
@@ -261,7 +261,7 @@
                     data: {
                         labels: data.labels,
                         datasets: [{
-                            label: 'Sales (₱)',
+                            label: 'Sales (?)',
                             data: data.data,
                             borderColor: '#1557c0',
                             backgroundColor: 'rgba(21, 87, 192, 0.1)',
@@ -379,13 +379,13 @@
         }
 
         let tbody = document.getElementById('upcomingTableBody');
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #9ca3af; padding: 20px;">Loading...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #9ca3af; padding: 20px;">Loading...</td></tr>';
 
         fetch(`/api/reservations/by-date?date=${date}`)
             .then(res => res.json())
             .then(data => {
                 if (data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #9ca3af; padding: 20px;">No reservations found for this date.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #9ca3af; padding: 20px;">No reservations found for this date.</td></tr>';
                     return;
                 }
 
@@ -397,11 +397,7 @@
                             <td style="text-align: center;"><span style="background: var(--primary-blue); color: #ffffff; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; white-space: nowrap; display: inline-block;">${res.court}</span></td>
                             <td style="text-align: center;">${res.time}</td>
                             <td style="text-align: right;">${res.date}</td>
-                            <td style="text-align: right;">
-                                <button onclick="sendReminder(${res.id}, this)" title="Send Reminder Email" style="background: none; border: none; cursor: pointer; color: #f59e0b; font-size: 16px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='none'">
-                                    <i class="fa-solid fa-bell"></i>
-                                </button>
-                            </td>
+                            
                         </tr>
                     `;
                 });
@@ -409,21 +405,10 @@
             })
             .catch(err => {
                 console.error(err);
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #e53935; padding: 20px;">Error loading data.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #e53935; padding: 20px;">Error loading data.</td></tr>';
             });
     }
 
-    function sendReminder(id, btn) {
-        let originalIcon = btn.innerHTML;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-        btn.disabled = true;
-
-        fetch(`/admin/reservations/${id}/remind`, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Accept': 'application/json'
-            }
         })
         .then(res => res.json())
         .then(data => {
@@ -499,6 +484,8 @@
 @include('partials.notif-script')
 </body>
 </html>
+
+
 
 
 

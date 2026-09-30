@@ -16,9 +16,13 @@ class SendReservationReminders extends Command
 
     public function handle()
     {
-        $today = \Carbon\Carbon::today();
+        // Find reservations starting in exactly 60 minutes
+        $now = \Carbon\Carbon::now();
+        $targetStart = $now->copy()->addMinutes(60)->startOfMinute();
+        $targetEnd = $now->copy()->addMinutes(60)->endOfMinute();
+
         $reservations = \App\Models\Reservation::with('user')
-            ->whereDate('start_time', $today)
+            ->whereBetween('start_time', [$targetStart, $targetEnd])
             ->where('status', 'confirmed')
             ->whereNotNull('user_id')
             ->get();
@@ -32,6 +36,9 @@ class SendReservationReminders extends Command
             $start = \Carbon\Carbon::parse($reservation->start_time)->format('g:i A');
             $end = \Carbon\Carbon::parse($reservation->end_time)->format('g:i A');
 
+            $message = "Hello {$user->name},\n\nThis is an automated reminder for your {$reservation->sport} reservation at Batangas Badminton Center.\n\nDate: {$date}\nTime: {$start} - {$end}\nCourt: Court {$reservation->court_id}\n\nPlease arrive on time. We look forward to seeing you!";
+
+            // Send SMS via Semaphore
             try {
                 $apiKey = env('SEMAPHORE_API_KEY');
                 $senderName = env('SEMAPHORE_SENDER_NAME', '');
@@ -39,7 +46,7 @@ class SendReservationReminders extends Command
                 $payload = [
                     'apikey' => $apiKey,
                     'number' => $user->contact,
-                    'message' => "Hello {$user->name},\n\nThis is an automated reminder for your {$reservation->sport} reservation TODAY at Batangas Badminton Center.\n\nDate: {$date}\nTime: {$start} - {$end}\nCourt: Court {$reservation->court_id}\n\nPlease arrive on time. We look forward to seeing you!",
+                    'message' => $message,
                 ];
 
                 if (!empty($senderName)) {
@@ -47,12 +54,22 @@ class SendReservationReminders extends Command
                 }
 
                 \Illuminate\Support\Facades\Http::post('https://api.semaphore.co/api/v4/messages', $payload);
-                $count++;
             } catch (\Exception $e) {
                 \Illuminate\Support\Facades\Log::error("Failed to auto-send reminder SMS to {$user->contact}: " . $e->getMessage());
             }
+
+            // Send Email Notification
+            try {
+                \Illuminate\Support\Facades\Mail::raw($message, function ($mail) use ($user) {
+                    $mail->to($user->email)->subject('Friendly Reminder: Upcoming Reservation in 1 Hour');
+                });
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error("Failed to send reminder Email to {$user->email}: " . $e->getMessage());
+            }
+            
+            $count++;
         }
 
-        $this->info("Successfully sent {$count} reminder SMS messages for today's reservations.");
+        $this->info("Successfully sent {$count} reminder messages.");
     }
 }

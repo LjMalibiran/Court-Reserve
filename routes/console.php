@@ -9,5 +9,5 @@ Artisan::command('inspire', function () {
 
 use Illuminate\Support\Facades\Schedule;
 
-// Send email reminders every day at 8:00 AM
-Schedule::command('reservations:remind')->dailyAt('08:00');
+// Send email and SMS reminders exactly 1 hour before scheduled time
+Schedule::command('reservations:remind')->everyMinute();
