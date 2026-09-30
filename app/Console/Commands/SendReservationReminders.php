@@ -60,9 +60,15 @@ class SendReservationReminders extends Command
 
             // Send Email Notification
             try {
-                \Illuminate\Support\Facades\Mail::raw($message, function ($mail) use ($user) {
-                    $mail->to($user->email)->subject('Friendly Reminder: Upcoming Reservation in 1 Hour');
-                });
+                \Illuminate\Support\Facades\Mail::to($user->email)->send(
+                    new \App\Mail\ReservationReminderMail(
+                        $user->name,
+                        $reservation->sport,
+                        $date,
+                        $start . ' - ' . $end,
+                        $reservation->court_id
+                    )
+                );
             } catch (\Exception $e) {
                 \Illuminate\Support\Facades\Log::error("Failed to send reminder Email to {$user->email}: " . $e->getMessage());
             }
