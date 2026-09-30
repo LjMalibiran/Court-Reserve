@@ -328,3 +328,22 @@ Route::get('/force-admin', function () {
     );
     return "SUCCESS! Admin account forced. Username: " . $admin->name . " | Password: 123Court";
 });
+
+// Temporary route to test the reminder email
+Route::get('/test-email', function () {
+    $email = '143LJMALIBIRAN@gmail.com';
+    try {
+        \Illuminate\Support\Facades\Mail::to($email)->send(
+            new \App\Mail\ReservationReminderMail(
+                'Lancel John Malibiran',
+                'Badminton',
+                'October 02, 2026',
+                '10:00 AM - 12:00 PM',
+                'Court 2'
+            )
+        );
+        return 'Test reminder email sent successfully to ' . $email . '! Check your inbox.';
+    } catch (\Exception $e) {
+        return 'Failed to send: ' . $e->getMessage();
+    }
+});
