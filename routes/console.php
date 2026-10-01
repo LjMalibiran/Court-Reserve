@@ -10,4 +10,4 @@ Artisan::command('inspire', function () {
 use Illuminate\Support\Facades\Schedule;
 
 // Send email and SMS reminders exactly 1 hour before scheduled time
-Schedule::command('reservations:remind')->everyMinute();
+Schedule::command('reservations:remind')->everyMinute()->appendOutputTo('/dev/stderr');
