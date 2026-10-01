@@ -184,7 +184,7 @@
                                     '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}', 
                                     '₱{{ number_format($res->total_price, 2) }}', 
                                     '{{ ucfirst($res->status) }}', 
-                                    '{{ $res->status == \'cancelled\' ? \Carbon\Carbon::parse($res->updated_at)->format(\'F j, Y \a\t g:i A\') : \'\'  }}'
+                                    '{{ $res->status == 'cancelled' ? \Carbon\Carbon::parse($res->updated_at)->format('F j, Y \a\t g:i A') : ''  }}'
                                 )"><i class="fa-regular fa-eye"></i></button>
                             </td>
                         </tr>
@@ -294,7 +294,7 @@
                                     '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}', 
                                     '₱{{ number_format($res->total_price, 2) }}', 
                                     '{{ ucfirst($res->status) }}', 
-                                    '{{ $res->status == \'cancelled\' ? \Carbon\Carbon::parse($res->updated_at)->format(\'F j, Y \a\t g:i A\') : \'\'  }}'
+                                    '{{ $res->status == 'cancelled' ? \Carbon\Carbon::parse($res->updated_at)->format('F j, Y \a\t g:i A') : ''  }}'
                                 )"><i class="fa-regular fa-eye"></i></button>
                             </td>
                         </tr>
@@ -356,7 +356,7 @@
                                     '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}', 
                                     '₱{{ number_format($res->total_price, 2) }}', 
                                     '{{ ucfirst($res->status) }}', 
-                                    '{{ $res->status == \'cancelled\' ? \Carbon\Carbon::parse($res->updated_at)->format(\'F j, Y \a\t g:i A\') : \'\'  }}'
+                                    '{{ $res->status == 'cancelled' ? \Carbon\Carbon::parse($res->updated_at)->format('F j, Y \a\t g:i A') : ''  }}'
                                 )"><i class="fa-regular fa-eye"></i></button>
                             </td>
                         </tr>
@@ -412,7 +412,7 @@
                                     '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}', 
                                     '₱{{ number_format($res->total_price, 2) }}', 
                                     '{{ ucfirst($res->status) }}', 
-                                    '{{ $res->status == \'cancelled\' ? \Carbon\Carbon::parse($res->updated_at)->format(\'F j, Y \a\t g:i A\') : \'\'  }}'
+                                    '{{ $res->status == 'cancelled' ? \Carbon\Carbon::parse($res->updated_at)->format('F j, Y \a\t g:i A') : ''  }}'
                                 )"><i class="fa-regular fa-eye"></i></button>
                             </td>
                         </tr>
@@ -468,7 +468,7 @@
                                     '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}', 
                                     '₱{{ number_format($res->total_price, 2) }}', 
                                     '{{ ucfirst($res->status) }}', 
-                                    '{{ $res->status == \'cancelled\' ? \Carbon\Carbon::parse($res->updated_at)->format(\'F j, Y \a\t g:i A\') : \'\'  }}'
+                                    '{{ $res->status == 'cancelled' ? \Carbon\Carbon::parse($res->updated_at)->format('F j, Y \a\t g:i A') : ''  }}'
                                 )"><i class="fa-regular fa-eye"></i></button>
                             </td>
                         </tr>
@@ -679,3 +679,5 @@ function filterTables() {
 </script>
 </body>
 </html>
+
+
