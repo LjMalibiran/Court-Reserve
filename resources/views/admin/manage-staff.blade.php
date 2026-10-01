@@ -247,7 +247,7 @@
 <div class="modal-overlay" id="attendanceModal">
     <div class="modal-content" style="width: 600px;">
         <button class="modal-close" onclick="closeModal('attendanceModal')"><i class="fa-solid fa-xmark"></i></button>
-        <h2 class="modal-title">Attendance Log</h2>
+        <h2 class="modal-title">History Log</h2>
         
         <div class="table-container" style="max-height: 400px; overflow-y: auto;">
             <table style="width: 100%;">
@@ -309,7 +309,7 @@
             const data = await response.json();
             
             if (data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" class="empty-state">No attendance records found.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="3" class="empty-state">No history records found.</td></tr>';
                 return;
             }
             
@@ -324,7 +324,7 @@
                 tbody.appendChild(tr);
             });
         } catch (error) {
-            tbody.innerHTML = '<tr><td colspan="3" class="empty-state" style="color: #ef4444;">Failed to load attendance logs.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="3" class="empty-state" style="color: #ef4444;">Failed to load history logs.</td></tr>';
         }
     }
 
