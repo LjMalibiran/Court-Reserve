@@ -331,21 +331,24 @@ Route::get('/force-admin', function () {
 
 // Temporary route to test the reminder email
 Route::get('/test-email', function () {
-    $email = '143LJMALIBIRAN@gmail.com';
-    try {
-        \Illuminate\Support\Facades\Mail::to($email)->send(
-            new \App\Mail\ReservationReminderMail(
-                'Lancel John Malibiran',
-                'Badminton',
-                'October 02, 2026',
-                '10:00 AM - 12:00 PM',
-                '2'
-            )
-        );
-        return 'Test reminder email sent successfully to ' . $email . '! Check your inbox.';
-    } catch (\Exception $e) {
-        return 'Failed to send: ' . $e->getMessage();
-    }
+    $now = \Carbon\Carbon::now();
+    $targetStart = $now->copy()->addMinutes(60)->startOfMinute();
+    
+    // Dump all reservations for today to see their exact times and status
+    $res = \App\Models\Reservation::whereDate('start_time', $now->toDateString())->get()->map(function($r) {
+        return [
+            'id' => $r->id,
+            'start_time' => $r->start_time->toDateTimeString(),
+            'status' => $r->status,
+            'user' => $r->user_id ? 'Yes' : 'No'
+        ];
+    });
+    
+    return [
+        'current_time_manila' => $now->toDateTimeString(),
+        'target_start_looking_for' => $targetStart->toDateTimeString(),
+        'todays_reservations' => $res
+    ];
 });
 
 
