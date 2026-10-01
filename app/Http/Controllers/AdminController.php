@@ -388,34 +388,21 @@ class AdminController extends Controller
 
         // Check for changes and create announcements automatically
         if (!empty($oldSettings)) {
+            $changes = [];
+
             if (isset($oldSettings['price_badminton']) && $oldSettings['price_badminton'] != $settings['price_badminton']) {
-                \App\Models\Announcement::where('title', 'Price Update: Badminton')->delete();
-                \App\Models\Announcement::create([
-                    'title' => 'Price Update: Badminton',
-                    'content' => "The price for Badminton courts has been updated from ₱" . $oldSettings['price_badminton'] . " to ₱" . $settings['price_badminton'] . " per hour."
-                ]);
+                $changes[] = "The price for Badminton courts has been updated from ₱" . $oldSettings['price_badminton'] . " to ₱" . $settings['price_badminton'] . " per hour.";
             }
             if (isset($oldSettings['price_pickleball']) && $oldSettings['price_pickleball'] != $settings['price_pickleball']) {
-                \App\Models\Announcement::where('title', 'Price Update: Pickleball')->delete();
-                \App\Models\Announcement::create([
-                    'title' => 'Price Update: Pickleball',
-                    'content' => "The price for Pickleball courts has been updated from ₱" . $oldSettings['price_pickleball'] . " to ₱" . $settings['price_pickleball'] . " per hour."
-                ]);
+                $changes[] = "The price for Pickleball courts has been updated from ₱" . $oldSettings['price_pickleball'] . " to ₱" . $settings['price_pickleball'] . " per hour.";
             }
             if (isset($oldSettings['price_racket']) && $oldSettings['price_racket'] != $settings['price_racket']) {
-                \App\Models\Announcement::where('title', 'Price Update: Racket')->delete();
-                \App\Models\Announcement::create([
-                    'title' => 'Price Update: Racket',
-                    'content' => "The price for Racket Rentals has been updated from ₱" . $oldSettings['price_racket'] . " to ₱" . $settings['price_racket'] . "."
-                ]);
+                $changes[] = "The price for Racket Rentals has been updated from ₱" . $oldSettings['price_racket'] . " to ₱" . $settings['price_racket'] . ".";
             }
             if (isset($oldSettings['price_shuttlecock']) && $oldSettings['price_shuttlecock'] != $settings['price_shuttlecock']) {
-                \App\Models\Announcement::where('title', 'Price Update: Shuttlecock')->delete();
-                \App\Models\Announcement::create([
-                    'title' => 'Price Update: Shuttlecock',
-                    'content' => "The price for Shuttlecocks has been updated from ₱" . $oldSettings['price_shuttlecock'] . " to ₱" . $settings['price_shuttlecock'] . "."
-                ]);
+                $changes[] = "The price for Shuttlecocks has been updated from ₱" . $oldSettings['price_shuttlecock'] . " to ₱" . $settings['price_shuttlecock'] . ".";
             }
+            
             if (isset($oldSettings['blocked_dates']) && $oldSettings['blocked_dates'] != $settings['blocked_dates']) {
                 $newBlocks = array_map(function($b) { return json_encode($b); }, $settings['blocked_dates']);
                 $oldBlocks = array_map(function($b) { return json_encode($b); }, $oldSettings['blocked_dates']);
@@ -448,13 +435,10 @@ class AdminController extends Controller
                 }
                 
                 if (trim($msg)) {
-                    \App\Models\Announcement::where('title', 'Schedule Update')->delete();
-                    \App\Models\Announcement::create([
-                        'title' => 'Schedule Update',
-                        'content' => trim($msg)
-                    ]);
+                    $changes[] = trim($msg);
                 }
             }
+            
             if (isset($oldSettings['operating_hours']) && $oldSettings['operating_hours'] != $settings['operating_hours']) {
                 $hoursMsg = [];
                 $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
@@ -473,12 +457,18 @@ class AdminController extends Controller
                     }
                 }
                 if (!empty($hoursMsg)) {
-                    \App\Models\Announcement::where('title', 'Operating Hours Update')->delete();
-                    \App\Models\Announcement::create([
-                        'title' => 'Operating Hours Update',
-                        'content' => "Our operating hours have been updated:\n" . implode("\n", $hoursMsg)
-                    ]);
+                    $changes[] = "Our operating hours have been updated:\n" . implode("\n", $hoursMsg);
                 }
+            }
+
+            if (count($changes) > 0) {
+                // Delete older System Updates to prevent duplicate spam, keep only the latest batch
+                \App\Models\Announcement::where('title', 'System Updates')->delete();
+                
+                \App\Models\Announcement::create([
+                    'title' => 'System Updates',
+                    'content' => implode("\n\n", $changes)
+                ]);
             }
         }
 
