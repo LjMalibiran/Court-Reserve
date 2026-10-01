@@ -17,10 +17,10 @@ class SendReservationReminders extends Command
     public function handle()
     {
         try {
-            // Find reservations starting in exactly 60 minutes
+            // Find reservations starting in the next 60-65 minutes to ensure we don't miss them if cron is delayed
             $now = \Carbon\Carbon::now();
-            $targetStart = $now->copy()->addMinutes(60)->startOfMinute();
-            $targetEnd = $now->copy()->addMinutes(60)->endOfMinute();
+            $targetStart = $now->copy()->addMinutes(55)->startOfMinute();
+            $targetEnd = $now->copy()->addMinutes(65)->endOfMinute();
 
             $reservations = \App\Models\Reservation::with('user')
                 ->whereBetween('start_time', [$targetStart, $targetEnd])
@@ -30,6 +30,11 @@ class SendReservationReminders extends Command
 
             $count = 0;
             foreach ($reservations as $reservation) {
+                // Check if we already sent a reminder for this reservation using Cache (avoids duplicates without DB migration)
+                if (\Illuminate\Support\Facades\Cache::has('reminder_sent_' . $reservation->id)) {
+                    continue;
+                }
+
                 $user = $reservation->user;
                 if (!$user) continue;
 
@@ -76,6 +81,40 @@ class SendReservationReminders extends Command
                     \Illuminate\Support\Facades\Log::error("Failed to send reminder Email to {$user->email}: " . $e->getMessage());
                 }
                 
+                // Mark as sent for 2 hours to prevent duplicate emails
+                \Illuminate\Support\Facades\Cache::put('reminder_sent_' . $reservation->id, true, 120 * 60);
+                $count++;
+            }
+
+            if ($count > 0) {
+                $this->info("Successfully sent {$count} reminder messages.");
+            }
+        } catch (\Exception $e) {
+            $this->error("CRITICAL ERROR IN SCHEDULER: " . $e->getMessage());
+            $this->error($e->getTraceAsString());
+        }
+    }
+
+                    \Illuminate\Support\Facades\Http::post('https://api.semaphore.co/api/v4/messages', $payload);
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error("Failed to auto-send reminder SMS to {$user->contact}: " . $e->getMessage());
+                }
+
+                // Send Email Notification
+                try {
+                    \Illuminate\Support\Facades\Mail::to($user->email)->send(
+                        new \App\Mail\ReservationReminderMail(
+                            $user->name,
+                            $sport,
+                            $date,
+                            $start . ' - ' . $end,
+                            $reservation->court_id
+                        )
+                    );
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error("Failed to send reminder Email to {$user->email}: " . $e->getMessage());
+                }
+                
                 $count++;
             }
 
@@ -86,3 +125,4 @@ class SendReservationReminders extends Command
         }
     }
 }
+
