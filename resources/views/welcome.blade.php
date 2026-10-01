@@ -68,7 +68,8 @@
         .services-header p { color: #334155; font-size: 18px; max-width: 700px; margin: 0 auto 50px; line-height: 1.6; font-weight: 500; }
         
         .services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; max-width: 1100px; margin: 0 auto; }
-        .service-card { background: white; border-radius: 24px; padding: 40px 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .service-card { background: white; border-radius: 24px; padding: 40px 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .service-card:hover { transform: translateY(-10px); box-shadow: 0 15px 40px rgba(0,0,0,0.12); }
         .service-card h3 { color: #001e4d; font-size: 26px; margin-bottom: 25px; font-weight: 500; }
         .service-card img { width: 100%; height: 180px; object-fit: cover; border-radius: 12px; margin-bottom: 25px; }
         .service-card p { color: #334155; line-height: 1.6; font-size: 16px; font-weight: 500; margin: 0; }
@@ -218,18 +219,17 @@
             <div class="services-grid">
                 <div class="service-card">
                     <h3>Tactics Training</h3>
-                    <!-- Using placeholder images or the court bg if specific images aren't available -->
-                    <img src="{{ asset('images/court-bg.jpg') }}" alt="Tactics Training">
+                    <img src="{{ asset('images/tactics.png') }}" alt="Tactics Training">
                     <p>Master game-winning, positioning and opponent analysis with structured group 1-on-1 sessions. Optimize your court awareness and decision-making</p>
                 </div>
                 <div class="service-card">
                     <h3>Mental Training</h3>
-                    <img src="{{ asset('images/court-bg.jpg') }}" alt="Mental Training">
+                    <img src="{{ asset('images/mental.png') }}" alt="Mental Training">
                     <p>Build resilience, focus, and competitive grit. Master pressure management and self-confidence through targeted exercises and psychology workshops</p>
                 </div>
                 <div class="service-card">
                     <h3>Skill Training</h3>
-                    <img src="{{ asset('images/court-bg.jpg') }}" alt="Skill Training">
+                    <img src="{{ asset('images/skill.png') }}" alt="Skill Training">
                     <p>Refine mechanics, footwork, and strokes with technical precision. Improve consistency, power, and agility for tournament-level play.</p>
                 </div>
             </div>
@@ -305,11 +305,36 @@
                 document.querySelector(this.getAttribute('href')).scrollIntoView({
                     behavior: 'smooth'
                 });
-                
-                // Update active class
-                document.querySelectorAll('.nav-links a').forEach(link => link.classList.remove('active'));
-                this.classList.add('active');
             });
+        });
+
+        // Scroll spy to highlight active nav link
+        const sections = document.querySelectorAll('section');
+        const navLinks = document.querySelectorAll('.nav-links a');
+
+        const observerOptions = {
+            root: null,
+            rootMargin: '-50% 0px -50% 0px', // Trigger when section crosses the middle of the viewport
+            threshold: 0
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    navLinks.forEach(link => {
+                        link.classList.remove('active');
+                        if (link.getAttribute('href') === '#' + entry.target.id) {
+                            link.classList.add('active');
+                        }
+                    });
+                }
+            });
+        }, observerOptions);
+
+        sections.forEach(section => {
+            if (section.id) {
+                observer.observe(section);
+            }
         });
     </script>
 </body>
