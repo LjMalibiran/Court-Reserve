@@ -205,7 +205,7 @@
                 </div>
 
                 <div class="manual-entry">
-                    <h4>Manual Entry</h4>
+                    <h4>Manual Entry <span style="font-weight: 400; font-size: 13px; color: #94a3b8;">(Alternative)</span></h4>
                     <form action="{{ url('/cashier/qr-verification/search') }}" method="POST" id="qrSearchForm">
                         @csrf
                         <div class="input-group">
