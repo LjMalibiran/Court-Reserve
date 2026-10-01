@@ -109,7 +109,7 @@
 @endsection
 
 @section('content')
-<form action="{{ url('/reserve/process-payment') }}" method="POST" enctype="multipart/form-data" id="paymentForm" onsubmit="return validatePayment(event)">
+<form action="{{ url('/reserve/process-payment') }}" method="POST" enctype="multipart/form-data" id="paymentForm" onsubmit="return validatePayment(event)" style="max-width: 1000px;">
     @csrf
     <input type="hidden" name="court_id" value="{{ session('court_id') }}">
     <input type="hidden" name="sport" value="{{ session('sport') }}">
