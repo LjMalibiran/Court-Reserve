@@ -121,6 +121,24 @@
         .footer-bottom { display: flex; justify-content: center; gap: 30px; max-width: 1100px; margin: 0 auto; padding-top: 30px; color: #64748b; font-size: 14px; font-weight: 500; }
         .footer-bottom a { color: #64748b; text-decoration: none; }
 
+        /* Large Screen Text Adjustments */
+        @media (min-width: 1400px) {
+            .hero-content h1 { font-size: 80px; }
+            .hero-content .subtitle { font-size: 26px; }
+            .hero-content .description { font-size: 24px; }
+            .about-col p { font-size: 18px; }
+            .about-icon-header h3 { font-size: 38px; }
+            .services-header h2 { font-size: 64px; }
+            .services-header p { font-size: 20px; max-width: 900px; }
+            .service-card h3 { font-size: 30px; }
+            .service-card p { font-size: 18px; }
+            .excellence-border h2 { font-size: 72px; }
+            .excellence-border p { font-size: 22px; max-width: 700px; }
+            .findus-left h2, .findus-right h2 { font-size: 52px; }
+            .findus-right p { font-size: 18px; }
+            .btn-primary { font-size: 20px; padding: 15px 40px; }
+        }
+
         /* Mobile Adjustments */
         @media (max-width: 992px) {
             .about-grid, .services-grid, .findus-container, .footer-grid { grid-template-columns: 1fr; }
@@ -174,7 +192,7 @@
                 <h1><span class="text-blue">Batangas Badminton</span><br><span class="text-gray">Court Reserve</span></h1>
                 <p class="description">Book your badminton or pickleball court in just a few clicks.</p>
                 <a href="{{ url('/login') }}" style="text-decoration: none;">
-                    <button class="btn-primary">Reserve Now &rarr;</button>
+                    <button class="btn-primary" style="margin-top: 15px;">Reserve Now &rarr;</button>
                 </a>
             </div>
         </section>
@@ -248,8 +266,8 @@
             <div class="findus-container">
                 <div class="findus-left">
                     <h2>FIND US</h2>
-                    <!-- Embed interactive Google Map -->
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3869.654877793466!2d121.05459341076233!3d13.766746296180327!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x33bd0557454f7a77%3A0xc39bc1d5db2f4a56!2sBatangas%20Badminton%20Center!5e0!3m2!1sen!2sph!4v1700000000000!5m2!1sen!2sph" width="100%" height="300" style="border:0; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" class="findus-map-img"></iframe>
+                    <!-- Embed interactive Google Map with Red Pin -->
+                    <iframe src="https://maps.google.com/maps?q=Batangas%20Badminton%20And%20Fitness%20Gym%20Center,%20Batangas&t=&z=16&ie=UTF8&iwloc=&output=embed" width="100%" height="300" style="border:0; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" class="findus-map-img"></iframe>
                 </div>
                 <div class="findus-right">
                     <h2>Batangas City<br>Location</h2>
