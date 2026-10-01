@@ -75,9 +75,9 @@
     .error-msg { color: #dc2626; font-size: 13px; display: none; margin-top: 10px; font-weight: 600; text-align: center;}
 
     /* MODAL */
-    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 9999; padding: 20px; }
-    .modal-content { background: white; border-radius: 20px; padding: 40px; width: 100%; max-width: 450px; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.15); text-align: center; }
-    .modal-close { position: absolute; top: 20px; right: 24px; background: none; border: none; font-size: 26px; color: #0f2b6e; cursor: pointer; padding: 0; line-height: 1; font-weight: 300;}
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 99999; overflow-y: auto; padding: 20px; box-sizing: border-box; align-items: flex-start; justify-content: center; }
+    .modal-content { background: white; border-radius: 20px; padding: 40px 30px; width: 100%; max-width: 420px; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.15); text-align: center; margin: auto; }
+    .modal-close { position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 28px; color: #0f2b6e; cursor: pointer; padding: 0; line-height: 1; font-weight: 300;}
     
     .success-icon-wrap { position: relative; width: 90px; height: 90px; margin: 0 auto 20px auto; }
     .success-circle { background: #22c55e; color: white; width: 100%; height: 100%; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 45px; position: relative; z-index: 2; box-shadow: 0 0 0 6px #dcfce7;}
@@ -255,7 +255,7 @@
         
         <div class="qr-box">
             @if(session('reservation_code'))
-                <img id="qr-image" src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data={{ urlencode(session('reservation_code')) }}" crossorigin="anonymous" alt="QR Code" style="display: block;">
+                <img id="qr-image" src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data={{ urlencode(session('reservation_code')) }}" crossorigin="anonymous" alt="QR Code" style="display: block; margin: 0 auto;">
             @endif
         </div>
         
