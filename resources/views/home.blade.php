@@ -136,6 +136,17 @@
         .time-slot-grid { grid-template-columns: repeat(3, 1fr); }
         .form-group-row { flex-direction: column; gap: 12px; }
     }
+    /* Announcements */
+    .announcements-box { background: #ffffff !important; border-radius: 20px !important; padding: 28px 32px !important; box-shadow: 0 4px 18px rgba(15, 43, 110, 0.04) !important; border: 1px solid #e2e8f0 !important; margin-bottom: 24px !important; }
+    .announcements-header { display: flex !important; align-items: center !important; gap: 12px !important; margin-bottom: 20px !important; }
+    .announcements-header i { font-size: 24px !important; color: #ea580c !important; }
+    .announcements-header h3 { margin: 0 !important; color: #0f2b6e !important; font-size: 20px !important; font-weight: 700 !important; }
+    .announcement-item { border-left: 4px solid #0033cc !important; background: #f8fafc !important; padding: 16px 20px !important; border-radius: 0 8px 8px 0 !important; margin-bottom: 12px !important; }
+    .announcement-item:last-child { margin-bottom: 0 !important; }
+    .announcement-item h4 { margin: 0 0 6px 0 !important; color: #0f2b6e !important; font-size: 16px !important; font-weight: 700 !important; }
+    .announcement-item p { margin: 0 !important; color: #475569 !important; font-size: 14px !important; line-height: 1.5 !important; }
+    .announcement-date { font-size: 12px !important; color: #94a3b8 !important; font-weight: 600 !important; margin-top: 8px !important; display: block !important; }
+    .no-announcements { text-align: center !important; color: #94a3b8 !important; font-style: italic !important; font-size: 15px !important; padding: 20px 0 !important; }
 </style>
 
 <div class="welcome-card">
@@ -176,6 +187,26 @@
             <span>Pickleball</span>
         </a>
     </div>
+</div>
+
+<!-- Announcements Box -->
+<div class="announcements-box">
+    <div class="announcements-header">
+        <i class="fa-solid fa-bullhorn"></i>
+        <h3>News & Updates</h3>
+    </div>
+    
+    @if(isset($announcements) && $announcements->count() > 0)
+        @foreach($announcements->take(3) as $announcement)
+            <div class="announcement-item">
+                <h4>{{ $announcement->title }}</h4>
+                <p>{!! nl2br(e($announcement->content)) !!}</p>
+                <span class="announcement-date">{{ \Carbon\Carbon::parse($announcement->created_at)->format('F j, Y \a\t g:i A') }}</span>
+            </div>
+        @endforeach
+    @else
+        <div class="no-announcements">No recent updates or announcements at this time.</div>
+    @endif
 </div>
 
 <div class="reservations-grid">

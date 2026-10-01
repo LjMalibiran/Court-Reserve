@@ -471,6 +471,38 @@ class AdminController extends Controller
         // 3. Send the Admin back to the form with a success message
         return back()->with('success', ucfirst($request->role) . ' account created successfully! They can now log in.');
     }
+
+    // ==========================================
+    // ANNOUNCEMENTS
+    // ==========================================
+    public function announcementsIndex()
+    {
+        $announcements = \App\Models\Announcement::orderBy('created_at', 'desc')->get();
+        return view('admin.announcements', compact('announcements'));
+    }
+
+    public function storeAnnouncement(\Illuminate\Http\Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+        ]);
+
+        \App\Models\Announcement::create([
+            'title' => $request->title,
+            'content' => $request->content,
+        ]);
+
+        return back()->with('success', 'Announcement created successfully!');
+    }
+
+    public function deleteAnnouncement($id)
+    {
+        $announcement = \App\Models\Announcement::findOrFail($id);
+        $announcement->delete();
+
+        return back()->with('success', 'Announcement deleted successfully!');
+    }
 }
 
 

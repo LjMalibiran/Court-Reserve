@@ -167,7 +167,9 @@ Route::middleware(['auth', 'verified.phone'])->group(function () {
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('home', compact('todayReservations', 'upcomingReservations')); 
+        $announcements = \App\Models\Announcement::orderBy('created_at', 'desc')->get();
+
+        return view('home', compact('todayReservations', 'upcomingReservations', 'announcements')); 
     })->name('home');
 
     // Reservation 
@@ -236,6 +238,11 @@ Route::middleware([\App\Http\Middleware\AdminMiddleware::class])->group(function
     Route::post('/admin/reservations/{id}/confirm', [AdminController::class, 'confirmReservation']);
     Route::post('/admin/reservations/{id}/cancel', [AdminController::class, 'cancelReservation']);
     Route::post('/admin/reservations/{id}/remind', [AdminController::class, 'sendReminder']);
+
+    // Announcements
+    Route::get('/admin/announcements', [AdminController::class, 'announcementsIndex']);
+    Route::post('/admin/announcements', [AdminController::class, 'storeAnnouncement']);
+    Route::delete('/admin/announcements/{id}', [AdminController::class, 'deleteAnnouncement']);
 
     // Admin Walk-Ins
     Route::get('/admin/sales/filter', [App\Http\Controllers\AdminController::class, 'filterSales']);
