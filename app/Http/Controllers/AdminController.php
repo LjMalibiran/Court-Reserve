@@ -420,10 +420,28 @@ class AdminController extends Controller
                 }
             }
             if (isset($oldSettings['operating_hours']) && $oldSettings['operating_hours'] != $settings['operating_hours']) {
-                \App\Models\Announcement::create([
-                    'title' => 'Operating Hours Update',
-                    'content' => "Our daily operating hours have been updated. Please check the reservation schedule for the latest available times."
-                ]);
+                $hoursMsg = [];
+                $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+                foreach ($days as $day) {
+                    $oldStart = $oldSettings['operating_hours'][$day]['start'] ?? '07:00';
+                    $oldEnd = $oldSettings['operating_hours'][$day]['end'] ?? '21:00';
+                    $newStart = $settings['operating_hours'][$day]['start'] ?? '07:00';
+                    $newEnd = $settings['operating_hours'][$day]['end'] ?? '21:00';
+                    
+                    if ($oldStart != $newStart || $oldEnd != $newEnd) {
+                        $oldStartFmt = \Carbon\Carbon::parse($oldStart)->format('g:i A');
+                        $oldEndFmt = \Carbon\Carbon::parse($oldEnd)->format('g:i A');
+                        $newStartFmt = \Carbon\Carbon::parse($newStart)->format('g:i A');
+                        $newEndFmt = \Carbon\Carbon::parse($newEnd)->format('g:i A');
+                        $hoursMsg[] = ucfirst($day) . " from {$oldStartFmt}-{$oldEndFmt} to {$newStartFmt}-{$newEndFmt}";
+                    }
+                }
+                if (!empty($hoursMsg)) {
+                    \App\Models\Announcement::create([
+                        'title' => 'Operating Hours Update',
+                        'content' => "Our operating hours have been updated:\n" . implode("\n", $hoursMsg)
+                    ]);
+                }
             }
         }
 
