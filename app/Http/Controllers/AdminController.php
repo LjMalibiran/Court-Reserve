@@ -391,25 +391,38 @@ class AdminController extends Controller
             if (isset($oldSettings['price_badminton']) && $oldSettings['price_badminton'] != $settings['price_badminton']) {
                 \App\Models\Announcement::create([
                     'title' => 'Price Update: Badminton',
-                    'content' => "The price for Badminton courts has been updated to ₱" . $settings['price_badminton'] . " per hour."
+                    'content' => "The price for Badminton courts has been updated from ₱" . $oldSettings['price_badminton'] . " to ₱" . $settings['price_badminton'] . " per hour."
                 ]);
             }
             if (isset($oldSettings['price_pickleball']) && $oldSettings['price_pickleball'] != $settings['price_pickleball']) {
                 \App\Models\Announcement::create([
                     'title' => 'Price Update: Pickleball',
-                    'content' => "The price for Pickleball courts has been updated to ₱" . $settings['price_pickleball'] . " per hour."
+                    'content' => "The price for Pickleball courts has been updated from ₱" . $oldSettings['price_pickleball'] . " to ₱" . $settings['price_pickleball'] . " per hour."
                 ]);
             }
             if (isset($oldSettings['blocked_dates']) && $oldSettings['blocked_dates'] != $settings['blocked_dates']) {
-                \App\Models\Announcement::create([
-                    'title' => 'Schedule Update',
-                    'content' => "There are new block dates for upcoming events/tournaments. Please check the reservation calendar for availability."
-                ]);
+                $added = array_diff($settings['blocked_dates'], $oldSettings['blocked_dates']);
+                $removed = array_diff($oldSettings['blocked_dates'], $settings['blocked_dates']);
+                $msg = "";
+                if (!empty($added)) {
+                    $formattedAdded = array_map(function($d) { return \Carbon\Carbon::parse($d)->format('M j, Y'); }, $added);
+                    $msg .= "New blocked dates added: " . implode(', ', $formattedAdded) . ". ";
+                }
+                if (!empty($removed)) {
+                    $formattedRemoved = array_map(function($d) { return \Carbon\Carbon::parse($d)->format('M j, Y'); }, $removed);
+                    $msg .= "Blocked dates removed (now available): " . implode(', ', $formattedRemoved) . ".";
+                }
+                if ($msg) {
+                    \App\Models\Announcement::create([
+                        'title' => 'Schedule Update',
+                        'content' => trim($msg)
+                    ]);
+                }
             }
             if (isset($oldSettings['operating_hours']) && $oldSettings['operating_hours'] != $settings['operating_hours']) {
                 \App\Models\Announcement::create([
                     'title' => 'Operating Hours Update',
-                    'content' => "Our daily operating hours have been updated. Please check the reservation schedule for available times."
+                    'content' => "Our daily operating hours have been updated. Please check the reservation schedule for the latest available times."
                 ]);
             }
         }
