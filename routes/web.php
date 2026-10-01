@@ -329,25 +329,65 @@ Route::get('/force-admin', function () {
     return "SUCCESS! Admin account forced. Username: " . $admin->name . " | Password: 123Court";
 });
 
-// Temporary route to test the reminder email
+// Debug route: shows what the scheduler sees + can trigger test email
 Route::get('/test-email', function () {
-    $res_columns = \Illuminate\Support\Facades\Schema::getColumnListing('reservations');
-    $court_columns = \Illuminate\Support\Facades\Schema::getColumnListing('courts');
-    
-    // Check if there are any reservations with sport = pickleball
-    $pickleball_count = in_array('sport', $res_columns) ? \App\Models\Reservation::where('sport', 'like', '%Pickleball%')->count() : 0;
-    
-    return [
-        'reservation_columns' => $res_columns,
-        'court_columns' => $court_columns,
-        'pickleball_reservations_count' => $pickleball_count
-    ];
+    $now = \Carbon\Carbon::now();
+    $targetStart = $now->copy()->addMinutes(55)->startOfMinute();
+    $targetEnd = $now->copy()->addMinutes(65)->endOfMinute();
+
+    $matchingReservations = \App\Models\Reservation::with(['user', 'court'])
+        ->whereBetween('start_time', [$targetStart, $targetEnd])
+        ->where('status', 'confirmed')
+        ->whereNotNull('user_id')
+        ->get()
+        ->map(function($r) {
+            return [
+                'id' => $r->id,
+                'user' => $r->user->name ?? 'N/A',
+                'email' => $r->user->email ?? 'N/A',
+                'sport' => $r->sport ?? 'Badminton',
+                'start_time' => $r->start_time->toDateTimeString(),
+                'already_sent' => \Illuminate\Support\Facades\Cache::has('reminder_sent_' . $r->id) ? 'YES' : 'NO',
+            ];
+        });
+
+    $allToday = \App\Models\Reservation::with('user')
+        ->whereDate('start_time', $now->toDateString())
+        ->get()
+        ->map(function($r) {
+            return [
+                'id' => $r->id,
+                'user' => $r->user->name ?? 'walk-in',
+                'start_time' => $r->start_time->format('g:i A'),
+                'status' => $r->status,
+            ];
+        });
+
+    $output = '<h2>Scheduler Debug Panel</h2>';
+    $output .= '<p><b>Server Time (Manila):</b> ' . $now->toDateTimeString() . '</p>';
+    $output .= '<p><b>Checking Window:</b> ' . $targetStart->format('g:i A') . ' - ' . $targetEnd->format('g:i A') . '</p>';
+    $output .= '<p><b>Reservations matching window:</b> ' . $matchingReservations->count() . '</p>';
+    $output .= '<pre>' . json_encode($matchingReservations, JSON_PRETTY_PRINT) . '</pre>';
+    $output .= '<hr><h3>All Todays Reservations</h3>';
+    $output .= '<pre>' . json_encode($allToday, JSON_PRETTY_PRINT) . '</pre>';
+    $output .= '<hr><p><a href="/test-email/send">Click here to send a TEST reminder email to 143LJMALIBIRAN@gmail.com</a></p>';
+
+    return $output;
 });
 
-
-Route::get('/view-logs', function () {
-    if (file_exists(storage_path('logs/laravel.log'))) {
-        return '<pre>' . htmlspecialchars(shell_exec('tail -n 100 ' . storage_path('logs/laravel.log'))) . '</pre>';
+Route::get('/test-email/send', function () {
+    try {
+        \Illuminate\Support\Facades\Mail::to('143LJMALIBIRAN@gmail.com')->send(
+            new \App\Mail\ReservationReminderMail(
+                'Lancel John Malibiran',
+                'Badminton',
+                'October 02, 2026',
+                '10:00 AM - 12:00 PM',
+                '2'
+            )
+        );
+        return 'SUCCESS! Test reminder email sent to 143LJMALIBIRAN@gmail.com. Check your inbox!';
+    } catch (\Exception $e) {
+        return 'FAILED: ' . $e->getMessage();
     }
-    return 'No logs found.';
 });
