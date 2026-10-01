@@ -101,7 +101,7 @@
 
     @media (max-width: 768px) {
         .payment-grid { grid-template-columns: 1fr; }
-        .gcash-details { flex-direction: column; align-items: flex-start; gap: 20px; }
+        .gcash-details { flex-direction: row; justify-content: space-between; align-items: center; gap: 10px; }
         .btn-submit-container { flex-direction: column; gap: 15px; }
         .btn-submit, .btn-back { width: 100%; min-width: auto; margin: 0; }
     }
@@ -175,7 +175,7 @@
                     </div>
                 </div>
                 
-                <a href="gcash://" style="display: block; width: 100%; background: #007bff; color: white; text-align: center; padding: 12px; border-radius: 8px; font-weight: 600; text-decoration: none; margin-top: 20px; font-size: 15px; box-sizing: border-box;"><i class="fa-solid fa-mobile-screen"></i> Open GCash App</a>
+                <a href="https://m.gcash.com/" target="_blank" style="display: block; width: 100%; background: #007bff; color: white; text-align: center; padding: 12px; border-radius: 8px; font-weight: 600; text-decoration: none; margin-top: 20px; font-size: 15px; box-sizing: border-box;"><i class="fa-solid fa-mobile-screen"></i> Open GCash App</a>
             </div>
         </div>
 
