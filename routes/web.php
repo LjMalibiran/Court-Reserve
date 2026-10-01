@@ -339,7 +339,7 @@ Route::get('/test-email', function () {
                 'Badminton',
                 'October 02, 2026',
                 '10:00 AM - 12:00 PM',
-                'Court 2'
+                '2'
             )
         );
         return 'Test reminder email sent successfully to ' . $email . '! Check your inbox.';
