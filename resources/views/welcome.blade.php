@@ -141,12 +141,13 @@
 
         /* Mobile Adjustments */
         @media (max-width: 992px) {
-            .about-grid, .services-grid, .findus-container, .footer-grid { grid-template-columns: 1fr; }
+            .about-grid, .services-grid, .footer-grid { grid-template-columns: 1fr; }
+            .findus-container { flex-direction: column; gap: 30px; align-items: stretch; }
             .about-col { border-right: none; border-bottom: 1px solid #eaeaea; padding: 0 0 30px 0; margin-bottom: 30px; }
             .about-col:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
             .findus-left h2 { display: none; } /* Hide left title on mobile to not duplicate */
-            .findus-map-img { align-self: flex-start; max-width: 100%; }
-            .findus-right { padding-left: 0; }
+            .findus-map-img { align-self: center; width: 100%; max-width: 100%; }
+            .findus-right { padding-left: 0; text-align: center; }
             .hero-content h1 { font-size: 48px; }
             .excellence-border h2 { font-size: 42px; }
         }
