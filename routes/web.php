@@ -347,3 +347,11 @@ Route::get('/test-email', function () {
         return 'Failed to send: ' . $e->getMessage();
     }
 });
+
+
+Route::get('/view-logs', function () {
+    if (file_exists(storage_path('logs/laravel.log'))) {
+        return '<pre>' . htmlspecialchars(shell_exec('tail -n 100 ' . storage_path('logs/laravel.log'))) . '</pre>';
+    }
+    return 'No logs found.';
+});
