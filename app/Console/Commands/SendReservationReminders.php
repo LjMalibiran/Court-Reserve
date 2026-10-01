@@ -42,7 +42,7 @@ class SendReservationReminders extends Command
                 $start = \Carbon\Carbon::parse($reservation->start_time)->format('g:i A');
                 $end = \Carbon\Carbon::parse($reservation->end_time)->format('g:i A');
 
-                $sport = $reservation->court ? $reservation->court->type : 'Badminton';
+                $sport = $reservation->sport ?? 'Badminton';
 
                 $message = "Hello {$user->name},\n\nThis is an automated reminder for your {$sport} reservation at Batangas Badminton Center.\n\nDate: {$date}\nTime: {$start} - {$end}\nCourt: Court {$reservation->court_id}\n\nPlease arrive on time. We look forward to seeing you!";
 
