@@ -192,6 +192,51 @@
         }
         .modal-content h3 { margin-top: 0; color: #0b2057; }
         .modal-content p { font-size: 14px; color: #555; line-height: 1.5; }
+        
+        /* Large Screen Adjustments */
+        @media (min-width: 1400px) {
+            .auth-form-container {
+                max-width: 480px;
+                padding: 50px 50px 40px 50px;
+            }
+            h2 {
+                font-size: 42px;
+                margin-bottom: 35px;
+            }
+            .input-group {
+                margin-bottom: 35px !important;
+            }
+            .input-group input {
+                font-size: 18px;
+                padding: 16px 20px;
+            }
+            .input-group label {
+                font-size: 16px;
+                top: -12px;
+                left: 20px;
+            }
+            .btn-primary {
+                font-size: 22px;
+                padding: 18px;
+                margin-top: 20px;
+            }
+            .terms {
+                font-size: 14px;
+            }
+            .auth-footer {
+                font-size: 14px;
+                margin-top: 25px;
+            }
+            .back-button {
+                font-size: 16px;
+                top: 25px;
+                left: 25px;
+            }
+            .back-button svg {
+                width: 20px;
+                height: 20px;
+            }
+        }
     </style>
 </head>
 <body>

@@ -204,6 +204,51 @@
             background-color: #cccccc;
             cursor: not-allowed;
         }
+
+        /* Large Screen Adjustments */
+        @media (min-width: 1400px) {
+            .auth-form-container {
+                max-width: 480px;
+                padding: 60px 50px 40px 50px;
+            }
+            h2 {
+                font-size: 42px;
+                margin-bottom: 45px;
+            }
+            .input-group {
+                margin-bottom: 35px;
+            }
+            .input-group input {
+                font-size: 18px;
+                padding: 18px 20px;
+            }
+            .input-group label {
+                font-size: 16px;
+                top: -12px;
+                left: 20px;
+            }
+            .btn-primary {
+                font-size: 22px;
+                padding: 18px;
+            }
+            .form-actions {
+                font-size: 15px;
+                margin-bottom: 35px;
+            }
+            .auth-footer {
+                font-size: 14px;
+                margin-top: 25px;
+            }
+            .back-button {
+                font-size: 16px;
+                top: 25px;
+                left: 25px;
+            }
+            .back-button svg {
+                width: 20px;
+                height: 20px;
+            }
+        }
     </style>
 </head>
 <body>
