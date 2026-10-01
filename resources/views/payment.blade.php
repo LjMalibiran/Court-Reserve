@@ -64,7 +64,7 @@
     .upload-hint { text-align: center; color: #94a3b8; font-size: 12px; font-weight: 600;}
     
     /* Submit Button */
-    .btn-submit-container { max-width: 1000px; display: flex; justify-content: space-between; margin-top: 10px;}
+    .btn-submit-container { max-width: 1000px; width: 100%; display: flex; justify-content: space-between; margin-top: 10px;}
     .btn-submit { background: #0033cc; color: white; border: none; padding: 16px 40px; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.2s; min-width: 200px;}
     .btn-submit:hover:not(:disabled) { background: #002299; }
     .btn-submit:disabled { background: #cccccc; cursor: not-allowed; }
