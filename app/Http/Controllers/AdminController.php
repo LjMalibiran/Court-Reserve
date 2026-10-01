@@ -403,15 +403,17 @@ class AdminController extends Controller
                 ]);
             }
             if (isset($oldSettings['blocked_dates']) && $oldSettings['blocked_dates'] != $settings['blocked_dates']) {
-                $added = array_diff($settings['blocked_dates'], $oldSettings['blocked_dates']);
-                $removed = array_diff($oldSettings['blocked_dates'], $settings['blocked_dates']);
+                $newDates = array_column($settings['blocked_dates'], 'date');
+                $oldDates = array_column($oldSettings['blocked_dates'], 'date');
+                $added = array_diff($newDates, $oldDates);
+                $removed = array_diff($oldDates, $newDates);
                 $msg = "";
                 if (!empty($added)) {
-                    $formattedAdded = array_map(function($d) { return \Carbon\Carbon::parse($d)->format('M j, Y'); }, $added);
+                    $formattedAdded = array_map(function($d) { return \Carbon\Carbon::parse($d)->format('M j, Y'); }, array_unique($added));
                     $msg .= "New blocked dates added: " . implode(', ', $formattedAdded) . ". ";
                 }
                 if (!empty($removed)) {
-                    $formattedRemoved = array_map(function($d) { return \Carbon\Carbon::parse($d)->format('M j, Y'); }, $removed);
+                    $formattedRemoved = array_map(function($d) { return \Carbon\Carbon::parse($d)->format('M j, Y'); }, array_unique($removed));
                     $msg .= "Blocked dates removed (now available): " . implode(', ', $formattedRemoved) . ".";
                 }
                 if ($msg) {
