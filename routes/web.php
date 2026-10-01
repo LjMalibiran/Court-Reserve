@@ -239,11 +239,6 @@ Route::middleware([\App\Http\Middleware\AdminMiddleware::class])->group(function
     Route::post('/admin/reservations/{id}/cancel', [AdminController::class, 'cancelReservation']);
     Route::post('/admin/reservations/{id}/remind', [AdminController::class, 'sendReminder']);
 
-    // Announcements
-    Route::get('/admin/announcements', [AdminController::class, 'announcementsIndex']);
-    Route::post('/admin/announcements', [AdminController::class, 'storeAnnouncement']);
-    Route::delete('/admin/announcements/{id}', [AdminController::class, 'deleteAnnouncement']);
-
     // Admin Walk-Ins
     Route::get('/admin/sales/filter', [App\Http\Controllers\AdminController::class, 'filterSales']);
     Route::get('/admin/walk-in', [ReservationController::class, 'walkInIndex']);
@@ -398,3 +393,4 @@ Route::get('/test-email/send', function () {
         return 'FAILED: ' . $e->getMessage();
     }
 });
+

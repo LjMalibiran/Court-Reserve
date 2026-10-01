@@ -369,6 +369,9 @@ class AdminController extends Controller
 
     public function updateSettings(\Illuminate\Http\Request $request)
     {
+        $settingsPath = storage_path('app/settings.json');
+        $oldSettings = file_exists($settingsPath) ? json_decode(file_get_contents($settingsPath), true) : [];
+
         $blockedDates = [];
         if ($request->filled('blocked_dates')) {
             $blockedDates = json_decode($request->input('blocked_dates'), true) ?? [];
@@ -382,7 +385,36 @@ class AdminController extends Controller
             'operating_hours' => $request->input('operating_hours', []),
             'blocked_dates' => $blockedDates,
         ];
-        file_put_contents(storage_path('app/settings.json'), json_encode($settings));
+
+        // Check for changes and create announcements automatically
+        if (!empty($oldSettings)) {
+            if (isset($oldSettings['price_badminton']) && $oldSettings['price_badminton'] != $settings['price_badminton']) {
+                \App\Models\Announcement::create([
+                    'title' => 'Price Update: Badminton',
+                    'content' => "The price for Badminton courts has been updated to ₱" . $settings['price_badminton'] . " per hour."
+                ]);
+            }
+            if (isset($oldSettings['price_pickleball']) && $oldSettings['price_pickleball'] != $settings['price_pickleball']) {
+                \App\Models\Announcement::create([
+                    'title' => 'Price Update: Pickleball',
+                    'content' => "The price for Pickleball courts has been updated to ₱" . $settings['price_pickleball'] . " per hour."
+                ]);
+            }
+            if (isset($oldSettings['blocked_dates']) && $oldSettings['blocked_dates'] != $settings['blocked_dates']) {
+                \App\Models\Announcement::create([
+                    'title' => 'Schedule Update',
+                    'content' => "There are new block dates for upcoming events/tournaments. Please check the reservation calendar for availability."
+                ]);
+            }
+            if (isset($oldSettings['operating_hours']) && $oldSettings['operating_hours'] != $settings['operating_hours']) {
+                \App\Models\Announcement::create([
+                    'title' => 'Operating Hours Update',
+                    'content' => "Our daily operating hours have been updated. Please check the reservation schedule for available times."
+                ]);
+            }
+        }
+
+        file_put_contents($settingsPath, json_encode($settings));
         return redirect()->back()->with('success', 'Settings updated successfully!');
     }
 

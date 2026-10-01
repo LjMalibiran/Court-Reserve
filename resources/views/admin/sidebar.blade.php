@@ -72,11 +72,6 @@
                 </a>
             </li>
             <li>
-                <a href="{{ url('/admin/announcements') }}" class="{{ request()->is('admin/announcements') ? 'active' : '' }}">
-                    <i class="fa-solid fa-bullhorn"></i> Announcements
-                </a>
-            </li>
-            <li>
                 <a href="{{ url('/admin/walk-in') }}" class="{{ request()->is('admin/walk-in') ? 'active' : '' }}">
                     <i class="fa-solid fa-shoe-prints"></i> Walk-In
                 </a>
@@ -137,5 +132,6 @@
         </form>
     </div>
 </aside>
+
 
 
