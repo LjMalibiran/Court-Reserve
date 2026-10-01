@@ -331,30 +331,16 @@ Route::get('/force-admin', function () {
 
 // Temporary route to test the reminder email
 Route::get('/test-email', function () {
-    // 1. Fix Pickleball courts in the database so they show up in the dropdown
-    \App\Models\Court::where('name', 'like', '%Pickleball%')->update(['type' => 'Pickleball']);
-    $sports = \App\Models\Court::distinct()->pluck('type');
-
-    $now = \Carbon\Carbon::now();
-    $targetStart = $now->copy()->addMinutes(55)->startOfMinute();
-    $targetEnd = $now->copy()->addMinutes(65)->endOfMinute();
+    $res_columns = \Illuminate\Support\Facades\Schema::getColumnListing('reservations');
+    $court_columns = \Illuminate\Support\Facades\Schema::getColumnListing('courts');
     
-    // Dump all reservations for today to see their exact times and status
-    $res = \App\Models\Reservation::whereDate('start_time', $now->toDateString())->get()->map(function($r) {
-        return [
-            'id' => $r->id,
-            'start_time' => $r->start_time->toDateTimeString(),
-            'status' => $r->status,
-            'user' => $r->user_id ? 'Yes' : 'No',
-            'already_sent_in_cache' => \Illuminate\Support\Facades\Cache::has('reminder_sent_' . $r->id) ? 'Yes' : 'No'
-        ];
-    });
+    // Check if there are any reservations with sport = pickleball
+    $pickleball_count = in_array('sport', $res_columns) ? \App\Models\Reservation::where('sport', 'like', '%Pickleball%')->count() : 0;
     
     return [
-        'sports_in_db' => $sports,
-        'current_time_manila' => $now->toDateTimeString(),
-        'checking_window' => $targetStart->toDateTimeString() . ' to ' . $targetEnd->toDateTimeString(),
-        'todays_reservations' => $res
+        'reservation_columns' => $res_columns,
+        'court_columns' => $court_columns,
+        'pickleball_reservations_count' => $pickleball_count
     ];
 });
 
