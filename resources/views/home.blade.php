@@ -137,25 +137,25 @@
         .form-group-row { flex-direction: column; gap: 12px; }
     }
     /* Announcements Slider */
-    .announcements-slider-wrapper { position: relative; margin-bottom: 24px; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 18px rgba(15, 43, 110, 0.08); background: #284474; color: white; }
+    .announcements-slider-wrapper { position: relative; margin-bottom: 20px; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 18px rgba(15, 43, 110, 0.08); background: #284474; color: white; }
     .announcements-track { display: flex; transition: transform 0.5s ease-in-out; }
     .announcement-slide { min-width: 100%; display: flex; align-items: stretch; }
-    .as-left { flex: 1; padding: 36px 40px; display: flex; flex-direction: column; justify-content: center; }
-    .as-badge { background: #ef4444; color: white; font-weight: 800; padding: 6px 16px; display: inline-block; font-size: 14px; letter-spacing: 1px; margin-bottom: 16px; align-self: flex-start; text-transform: uppercase;}
-    .as-title { color: #facc15; font-size: 26px; font-weight: 800; margin: 0 0 16px 0; line-height: 1.2; }
-    .as-date { color: #e2e8f0; font-size: 15px; margin: 0; }
-    .as-right { flex: 1.2; background: white; margin: 16px 16px 36px 0; border-radius: 12px; padding: 24px 32px; color: #0f2b6e; display: flex; flex-direction: column; justify-content: center; position: relative; box-shadow: 0 4px 12px rgba(0,0,0,0.1);}
-    .as-right p { margin: 0; font-size: 16px; line-height: 1.6; font-weight: 500; }
+    .as-left { flex: 1; padding: 24px 32px; display: flex; flex-direction: column; justify-content: center; }
+    .as-badge { background: #ef4444; color: white; font-weight: 800; padding: 4px 12px; display: inline-block; font-size: 12px; letter-spacing: 1px; margin-bottom: 12px; align-self: flex-start; text-transform: uppercase;}
+    .as-title { color: #facc15; font-size: 22px; font-weight: 800; margin: 0 0 10px 0; line-height: 1.2; }
+    .as-date { color: #e2e8f0; font-size: 13px; margin: 0; }
+    .as-right { flex: 1.5; background: white; margin: 12px 12px 28px 0; border-radius: 10px; padding: 20px 24px; color: #0f2b6e; display: flex; flex-direction: column; justify-content: center; position: relative; box-shadow: 0 4px 12px rgba(0,0,0,0.1);}
+    .as-right p { margin: 0; font-size: 15px; line-height: 1.5; font-weight: 500; }
     
-    .slider-dots { position: absolute; bottom: 12px; left: 0; width: 100%; display: flex; justify-content: center; gap: 8px; }
-    .slider-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.3); cursor: pointer; transition: 0.3s; border: none; padding: 0;}
+    .slider-dots { position: absolute; bottom: 8px; left: 0; width: 100%; display: flex; justify-content: center; gap: 6px; }
+    .slider-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.3); cursor: pointer; transition: 0.3s; border: none; padding: 0;}
     .slider-dot.active { background: white; }
 
     @media (max-width: 768px) {
         .announcement-slide { flex-direction: column; }
-        .as-left { padding: 30px 20px 20px 20px; }
-        .as-right { margin: 0 20px 36px 20px; padding: 20px; }
-        .as-title { font-size: 22px; }
+        .as-left { padding: 24px 20px 16px 20px; }
+        .as-right { margin: 0 20px 28px 20px; padding: 16px; }
+        .as-title { font-size: 18px; }
     }
 </style>
 
@@ -231,6 +231,7 @@
     const totalSlides = {{ min(5, $announcements->count()) }};
     const track = document.getElementById('sliderTrack');
     const dots = document.querySelectorAll('.slider-dot');
+    const wrapper = document.getElementById('announcementsSlider');
     let slideInterval;
 
     function goToSlide(index) {
@@ -259,6 +260,8 @@
 
     if (totalSlides > 1) {
         resetInterval();
+        wrapper.addEventListener('mouseenter', () => clearInterval(slideInterval));
+        wrapper.addEventListener('mouseleave', resetInterval);
     }
 </script>
 @endif
