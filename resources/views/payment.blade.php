@@ -221,7 +221,7 @@
         </div>
     </div>
     
-    <div class="btn-submit-container">
+    <div class="btn-submit-container" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
         <a href="{{ route('reservation.index') }}" class="btn-back">Back</a>
         <button type="submit" class="btn-submit" id="submitBtn" disabled>Submit</button>
     </div>
