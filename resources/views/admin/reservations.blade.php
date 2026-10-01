@@ -139,7 +139,7 @@
             <table id="table-all" class="data-table">
                 <thead>
                     <tr>
-                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Amount Paid</th><th>Total Amount</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th><th style="text-align: center;">Action</th>
+                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Amount Paid</th><th>Total Amount</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -180,37 +180,17 @@
                                 <span class="badge badge-{{ strtolower($res->status) }}">{{ ucfirst($res->status) }}</span>
                             </td>
                             <td style="text-align: center;">
-                                <div class="dropdown">
-                                    <button class="action-dots">⋮</button>
-                                    <div class="dropdown-content">
-                                        <a href="javascript:void(0)" onclick="viewAdminReservationDetails(
-                                            '{{ $res->reservation_code }}', 
-                                            '{{ addslashes($res->user->name ?? 'User '.$res->user_id) }}', 
-                                            '{{ $res->sport ?? 'Badminton' }}', 
-                                            '{{ $res->court_id }}', 
-                                            '{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}', 
-                                            '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}', 
-                                            '₱{{ number_format($res->total_price, 2) }}', 
-                                            '{{ ucfirst($res->status) }}', 
-                                            '{{ $res->status == 'cancelled' ? \Carbon\Carbon::parse($res->updated_at)->format('F j, Y \a\t g:i A') : '' }}'
-                                        )"><i class="fa-regular fa-eye"></i> View Details</a>
-                                        <a href="#"><i class="fa-solid fa-pen"></i> Edit</a>
-                                        @if($res->status == "confirmed" || $res->status == "in-play")
-                                            <form action="{{ url(Request::segment(1)."/walk-in/".$res->id."/completed") }}" method="POST" style="margin:0;">
-                                                @csrf <button type="submit" style="background:none; border:none; padding:10px 15px; width:100%; text-align:left; cursor:pointer; font-size:14px; color:#059669;"><i class="fa-solid fa-circle-check"></i> Mark Completed</button>
-                                            </form>
-                                            @if($res->status == "confirmed")
-                                            <form action="{{ url(Request::segment(1)."/walk-in/".$res->id."/in-play") }}" method="POST" style="margin:0;">
-                                                @csrf <button type="submit" style="background:none; border:none; padding:10px 15px; width:100%; text-align:left; cursor:pointer; font-size:14px; color:#2563eb;"><i class="fa-solid fa-play"></i> Mark In Play</button>
-                                            </form>
-                                            @endif
-                                        @endif
-                                        <form action="{{ url(Request::segment(1).'/reservations/'.$res->id.'/cancel') }}" method="POST" style="margin:0;">
-                                            @csrf
-                                            <button type="submit" class="text-danger" onclick="return confirm('Are you sure you want to delete this reservation?');"><i class="fa-regular fa-trash-can"></i> Delete</button>
-                                        </form>
-                                    </div>
-                                </div>
+                                <button type="button" class="btn-receipt" onclick="viewAdminReservationDetails(
+                                    '{{ $res->reservation_code }}', 
+                                    '{{ addslashes($res->user->name ?? 'User '.$res->user_id) }}', 
+                                    '{{ $res->sport ?? 'Badminton' }}', 
+                                    '{{ $res->court_id }}', 
+                                    '{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}', 
+                                    '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}', 
+                                    '₱{{ number_format($res->total_price, 2) }}', 
+                                    '{{ ucfirst($res->status) }}', 
+                                    '{{ $res->status == \'cancelled\' ? \Carbon\Carbon::parse($res->updated_at)->format(\'F j, Y \a\t g:i A\') : \'\'  }}'
+                                )"><i class="fa-regular fa-eye"></i></button>
                             </td>
                         </tr>
                     @empty
@@ -283,7 +263,7 @@
             <table id="table-confirmed" class="data-table" style="display: none;">
                 <thead>
                     <tr>
-                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Amount Paid</th><th>Total Amount</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th><th style="text-align: center;">Action</th>
+                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Amount Paid</th><th>Total Amount</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -322,37 +302,17 @@
                             </td>
                             <td style="text-align: center;"><span class="badge badge-confirmed">Confirmed</span></td>
                             <td style="text-align: center;">
-                                <div class="dropdown">
-                                    <button class="action-dots">⋮</button>
-                                    <div class="dropdown-content">
-                                        <a href="javascript:void(0)" onclick="viewAdminReservationDetails(
-                                            '{{ $res->reservation_code }}', 
-                                            '{{ addslashes($res->user->name ?? 'User '.$res->user_id) }}', 
-                                            '{{ $res->sport ?? 'Badminton' }}', 
-                                            '{{ $res->court_id }}', 
-                                            '{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}', 
-                                            '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}', 
-                                            '₱{{ number_format($res->total_price, 2) }}', 
-                                            '{{ ucfirst($res->status) }}', 
-                                            '{{ $res->status == 'cancelled' ? \Carbon\Carbon::parse($res->updated_at)->format('F j, Y \a\t g:i A') : '' }}'
-                                        )"><i class="fa-regular fa-eye"></i> View Details</a>
-                                        <a href="#"><i class="fa-solid fa-pen"></i> Edit</a>
-                                        @if($res->status == "confirmed" || $res->status == "in-play")
-                                            <form action="{{ url(Request::segment(1)."/walk-in/".$res->id."/completed") }}" method="POST" style="margin:0;">
-                                                @csrf <button type="submit" style="background:none; border:none; padding:10px 15px; width:100%; text-align:left; cursor:pointer; font-size:14px; color:#059669;"><i class="fa-solid fa-circle-check"></i> Mark Completed</button>
-                                            </form>
-                                            @if($res->status == "confirmed")
-                                            <form action="{{ url(Request::segment(1)."/walk-in/".$res->id."/in-play") }}" method="POST" style="margin:0;">
-                                                @csrf <button type="submit" style="background:none; border:none; padding:10px 15px; width:100%; text-align:left; cursor:pointer; font-size:14px; color:#2563eb;"><i class="fa-solid fa-play"></i> Mark In Play</button>
-                                            </form>
-                                            @endif
-                                        @endif
-                                        <form action="{{ url(Request::segment(1).'/reservations/'.$res->id.'/cancel') }}" method="POST" style="margin:0;">
-                                            @csrf
-                                            <button type="submit" class="text-danger" onclick="return confirm('Are you sure you want to delete this reservation?');"><i class="fa-regular fa-trash-can"></i> Delete</button>
-                                        </form>
-                                    </div>
-                                </div>
+                                <button type="button" class="btn-receipt" onclick="viewAdminReservationDetails(
+                                    '{{ $res->reservation_code }}', 
+                                    '{{ addslashes($res->user->name ?? 'User '.$res->user_id) }}', 
+                                    '{{ $res->sport ?? 'Badminton' }}', 
+                                    '{{ $res->court_id }}', 
+                                    '{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}', 
+                                    '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}', 
+                                    '₱{{ number_format($res->total_price, 2) }}', 
+                                    '{{ ucfirst($res->status) }}', 
+                                    '{{ $res->status == \'cancelled\' ? \Carbon\Carbon::parse($res->updated_at)->format(\'F j, Y \a\t g:i A\') : \'\'  }}'
+                                )"><i class="fa-regular fa-eye"></i></button>
                             </td>
                         </tr>
                     @empty
@@ -365,7 +325,7 @@
             <table id="table-in-play" class="data-table" style="display: none;">
                 <thead>
                     <tr>
-                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Amount Paid</th><th>Total Amount</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th><th style="text-align: center;">Action</th>
+                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Amount Paid</th><th>Total Amount</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -404,30 +364,17 @@
                             </td>
                             <td style="text-align: center;"><span class="badge badge-confirmed" style="background-color:#dbeafe; color:#2563eb;">In Play</span></td>
                             <td style="text-align: center;">
-                                <div class="dropdown">
-                                    <button class="action-dots">⋮</button>
-                                    <div class="dropdown-content">
-                                        <a href="javascript:void(0)" onclick="viewAdminReservationDetails(
-                                            '{{ $res->reservation_code }}', 
-                                            '{{ addslashes($res->user->name ?? 'User '.$res->user_id) }}', 
-                                            '{{ $res->sport ?? 'Badminton' }}', 
-                                            '{{ $res->court_id }}', 
-                                            '{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}', 
-                                            '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}', 
-                                            '₱{{ number_format($res->total_price, 2) }}', 
-                                            '{{ ucfirst($res->status) }}', 
-                                            ''
-                                        )"><i class="fa-regular fa-eye"></i> View Details</a>
-                                        <a href="#"><i class="fa-solid fa-pen"></i> Edit</a>
-                                        <form action="{{ url(Request::segment(1).'/walk-in/'.$res->id.'/completed') }}" method="POST" style="margin:0;">
-                                            @csrf <button type="submit" style="background:none; border:none; padding:10px 15px; width:100%; text-align:left; cursor:pointer; font-size:14px; color:#059669;"><i class="fa-solid fa-circle-check"></i> Mark Completed</button>
-                                        </form>
-                                        <form action="{{ url(Request::segment(1).'/reservations/'.$res->id.'/cancel') }}" method="POST" style="margin:0;">
-                                            @csrf
-                                            <button type="submit" class="text-danger" onclick="return confirm('Are you sure you want to delete this reservation?');"><i class="fa-regular fa-trash-can"></i> Delete</button>
-                                        </form>
-                                    </div>
-                                </div>
+                                <button type="button" class="btn-receipt" onclick="viewAdminReservationDetails(
+                                    '{{ $res->reservation_code }}', 
+                                    '{{ addslashes($res->user->name ?? 'User '.$res->user_id) }}', 
+                                    '{{ $res->sport ?? 'Badminton' }}', 
+                                    '{{ $res->court_id }}', 
+                                    '{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}', 
+                                    '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}', 
+                                    '₱{{ number_format($res->total_price, 2) }}', 
+                                    '{{ ucfirst($res->status) }}', 
+                                    '{{ $res->status == \'cancelled\' ? \Carbon\Carbon::parse($res->updated_at)->format(\'F j, Y \a\t g:i A\') : \'\'  }}'
+                                )"><i class="fa-regular fa-eye"></i></button>
                             </td>
                         </tr>
                     @empty
@@ -440,7 +387,7 @@
             <table id="table-completed" class="data-table" style="display: none;">
                 <thead>
                     <tr>
-                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Amount Paid</th><th>Total Amount</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th><th style="text-align: center;">Action</th>
+                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Amount Paid</th><th>Total Amount</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -479,37 +426,17 @@
                             </td>
                             <td style="text-align: center;"><span class="badge badge-completed">Completed</span></td>
                             <td style="text-align: center;">
-                                <div class="dropdown">
-                                    <button class="action-dots">⋮</button>
-                                    <div class="dropdown-content">
-                                        <a href="javascript:void(0)" onclick="viewAdminReservationDetails(
-                                            '{{ $res->reservation_code }}', 
-                                            '{{ addslashes($res->user->name ?? 'User '.$res->user_id) }}', 
-                                            '{{ $res->sport ?? 'Badminton' }}', 
-                                            '{{ $res->court_id }}', 
-                                            '{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}', 
-                                            '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}', 
-                                            '₱{{ number_format($res->total_price, 2) }}', 
-                                            '{{ ucfirst($res->status) }}', 
-                                            '{{ $res->status == 'cancelled' ? \Carbon\Carbon::parse($res->updated_at)->format('F j, Y \a\t g:i A') : '' }}'
-                                        )"><i class="fa-regular fa-eye"></i> View Details</a>
-                                        <a href="#"><i class="fa-solid fa-pen"></i> Edit</a>
-                                        @if($res->status == "confirmed" || $res->status == "in-play")
-                                            <form action="{{ url(Request::segment(1)."/walk-in/".$res->id."/completed") }}" method="POST" style="margin:0;">
-                                                @csrf <button type="submit" style="background:none; border:none; padding:10px 15px; width:100%; text-align:left; cursor:pointer; font-size:14px; color:#059669;"><i class="fa-solid fa-circle-check"></i> Mark Completed</button>
-                                            </form>
-                                            @if($res->status == "confirmed")
-                                            <form action="{{ url(Request::segment(1)."/walk-in/".$res->id."/in-play") }}" method="POST" style="margin:0;">
-                                                @csrf <button type="submit" style="background:none; border:none; padding:10px 15px; width:100%; text-align:left; cursor:pointer; font-size:14px; color:#2563eb;"><i class="fa-solid fa-play"></i> Mark In Play</button>
-                                            </form>
-                                            @endif
-                                        @endif
-                                        <form action="{{ url(Request::segment(1).'/reservations/'.$res->id.'/cancel') }}" method="POST" style="margin:0;">
-                                            @csrf
-                                            <button type="submit" class="text-danger" onclick="return confirm('Are you sure you want to delete this reservation?');"><i class="fa-regular fa-trash-can"></i> Delete</button>
-                                        </form>
-                                    </div>
-                                </div>
+                                <button type="button" class="btn-receipt" onclick="viewAdminReservationDetails(
+                                    '{{ $res->reservation_code }}', 
+                                    '{{ addslashes($res->user->name ?? 'User '.$res->user_id) }}', 
+                                    '{{ $res->sport ?? 'Badminton' }}', 
+                                    '{{ $res->court_id }}', 
+                                    '{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}', 
+                                    '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}', 
+                                    '₱{{ number_format($res->total_price, 2) }}', 
+                                    '{{ ucfirst($res->status) }}', 
+                                    '{{ $res->status == \'cancelled\' ? \Carbon\Carbon::parse($res->updated_at)->format(\'F j, Y \a\t g:i A\') : \'\'  }}'
+                                )"><i class="fa-regular fa-eye"></i></button>
                             </td>
                         </tr>
                     @empty
@@ -522,7 +449,7 @@
             <table id="table-cancelled" class="data-table" style="display: none;">
                 <thead>
                     <tr>
-                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Amount Paid</th><th>Total Amount</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th><th style="text-align: center;">Action</th>
+                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Amount Paid</th><th>Total Amount</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -561,37 +488,17 @@
                             </td>
                             <td style="text-align: center;"><span class="badge badge-cancelled">Cancelled</span></td>
                             <td style="text-align: center;">
-                                <div class="dropdown">
-                                    <button class="action-dots">⋮</button>
-                                    <div class="dropdown-content">
-                                        <a href="javascript:void(0)" onclick="viewAdminReservationDetails(
-                                            '{{ $res->reservation_code }}', 
-                                            '{{ addslashes($res->user->name ?? 'User '.$res->user_id) }}', 
-                                            '{{ $res->sport ?? 'Badminton' }}', 
-                                            '{{ $res->court_id }}', 
-                                            '{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}', 
-                                            '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}', 
-                                            '₱{{ number_format($res->total_price, 2) }}', 
-                                            '{{ ucfirst($res->status) }}', 
-                                            '{{ $res->status == 'cancelled' ? \Carbon\Carbon::parse($res->updated_at)->format('F j, Y \a\t g:i A') : '' }}'
-                                        )"><i class="fa-regular fa-eye"></i> View Details</a>
-                                        <a href="#"><i class="fa-solid fa-pen"></i> Edit</a>
-                                        @if($res->status == "confirmed" || $res->status == "in-play")
-                                            <form action="{{ url(Request::segment(1)."/walk-in/".$res->id."/completed") }}" method="POST" style="margin:0;">
-                                                @csrf <button type="submit" style="background:none; border:none; padding:10px 15px; width:100%; text-align:left; cursor:pointer; font-size:14px; color:#059669;"><i class="fa-solid fa-circle-check"></i> Mark Completed</button>
-                                            </form>
-                                            @if($res->status == "confirmed")
-                                            <form action="{{ url(Request::segment(1)."/walk-in/".$res->id."/in-play") }}" method="POST" style="margin:0;">
-                                                @csrf <button type="submit" style="background:none; border:none; padding:10px 15px; width:100%; text-align:left; cursor:pointer; font-size:14px; color:#2563eb;"><i class="fa-solid fa-play"></i> Mark In Play</button>
-                                            </form>
-                                            @endif
-                                        @endif
-                                        <form action="{{ url(Request::segment(1).'/reservations/'.$res->id.'/cancel') }}" method="POST" style="margin:0;">
-                                            @csrf
-                                            <button type="submit" class="text-danger" onclick="return confirm('Are you sure you want to delete this reservation?');"><i class="fa-regular fa-trash-can"></i> Delete</button>
-                                        </form>
-                                    </div>
-                                </div>
+                                <button type="button" class="btn-receipt" onclick="viewAdminReservationDetails(
+                                    '{{ $res->reservation_code }}', 
+                                    '{{ addslashes($res->user->name ?? 'User '.$res->user_id) }}', 
+                                    '{{ $res->sport ?? 'Badminton' }}', 
+                                    '{{ $res->court_id }}', 
+                                    '{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}', 
+                                    '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}', 
+                                    '₱{{ number_format($res->total_price, 2) }}', 
+                                    '{{ ucfirst($res->status) }}', 
+                                    '{{ $res->status == \'cancelled\' ? \Carbon\Carbon::parse($res->updated_at)->format(\'F j, Y \a\t g:i A\') : \'\'  }}'
+                                )"><i class="fa-regular fa-eye"></i></button>
                             </td>
                         </tr>
                     @empty
