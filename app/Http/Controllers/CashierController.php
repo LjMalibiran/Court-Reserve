@@ -280,9 +280,7 @@ class CashierController extends Controller
         $query = \App\Models\Reservation::with(['user', 'court'])->orderBy('created_at', 'desc');
         
         if ($request->filled('sport') && $request->sport != 'all') {
-            $query->whereHas('court', function($q) use ($request) {
-                $q->where('type', $request->sport);
-            });
+            $query->where('sport', $request->sport);
         }
         
         if ($request->filled('start_date')) {
@@ -295,8 +293,11 @@ class CashierController extends Controller
         
         $reservations = $query->get();
 
-        // Fetch distinct sports for the dropdown
-        $sports = \App\Models\Court::distinct()->pluck('type');
+        // Fetch distinct sports from reservations table
+        $sports = \App\Models\Reservation::whereNotNull('sport')->distinct()->pluck('sport');
+        if ($sports->isEmpty()) {
+            $sports = collect(['Badminton', 'Pickleball']);
+        }
         
         $activeRes = $reservations->where('status', '!=', 'cancelled');
 
