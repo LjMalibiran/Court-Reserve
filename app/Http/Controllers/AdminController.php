@@ -402,21 +402,52 @@ class AdminController extends Controller
                     'content' => "The price for Pickleball courts has been updated from ₱" . $oldSettings['price_pickleball'] . " to ₱" . $settings['price_pickleball'] . " per hour."
                 ]);
             }
+            if (isset($oldSettings['price_racket']) && $oldSettings['price_racket'] != $settings['price_racket']) {
+                \App\Models\Announcement::where('title', 'Price Update: Racket')->delete();
+                \App\Models\Announcement::create([
+                    'title' => 'Price Update: Racket',
+                    'content' => "The price for Racket Rentals has been updated from ₱" . $oldSettings['price_racket'] . " to ₱" . $settings['price_racket'] . "."
+                ]);
+            }
+            if (isset($oldSettings['price_shuttlecock']) && $oldSettings['price_shuttlecock'] != $settings['price_shuttlecock']) {
+                \App\Models\Announcement::where('title', 'Price Update: Shuttlecock')->delete();
+                \App\Models\Announcement::create([
+                    'title' => 'Price Update: Shuttlecock',
+                    'content' => "The price for Shuttlecocks has been updated from ₱" . $oldSettings['price_shuttlecock'] . " to ₱" . $settings['price_shuttlecock'] . "."
+                ]);
+            }
             if (isset($oldSettings['blocked_dates']) && $oldSettings['blocked_dates'] != $settings['blocked_dates']) {
-                $newDates = array_column($settings['blocked_dates'], 'date');
-                $oldDates = array_column($oldSettings['blocked_dates'], 'date');
-                $added = array_diff($newDates, $oldDates);
-                $removed = array_diff($oldDates, $newDates);
+                $newBlocks = array_map(function($b) { return json_encode($b); }, $settings['blocked_dates']);
+                $oldBlocks = array_map(function($b) { return json_encode($b); }, $oldSettings['blocked_dates']);
+                
+                $addedBlocks = array_diff($newBlocks, $oldBlocks);
+                $removedBlocks = array_diff($oldBlocks, $newBlocks);
+                
                 $msg = "";
-                if (!empty($added)) {
-                    $formattedAdded = array_map(function($d) { return \Carbon\Carbon::parse($d)->format('M j, Y'); }, array_unique($added));
-                    $msg .= "New blocked dates added: " . implode(', ', $formattedAdded) . ". ";
+                if (!empty($addedBlocks)) {
+                    $addedStrings = [];
+                    foreach ($addedBlocks as $json) {
+                        $b = json_decode($json, true);
+                        $date = \Carbon\Carbon::parse($b['date'])->format('M j, Y');
+                        $start = \Carbon\Carbon::parse($b['start'])->format('g:i A');
+                        $end = \Carbon\Carbon::parse($b['end'])->format('g:i A');
+                        $addedStrings[] = "$date ($start - $end)";
+                    }
+                    $msg .= "New blocked times added:\n" . implode("\n", $addedStrings) . "\n\n";
                 }
-                if (!empty($removed)) {
-                    $formattedRemoved = array_map(function($d) { return \Carbon\Carbon::parse($d)->format('M j, Y'); }, array_unique($removed));
-                    $msg .= "Blocked dates removed (now available): " . implode(', ', $formattedRemoved) . ".";
+                if (!empty($removedBlocks)) {
+                    $removedStrings = [];
+                    foreach ($removedBlocks as $json) {
+                        $b = json_decode($json, true);
+                        $date = \Carbon\Carbon::parse($b['date'])->format('M j, Y');
+                        $start = \Carbon\Carbon::parse($b['start'])->format('g:i A');
+                        $end = \Carbon\Carbon::parse($b['end'])->format('g:i A');
+                        $removedStrings[] = "$date ($start - $end)";
+                    }
+                    $msg .= "Blocked times removed (now available):\n" . implode("\n", $removedStrings);
                 }
-                if ($msg) {
+                
+                if (trim($msg)) {
                     \App\Models\Announcement::where('title', 'Schedule Update')->delete();
                     \App\Models\Announcement::create([
                         'title' => 'Schedule Update',
