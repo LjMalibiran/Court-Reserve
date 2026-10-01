@@ -310,7 +310,6 @@
             
             <div class="footer-bottom">
                 <div>&copy; 2026 Court Reserve. All rights reserved.</div>
-                <a href="#">Terms & Conditions</a>
             </div>
         </footer>
     </main>
