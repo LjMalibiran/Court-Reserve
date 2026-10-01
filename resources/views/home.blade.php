@@ -136,20 +136,27 @@
         .time-slot-grid { grid-template-columns: repeat(3, 1fr); }
         .form-group-row { flex-direction: column; gap: 12px; }
     }
-    /* Announcements */
-    .announcements-box { background: #ffffff !important; border-radius: 20px !important; padding: 28px 32px !important; box-shadow: 0 4px 18px rgba(15, 43, 110, 0.04) !important; border: 1px solid #e2e8f0 !important; margin-bottom: 24px !important; overflow: hidden; }
-    .announcements-header { display: flex !important; align-items: center !important; gap: 12px !important; margin-bottom: 20px !important; }
-    .announcements-header i { font-size: 24px !important; color: #ea580c !important; }
-    .announcements-header h3 { margin: 0 !important; color: #0f2b6e !important; font-size: 20px !important; font-weight: 700 !important; }
-    .carousel-container { display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 12px; }
-    .carousel-container::-webkit-scrollbar { height: 6px; }
-    .carousel-container::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
-    .carousel-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
-    .announcement-item { flex: 0 0 calc(50% - 8px); min-width: 300px; scroll-snap-align: start; border-left: 4px solid #0033cc !important; background: #f8fafc !important; padding: 16px 20px !important; border-radius: 0 8px 8px 0 !important; margin-bottom: 0 !important; }
-    .announcement-item h4 { margin: 0 0 6px 0 !important; color: #0f2b6e !important; font-size: 16px !important; font-weight: 700 !important; }
-    .announcement-item p { margin: 0 !important; color: #475569 !important; font-size: 14px !important; line-height: 1.5 !important; }
-    .announcement-date { font-size: 12px !important; color: #94a3b8 !important; font-weight: 600 !important; margin-top: 8px !important; display: block !important; }
-    .no-announcements { text-align: center !important; color: #94a3b8 !important; font-style: italic !important; font-size: 15px !important; padding: 20px 0 !important; }
+    /* Announcements Slider */
+    .announcements-slider-wrapper { position: relative; margin-bottom: 24px; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 18px rgba(15, 43, 110, 0.08); background: #284474; color: white; }
+    .announcements-track { display: flex; transition: transform 0.5s ease-in-out; }
+    .announcement-slide { min-width: 100%; display: flex; align-items: stretch; }
+    .as-left { flex: 1; padding: 36px 40px; display: flex; flex-direction: column; justify-content: center; }
+    .as-badge { background: #ef4444; color: white; font-weight: 800; padding: 6px 16px; display: inline-block; font-size: 14px; letter-spacing: 1px; margin-bottom: 16px; align-self: flex-start; text-transform: uppercase;}
+    .as-title { color: #facc15; font-size: 26px; font-weight: 800; margin: 0 0 16px 0; line-height: 1.2; }
+    .as-date { color: #e2e8f0; font-size: 15px; margin: 0; }
+    .as-right { flex: 1.2; background: white; margin: 16px 16px 36px 0; border-radius: 12px; padding: 24px 32px; color: #0f2b6e; display: flex; flex-direction: column; justify-content: center; position: relative; box-shadow: 0 4px 12px rgba(0,0,0,0.1);}
+    .as-right p { margin: 0; font-size: 16px; line-height: 1.6; font-weight: 500; }
+    
+    .slider-dots { position: absolute; bottom: 12px; left: 0; width: 100%; display: flex; justify-content: center; gap: 8px; }
+    .slider-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.3); cursor: pointer; transition: 0.3s; border: none; padding: 0;}
+    .slider-dot.active { background: white; }
+
+    @media (max-width: 768px) {
+        .announcement-slide { flex-direction: column; }
+        .as-left { padding: 30px 20px 20px 20px; }
+        .as-right { margin: 0 20px 36px 20px; padding: 20px; }
+        .as-title { font-size: 22px; }
+    }
 </style>
 
 <div class="welcome-card">
@@ -192,27 +199,69 @@
     </div>
 </div>
 
-<!-- Announcements Box -->
-<div class="announcements-box">
-    <div class="announcements-header">
-        <i class="fa-solid fa-bullhorn"></i>
-        <h3>News & Updates</h3>
+<!-- Announcements Slider -->
+@if(isset($announcements) && $announcements->count() > 0)
+<div class="announcements-slider-wrapper" id="announcementsSlider">
+    <div class="announcements-track" id="sliderTrack">
+        @foreach($announcements->take(5) as $index => $announcement)
+            <div class="announcement-slide">
+                <div class="as-left">
+                    <div class="as-badge">ANNOUNCEMENT</div>
+                    <h3 class="as-title">{{ $announcement->title }}</h3>
+                    <p class="as-date">{{ \Carbon\Carbon::parse($announcement->created_at)->format('F j, Y') }}</p>
+                </div>
+                <div class="as-right">
+                    <p>{!! nl2br(e($announcement->content)) !!}</p>
+                </div>
+            </div>
+        @endforeach
     </div>
     
-    @if(isset($announcements) && $announcements->count() > 0)
-        <div class="carousel-container">
-            @foreach($announcements->take(6) as $announcement)
-                <div class="announcement-item">
-                    <h4>{{ $announcement->title }}</h4>
-                    <p>{!! nl2br(e($announcement->content)) !!}</p>
-                    <span class="announcement-date">{{ \Carbon\Carbon::parse($announcement->created_at)->format('F j, Y \a\t g:i A') }}</span>
-                </div>
-            @endforeach
+    @if($announcements->count() > 1)
+        <div class="slider-dots" id="sliderDots">
+            @for($i = 0; $i < min(5, $announcements->count()); $i++)
+                <button class="slider-dot {{ $i == 0 ? 'active' : '' }}" onclick="goToSlide({{ $i }})"></button>
+            @endfor
         </div>
-    @else
-        <div class="no-announcements">No recent updates or announcements at this time.</div>
     @endif
 </div>
+
+<script>
+    let currentSlide = 0;
+    const totalSlides = {{ min(5, $announcements->count()) }};
+    const track = document.getElementById('sliderTrack');
+    const dots = document.querySelectorAll('.slider-dot');
+    let slideInterval;
+
+    function goToSlide(index) {
+        currentSlide = index;
+        track.style.transform = `translateX(-${currentSlide * 100}%)`;
+        
+        dots.forEach(dot => dot.classList.remove('active'));
+        if (dots[currentSlide]) dots[currentSlide].classList.add('active');
+        
+        resetInterval();
+    }
+
+    function nextSlide() {
+        if (totalSlides <= 1) return;
+        let next = currentSlide + 1;
+        if (next >= totalSlides) next = 0;
+        goToSlide(next);
+    }
+
+    function resetInterval() {
+        clearInterval(slideInterval);
+        if (totalSlides > 1) {
+            slideInterval = setInterval(nextSlide, 5000); // 5 seconds auto-scroll
+        }
+    }
+
+    if (totalSlides > 1) {
+        resetInterval();
+    }
+</script>
+@endif
 
 <div class="reservations-grid">
     <div class="panel">
