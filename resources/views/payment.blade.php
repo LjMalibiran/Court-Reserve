@@ -24,7 +24,7 @@
 
 @section('styles')
 <style>
-    .payment-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 30px; margin-top: 10px; max-width: 1000px; }
+    .payment-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 30px; margin-top: 10px; }
     
     .panel { background: white; border-radius: 16px; padding: 32px; border: 1.5px solid #e2e8f0; position: relative; }
     
@@ -64,7 +64,7 @@
     .upload-hint { text-align: center; color: #94a3b8; font-size: 12px; font-weight: 600;}
     
     /* Submit Button */
-    .btn-submit-container { max-width: 1000px; width: 100%; display: flex; justify-content: space-between; margin-top: 10px;}
+    .btn-submit-container { width: 100%; display: flex; justify-content: space-between; margin-top: 10px;}
     .btn-submit { background: #0033cc; color: white; border: none; padding: 16px 40px; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.2s; min-width: 200px;}
     .btn-submit:hover:not(:disabled) { background: #002299; }
     .btn-submit:disabled { background: #cccccc; cursor: not-allowed; }
@@ -109,7 +109,7 @@
 @endsection
 
 @section('content')
-<form action="{{ url('/reserve/process-payment') }}" method="POST" enctype="multipart/form-data" id="paymentForm" onsubmit="return validatePayment(event)" style="max-width: 1000px;">
+<form action="{{ url('/reserve/process-payment') }}" method="POST" enctype="multipart/form-data" id="paymentForm" onsubmit="return validatePayment(event)">
     @csrf
     <input type="hidden" name="court_id" value="{{ session('court_id') }}">
     <input type="hidden" name="sport" value="{{ session('sport') }}">
