@@ -129,13 +129,7 @@
         <div class="controls-bar">
             <form class="filter-group" style="margin: 0; width: auto; flex: 0 1 auto;" method="GET" action="{{ url()->current() }}">
                 <div class="filter-item">
-                    <label>Court:</label>
-                    <select name="court" class="filter-control">
-                        <option value="all" {{ request('court') == 'all' ? 'selected' : '' }}>All Courts</option>
-                        <option value="1" {{ request('court') == '1' ? 'selected' : '' }}>Court 1</option>
-                        <option value="2" {{ request('court') == '2' ? 'selected' : '' }}>Court 2</option>
-                        <option value="3" {{ request('court') == '3' ? 'selected' : '' }}>Court 3</option>
-                    </select>
+                    <label>Sport:</label><select name="sport" class="filter-control"><option value="all" {{ request('sport') == 'all' ? 'selected' : '' }}>All Sports</option>@foreach($sports as $sport)<option value="{{ $sport }}" {{ request('sport') == $sport ? 'selected' : '' }}>{{ $sport }}</option>@endforeach</select>
                 </div>
                 
                 <div class="filter-item">
@@ -298,3 +292,4 @@
 @include('partials.notif-script')
 </body>
 </html>
+

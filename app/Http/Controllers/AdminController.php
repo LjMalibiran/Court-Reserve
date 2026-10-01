@@ -216,8 +216,10 @@ class AdminController extends Controller
     {
         $query = \App\Models\Reservation::with(['user', 'court'])->orderBy('created_at', 'desc');
         
-        if ($request->filled('court') && $request->court != 'all') {
-            $query->where('court_id', $request->court);
+        if ($request->filled('sport') && $request->sport != 'all') {
+            $query->whereHas('court', function($q) use ($request) {
+                $q->where('type', $request->sport);
+            });
         }
         
         if ($request->filled('start_date')) {
@@ -229,6 +231,9 @@ class AdminController extends Controller
         }
         
         $reservations = $query->get();
+        
+        // Fetch distinct sports for the dropdown
+        $sports = \App\Models\Court::distinct()->pluck('type');
         
         $activeRes = $reservations->where('status', '!=', 'cancelled');
 
@@ -275,7 +280,7 @@ class AdminController extends Controller
             }
         }
 
-        return view('admin.sales-report', compact('reservations', 'totalRevenue', 'gcashPayments', 'cashPayments', 'pendingAmount'));
+        return view('admin.sales-report', compact('reservations', 'totalRevenue', 'gcashPayments', 'cashPayments', 'pendingAmount', 'sports'));
     }
 
     public function salesTransactionsIndex()
