@@ -389,12 +389,14 @@ class AdminController extends Controller
         // Check for changes and create announcements automatically
         if (!empty($oldSettings)) {
             if (isset($oldSettings['price_badminton']) && $oldSettings['price_badminton'] != $settings['price_badminton']) {
+                \App\Models\Announcement::where('title', 'Price Update: Badminton')->delete();
                 \App\Models\Announcement::create([
                     'title' => 'Price Update: Badminton',
                     'content' => "The price for Badminton courts has been updated from ₱" . $oldSettings['price_badminton'] . " to ₱" . $settings['price_badminton'] . " per hour."
                 ]);
             }
             if (isset($oldSettings['price_pickleball']) && $oldSettings['price_pickleball'] != $settings['price_pickleball']) {
+                \App\Models\Announcement::where('title', 'Price Update: Pickleball')->delete();
                 \App\Models\Announcement::create([
                     'title' => 'Price Update: Pickleball',
                     'content' => "The price for Pickleball courts has been updated from ₱" . $oldSettings['price_pickleball'] . " to ₱" . $settings['price_pickleball'] . " per hour."
@@ -413,6 +415,7 @@ class AdminController extends Controller
                     $msg .= "Blocked dates removed (now available): " . implode(', ', $formattedRemoved) . ".";
                 }
                 if ($msg) {
+                    \App\Models\Announcement::where('title', 'Schedule Update')->delete();
                     \App\Models\Announcement::create([
                         'title' => 'Schedule Update',
                         'content' => trim($msg)
@@ -437,6 +440,7 @@ class AdminController extends Controller
                     }
                 }
                 if (!empty($hoursMsg)) {
+                    \App\Models\Announcement::where('title', 'Operating Hours Update')->delete();
                     \App\Models\Announcement::create([
                         'title' => 'Operating Hours Update',
                         'content' => "Our operating hours have been updated:\n" . implode("\n", $hoursMsg)
