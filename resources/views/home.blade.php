@@ -647,22 +647,34 @@
         actionsDiv.innerHTML = '';
 
         if (status === 'confirmed') {
-            actionsDiv.innerHTML += `<button class="btn-solid-blue" onclick="closeGlobalModal('resDetailsModal'); openEditModal(${id}, '${sport}', '${courtId}', '${date}', '${startTime}', '${endTime}')">Edit Reservation</button>`;
+            actionsDiv.innerHTML += `<button class="btn-solid-blue" onclick="closeGlobalModal('resDetailsModal'); openEditModal(${id}, '${sport}', '${courtId}', '${date}', '${startTime}', '${endTime}', '${status}')">Edit Reservation</button>`;
             actionsDiv.innerHTML += `<button class="btn-solid-red" onclick="closeGlobalModal('resDetailsModal'); openCancelModal(${id}, '${code}', '${sport}', '${courtId}', '${date}', '${startTime}', '${endTime}', '${status}')">Cancel Reservation</button>`;
         } else if (status === 'pending') {
-            actionsDiv.innerHTML += `<button class="btn-solid-blue" onclick="closeGlobalModal('resDetailsModal'); openEditModal(${id}, '${sport}', '${courtId}', '${date}', '${startTime}', '${endTime}')">Edit Reservation</button>`;
+            actionsDiv.innerHTML += `<button class="btn-solid-blue" onclick="closeGlobalModal('resDetailsModal'); openEditModal(${id}, '${sport}', '${courtId}', '${date}', '${startTime}', '${endTime}', '${status}')">Edit Reservation</button>`;
             actionsDiv.innerHTML += `<button class="btn-solid-red" onclick="closeGlobalModal('resDetailsModal'); openCancelModal(${id}, '${code}', '${sport}', '${courtId}', '${date}', '${startTime}', '${endTime}', '${status}')">Cancel Reservation</button>`;
         }
 
         document.getElementById('resDetailsModal').style.display = 'flex';
     }
 
-    function openEditModal(id, sport, courtId, date, startTime, endTime) {
+    let originalEditCourtId = null;
+
+    function openEditModal(id, sport, courtId, date, startTime, endTime, status = 'confirmed') {
         currentEditReservationId = id; // Store the ID to ignore during API fetch
+        originalEditCourtId = courtId;
         
         document.getElementById('editForm').action = '/reservations/' + id + '/edit-user';
         document.getElementById('edit-res-sport').innerText = sport;
         document.getElementById('edit-res-court').innerText = 'Court ' + courtId;
+
+        const badge = document.getElementById('edit-res-badge');
+        if(badge) {
+            badge.innerText = status.charAt(0).toUpperCase() + status.slice(1);
+            badge.className = '';
+            if (status === 'confirmed' || status === 'completed' || status === 'in-play') badge.className = 'badge-confirmed';
+            else if (status === 'cancelled') badge.className = 'badge-cancelled';
+            else badge.className = 'badge-pending';
+        }
         
         const d = new Date(date);
         const dateOptions = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
@@ -778,7 +790,7 @@
             btn.innerText = timeString12;
             btn.dataset.time24 = timeString24;
 
-            let isOriginalStartTime = (isOriginalDate && timeString24 === currentEditStartTimeStr && currentEditCourtId == document.getElementById('edit-court-select').value);
+            let isOriginalStartTime = (isOriginalDate && timeString24 === currentEditStartTimeStr && originalEditCourtId == document.getElementById('edit-court-select').value);
             let isAvailable = true;
 
             // Does the required duration fit within closing hours?
