@@ -203,8 +203,14 @@
                 </thead>
                 <tbody>
                     @forelse($reservations->where('status', 'pending') as $res)
-                        <tr>
-                            <td style="color: var(--primary-blue); font-weight: 600;">{{ $res->reservation_code }}</td>
+                        @php $isPast = \Carbon\Carbon::parse($res->start_time)->isPast(); @endphp
+                        <tr style="{{ $isPast ? 'background-color: #fef2f2; border-left: 4px solid #dc2626;' : '' }}">
+                            <td style="color: var(--primary-blue); font-weight: 600;">
+                                {{ $res->reservation_code }}
+                                @if($isPast)
+                                    <br><span style="color: #dc2626; font-size: 11px; font-weight: 700; display: inline-block; margin-top: 4px;"><i class="fa-solid fa-triangle-exclamation"></i> OVERDUE</span>
+                                @endif
+                            </td>
                             <td>{{ $res->user->name ?? 'User '.$res->user_id }}</td>
                             <td>{{ $res->sport ?? 'Badminton' }} - Court {{ $res->court_id }}</td>
                             <td>
@@ -233,11 +239,11 @@
                                 <div class="action-btns">
                                     <form action="{{ url(Request::segment(1).'/reservations/'.$res->id.'/confirm') }}" method="POST" style="margin:0;">
                                         @csrf
-                                        <button type="submit" class="btn-outline-confirm">Confirm</button>
+                                        <button type="submit" class="btn-outline-confirm">{{ $isPast ? 'Force Confirm' : 'Confirm' }}</button>
                                     </form>
                                     <form action="{{ url(Request::segment(1).'/reservations/'.$res->id.'/cancel') }}" method="POST" style="margin:0;">
                                         @csrf
-                                        <button type="submit" class="btn-outline-cancel" onclick="return confirm('Are you sure you want to cancel this reservation?');">Cancel</button>
+                                        <button type="submit" class="btn-outline-cancel" onclick="return confirm('Are you sure you want to cancel this reservation?');">{{ $isPast ? 'Cancel & Refund' : 'Cancel' }}</button>
                                     </form>
                                 </div>
                             </td>

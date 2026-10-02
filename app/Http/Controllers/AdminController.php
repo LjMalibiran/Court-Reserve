@@ -140,6 +140,17 @@ class AdminController extends Controller
         
         if($reservation) {
             $reservation->status = 'cancelled';
+
+            // Automatically flag for full refund if paid online (Admin/Cashier cancellation)
+            if (in_array($reservation->payment_type, ['full', 'half'])) {
+                $reservation->refund_status = 'pending';
+                $paid = (float)$reservation->amount_paid;
+                if ($paid == 0) {
+                    $paid = ($reservation->payment_type == 'half') ? ((float)$reservation->total_price / 2) : (float)$reservation->total_price;
+                }
+                $reservation->refund_amount = $paid;
+            }
+
             $reservation->save();
 
             if ($reservation->user_id) {
