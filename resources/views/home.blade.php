@@ -333,7 +333,6 @@
     <div class="panel">
         <div class="panel-header">
             <h3>Upcoming Reservation</h3>
-            <a href="{{ route('history.index') }}">View All</a>
         </div>
         
         <div class="scrollable-list">
