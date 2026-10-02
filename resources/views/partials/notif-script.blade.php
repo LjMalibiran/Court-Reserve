@@ -83,10 +83,15 @@
     }
 </style>
 <script>
-    // Apply dark mode immediately on page load to prevent flash
+    // Apply dark mode immediately on page load to prevent flash (Cashier Only)
+    @if(auth()->check() && auth()->user()->role === 'cashier')
     if (localStorage.getItem('theme') === 'dark') {
         document.body.classList.add('dark-mode');
     }
+    @else
+    // If admin or other user, force light mode by removing the class just in case
+    document.body.classList.remove('dark-mode');
+    @endif
 </script>
 <script>
     // ==========================================
