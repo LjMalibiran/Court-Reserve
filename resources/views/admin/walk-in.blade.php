@@ -147,9 +147,7 @@
             </div>
         </header>
 
-        @if(session('success'))
-            <div class="alert">{{ session('success') }}</div>
-        @endif
+        <!-- Session Success Modal Handled Globally -->
 
 
 

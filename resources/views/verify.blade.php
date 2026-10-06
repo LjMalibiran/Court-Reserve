@@ -101,11 +101,7 @@
                 {{ $errors->first() }}
             </div>
         @endif
-        @if(session('success'))
-            <div style="background: #d4edda; color: #155724; padding: 10px; border-radius: 8px; margin-bottom: 20px; font-size: 14px;">
-                {{ session('success') }}
-            </div>
-        @endif
+        <!-- Session Success Modal Handled Globally -->
 
         <p class="instruction">
             We have sent the verification code to your email address.
@@ -218,5 +214,34 @@
             checkInputs();
         });
     </script>
+
+<!-- SweetAlert2 Library for Global Modals -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@if(session('success'))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            title: 'Success!',
+            text: "{!! addslashes(session('success')) !!}",
+            icon: 'success',
+            confirmButtonColor: '#1557c0'
+        });
+    });
+</script>
+@endif
+
+@if(session('error') || $errors->any())
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            title: 'Error!',
+            text: "{!! addslashes(session('error') ?? $errors->first()) !!}",
+            icon: 'error',
+            confirmButtonColor: '#dc2626'
+        });
+    });
+</script>
+@endif
+
 </body>
 </html>

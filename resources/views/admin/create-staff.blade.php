@@ -49,9 +49,7 @@
         </header>
 
         <div class="card">
-            @if(session('success'))
-                <div class="alert alert-success"><i class="fa-solid fa-check-circle"></i> {{ session('success') }}</div>
-            @endif
+            <!-- Session Success Modal Handled Globally -->
             @if($errors->any())
                 <div class="alert alert-error">
                     @foreach ($errors->all() as $error)

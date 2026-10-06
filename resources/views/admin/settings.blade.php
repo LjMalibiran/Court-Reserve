@@ -96,11 +96,7 @@
             </div>
         </header>
 
-        @if(session('success'))
-            <div style="background: #dcfce7; color: #166534; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: 500;">
-                {{ session('success') }}
-            </div>
-        @endif
+        <!-- Session Success Modal Handled Globally -->
 
         <form action="{{ url('/admin/settings') }}" method="POST">
             @csrf

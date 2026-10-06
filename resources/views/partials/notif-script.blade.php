@@ -200,3 +200,59 @@
 
 
 
+<!-- SweetAlert2 Library for Global Modals -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    // 1. Override standard JavaScript alert() to use SweetAlert modal
+    window.originalAlert = window.alert;
+    window.alert = function(message) {
+        Swal.fire({
+            text: message,
+            icon: 'info',
+            confirmButtonColor: '#1557c0',
+            confirmButtonText: 'OK',
+            customClass: {
+                popup: 'swal-custom-popup'
+            }
+        });
+    };
+</script>
+
+@if(session('success'))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            title: 'Success!',
+            text: "{!! addslashes(session('success')) !!}",
+            icon: 'success',
+            confirmButtonColor: '#1557c0',
+            customClass: { popup: 'swal-custom-popup' }
+        });
+    });
+</script>
+@endif
+
+@if(session('error'))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            title: 'Error!',
+            text: "{!! addslashes(session('error')) !!}",
+            icon: 'error',
+            confirmButtonColor: '#dc2626',
+            customClass: { popup: 'swal-custom-popup' }
+        });
+    });
+</script>
+@endif
+
+<style>
+    /* Prevent sweet alert from breaking dark mode */
+    body.dark-mode .swal2-popup {
+        background: #1e293b !important;
+        color: #f8fafc !important;
+    }
+    body.dark-mode .swal2-title, body.dark-mode .swal2-html-container {
+        color: #f8fafc !important;
+    }
+</style>

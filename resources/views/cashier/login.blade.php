@@ -214,11 +214,7 @@
             <div class="subtitle">Please log in your account to continue.</div>
             
             <!-- Display Auth Errors if they type the wrong credentials -->
-            @if(session('success'))
-                <div style="background: #dcfce7; color: #166534; padding: 12px 20px; border-radius: 10px; margin-bottom: 20px; font-size: 14px; border-left: 4px solid #22c55e;">
-                    <i class="fa-solid fa-circle-check"></i> {{ session('success') }}
-                </div>
-            @endif
+            <!-- Session Success Modal Handled Globally -->
             @if($errors->any())
                 <div style="color: #dc2626; background: #fee2e2; padding: 10px 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; border: 1px solid #f87171;">
                     {{ $errors->first() }}
@@ -281,6 +277,35 @@
             passwordInput.addEventListener('input', checkInputs);
         });
     </script>
+
+
+<!-- SweetAlert2 Library for Global Modals -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@if(session('success'))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            title: 'Success!',
+            text: "{!! addslashes(session('success')) !!}",
+            icon: 'success',
+            confirmButtonColor: '#1557c0'
+        });
+    });
+</script>
+@endif
+
+@if(session('error') || $errors->any())
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            title: 'Error!',
+            text: "{!! addslashes(session('error') ?? $errors->first()) !!}",
+            icon: 'error',
+            confirmButtonColor: '#dc2626'
+        });
+    });
+</script>
+@endif
 
 </body>
 </html>

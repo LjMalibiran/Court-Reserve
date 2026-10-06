@@ -96,16 +96,8 @@
         </div>
     </header>
 
-    @if(session('success'))
-        <div style="background: #dcfce7; color: #166534; padding: 12px 20px; border-radius: 6px; margin-bottom: 20px; font-weight: 500;">
-            <i class="fa-solid fa-circle-check"></i> {{ session('success') }}
-        </div>
-    @endif
-    @if(session('error'))
-        <div style="background: #fee2e2; color: #991b1b; padding: 12px 20px; border-radius: 6px; margin-bottom: 20px; font-weight: 500;">
-            <i class="fa-solid fa-circle-exclamation"></i> {{ session('error') }}
-        </div>
-    @endif
+    <!-- Session Success Modal Handled Globally -->
+    <!-- Session Error Modal Handled Globally -->
 
     <div class="controls-bar">
         <div class="search-box">

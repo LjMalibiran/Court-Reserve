@@ -438,5 +438,34 @@
             }
         }
     </script>
+
+<!-- SweetAlert2 Library for Global Modals -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@if(session('success'))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            title: 'Success!',
+            text: "{!! addslashes(session('success')) !!}",
+            icon: 'success',
+            confirmButtonColor: '#1557c0'
+        });
+    });
+</script>
+@endif
+
+@if(session('error') || $errors->any())
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            title: 'Error!',
+            text: "{!! addslashes(session('error') ?? $errors->first()) !!}",
+            icon: 'error',
+            confirmButtonColor: '#dc2626'
+        });
+    });
+</script>
+@endif
+
 </body>
 </html>

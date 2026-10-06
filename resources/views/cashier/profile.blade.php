@@ -93,11 +93,7 @@
             <div class="profile-card">
                 <h3><i class="fa-regular fa-address-card"></i> Profile Details</h3>
                 
-                @if(session('success'))
-                    <div style="background: #dcfce7; color: #166534; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 13px;">
-                        {{ session('success') }}
-                    </div>
-                @endif
+                <!-- Session Success Modal Handled Globally -->
                 @if($errors->any())
                     <div style="background: #fee2e2; color: #991b1b; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 13px;">
                         {{ $errors->first() }}

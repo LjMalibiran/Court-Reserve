@@ -106,12 +106,8 @@
             </div>
         </header>
 
-        @if(session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
-        @if(session('error'))
-            <div class="alert alert-error">{{ session('error') }}</div>
-        @endif
+        <!-- Session Success Modal Handled Globally -->
+        <!-- Session Error Modal Handled Globally -->
 
         <div class="controls-bar">
             <div class="filter-tabs">
