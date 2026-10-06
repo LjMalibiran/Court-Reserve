@@ -196,6 +196,14 @@ class CashierController extends Controller
                     'title' => 'Reservation Confirmed',
                     'message' => 'Your reservation for Court ' . $reservation->court_id . ' has been confirmed.'
                 ]);
+
+                // Send SMS via iProgSMS
+                if (!empty($reservation->user->contact)) {
+                    $date = \Carbon\Carbon::parse($reservation->start_time)->format('F j, Y');
+                    $start = \Carbon\Carbon::parse($reservation->start_time)->format('g:i A');
+                    $smsMsg = "Good day! Your reservation for Court {$reservation->court_id} on {$date} at {$start} has been officially CONFIRMED. Thank you!";
+                    \App\Services\SmsService::send($reservation->user->contact, $smsMsg);
+                }
             }
 
             return back()->with('success', 'Reservation confirmed successfully!')->with('active_tab', $request->tab ?? 'pending');
@@ -230,6 +238,13 @@ class CashierController extends Controller
                     'title' => 'Reservation Cancelled',
                     'message' => 'Your reservation for Court ' . $reservation->court_id . ' has been cancelled by the cashier.'
                 ]);
+
+                // Send SMS via iProgSMS
+                if (!empty($reservation->user->contact)) {
+                    $date = \Carbon\Carbon::parse($reservation->start_time)->format('F j, Y');
+                    $smsMsg = "Notice: Your reservation for Court {$reservation->court_id} on {$date} has been CANCELLED. If you paid online, please expect a refund.";
+                    \App\Services\SmsService::send($reservation->user->contact, $smsMsg);
+                }
             }
 
             return back()->with('success', 'Reservation cancelled successfully.')->with('active_tab', $request->tab ?? 'pending');

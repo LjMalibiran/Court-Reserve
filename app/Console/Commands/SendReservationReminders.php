@@ -52,25 +52,14 @@ class SendReservationReminders extends Command
 
                 $message = "Hello {$user->name},\n\nThis is an automated reminder for your {$sport} reservation at Batangas Badminton Center.\n\nDate: {$date}\nTime: {$start} - {$end}\nCourt: Court {$reservation->court_id}\n\nPlease arrive on time. We look forward to seeing you!";
 
-                // Send SMS via Semaphore
-                try {
-                    $apiKey = env('SEMAPHORE_API_KEY');
-                    $senderName = env('SEMAPHORE_SENDER_NAME', '');
-
-                    $payload = [
-                        'apikey' => $apiKey,
-                        'number' => $user->contact,
-                        'message' => $message,
-                    ];
-
-                    if (!empty($senderName)) {
-                        $payload['sendername'] = $senderName;
+                // Send SMS via iProgSMS
+                if (!empty($user->contact)) {
+                    $success = \App\Services\SmsService::send($user->contact, $message);
+                    if ($success) {
+                        error_log("[Reminder] SMS sent to {$user->contact}");
+                    } else {
+                        error_log("[Reminder] SMS failed for {$user->contact}");
                     }
-
-                    Http::post('https://api.semaphore.co/api/v4/messages', $payload);
-                    error_log("[Reminder] SMS sent to {$user->contact}");
-                } catch (\Exception $e) {
-                    error_log("[Reminder] SMS failed: " . $e->getMessage());
                 }
 
                 // Send Email Notification
