@@ -181,7 +181,7 @@
             width: 90%;
             text-align: left;
             position: relative;
-        }
+         margin: auto; }
         .close-modal {
             position: absolute;
             top: 15px;

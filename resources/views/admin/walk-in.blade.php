@@ -102,8 +102,8 @@
 
     <style>
     /* RECEIPT MODAL CSS */
-    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 9999; padding: 20px; }
-    .modal-content { background: white; border-radius: 20px; padding: 25px 30px; width: 100%; max-width: 450px; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.15); text-align: center; }
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: flex-start; overflow-y: auto; padding: 20px; box-sizing: border-box; z-index: 9999; padding: 20px; }
+    .modal-content { background: white; border-radius: 20px; padding: 25px 30px; width: 100%; max-width: 450px; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.15); text-align: center;  margin: auto; }
     .modal-close { position: absolute; top: 20px; right: 24px; background: none; border: none; font-size: 26px; color: #0f2b6e; cursor: pointer; padding: 0; line-height: 1; font-weight: 300;}
     
     .success-icon-wrap { position: relative; width: 60px; height: 60px; margin: 0 auto 10px auto; }

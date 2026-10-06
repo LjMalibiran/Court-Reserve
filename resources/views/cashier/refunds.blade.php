@@ -46,7 +46,7 @@
         .btn-dev { background: #f59e0b; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: bold; }
 
         /* --- UPDATED MODAL STYLES (Matching r (10).jpg) --- */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: none; justify-content: center; align-items: flex-start; overflow-y: auto; padding: 20px; box-sizing: border-box; z-index: 1000; }
         .modal-overlay.show { display: flex; }
         
         .modal-card { background: var(--card-bg); width: 850px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); padding: 35px 40px; position: relative; }

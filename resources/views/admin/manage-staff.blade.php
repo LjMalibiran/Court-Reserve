@@ -71,8 +71,8 @@
     .empty-state { text-align: center; padding: 40px; color: #64748b; }
 
     /* Modals */
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
-    .modal-content { background: white; padding: 30px; border-radius: 12px; width: 450px; position: relative; }
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: flex-start; overflow-y: auto; padding: 20px; box-sizing: border-box; z-index: 1000; }
+    .modal-content { background: white; padding: 30px; border-radius: 12px; width: 450px; position: relative;  margin: auto; }
     .modal-close { position: absolute; right: 20px; top: 20px; background: none; border: none; font-size: 20px; cursor: pointer; color: #64748b; }
     .modal-title { margin-top: 0; color: var(--dark-blue); font-size: 22px; margin-bottom: 20px; }
     

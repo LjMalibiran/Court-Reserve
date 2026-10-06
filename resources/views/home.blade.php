@@ -71,8 +71,8 @@
     .crc-chevron { color: #94a3b8; font-size: 14px; }
 
     /* MODAL CSS */
-    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 9999; padding: 20px; }
-    .modal-content { background: white; border-radius: 20px; padding: 32px; width: 100%; max-width: 480px; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.15); }
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: flex-start; overflow-y: auto; padding: 20px; box-sizing: border-box; z-index: 9999; padding: 20px; }
+    .modal-content { background: white; border-radius: 20px; padding: 32px; width: 100%; max-width: 480px; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.15);  margin: auto; }
     .modal-close { position: absolute; top: 24px; right: 24px; background: none; border: none; font-size: 24px; color: #64748b; cursor: pointer; padding: 0; line-height: 1; }
     .modal-header-title { text-align: center; font-size: 22px; font-weight: 700; margin: 0 0 24px 0; }
     
