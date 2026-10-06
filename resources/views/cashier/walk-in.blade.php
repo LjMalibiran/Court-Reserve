@@ -263,7 +263,7 @@
                             </div>
 
                             <div class="input-group">
-                                <label>Time<span>*</span> <span style="font-size:11px; color:var(--text-muted); font-weight:400; margin-left:5px;">Available Time Slot</span></label>
+                                <label>Time<span>*</span> <span style="font-size:12px; color:var(--text-muted); font-weight:400; margin-left:5px;">Available Time Slot (Select starting time)</span></label>
                                 <div class="time-slots" id="timeSlots">
                                     <!-- Populated dynamically -->
                                 </div>

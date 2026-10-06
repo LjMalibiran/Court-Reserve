@@ -487,7 +487,7 @@
                 </div>
             </div>
 
-            <label class="section-label">Available Time Slot</label>
+            <label class="section-label">Available Time Slot <span style="color: #94a3b8; font-size: 13px; font-weight: normal; margin-left: 5px; text-transform: none;">(Select starting time)</span></label>
             <div class="time-slot-grid time-grid" id="edit-time-slots" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 12px; margin-bottom: 20px;">
                 <!-- Filled by JS -->
             </div>

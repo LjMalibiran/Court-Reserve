@@ -163,7 +163,7 @@
                     <h2 class="step-title">Select Date & Time</h2>
                 </div>
                 <input type="date" name="reservation_date" class="date-input" id="resDate" min="{{ \Carbon\Carbon::now('Asia/Manila')->format('Y-m-d') }}" value="{{ \Carbon\Carbon::now('Asia/Manila')->format('Y-m-d') }}" required>
-                <span class="time-label">Available Time Slot</span>
+                <span class="time-label">Available Time Slot <span style="color: #94a3b8; font-size: 13px; font-weight: normal; margin-left: 5px; text-transform: none;">(Select starting time)</span></span>
                 <div class="time-grid" id="timeSlots">
                     <!-- JS Injected Time Slots -->
                 </div>
