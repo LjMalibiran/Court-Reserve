@@ -202,7 +202,7 @@ class CashierController extends Controller
                 if (!empty($phone)) {
                     $date = \Carbon\Carbon::parse($reservation->start_time)->format('F j, Y');
                     $start = \Carbon\Carbon::parse($reservation->start_time)->format('g:i A');
-                    $smsMsg = "Good day! Your reservation for Court {$reservation->court_id} on {$date} at {$start} has been officially CONFIRMED. Thank you!";
+                    $smsMsg = "?? Court Reserve ??\n\nGood day! Your reservation is CONFIRMED. ?\n\n?? Court {$reservation->court_id}\n?? {$date}\n? {$start}\n\nSee you at the court! Thank you.";
                     \App\Services\SmsService::send($phone, $smsMsg);
                 }
             }
@@ -244,7 +244,7 @@ class CashierController extends Controller
                 $phone = $reservation->user->contact ?? $reservation->user->phone_number;
                 if (!empty($phone)) {
                     $date = \Carbon\Carbon::parse($reservation->start_time)->format('F j, Y');
-                    $smsMsg = "Notice: Your reservation for Court {$reservation->court_id} on {$date} has been CANCELLED. If you paid online, please expect a refund.";
+                    $smsMsg = "?? Court Reserve ??\n\nNotice: Your reservation for Court {$reservation->court_id} on {$date} has been CANCELLED. ?\n\nIf you paid online, expect a refund soon.";
                     \App\Services\SmsService::send($phone, $smsMsg);
                 }
             }
