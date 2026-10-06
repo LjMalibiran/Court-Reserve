@@ -50,7 +50,7 @@ class SendReservationReminders extends Command
 
                 error_log("[Reminder] Sending to {$user->name} ({$user->email}) for {$sport} at {$start}...");
 
-                $message = "?? Court Reserve ??\n\nHello {$user->name}, this is a reminder that your {$sport} reservation is starting soon! ?\n\n?? Court {$reservation->court_id}\n?? {$date}\n? {$start} - {$end}\n\nPlease arrive on time. See you!";
+                $message = "[Court Reserve]\n\nHello {$user->name}, this is a reminder that your {$sport} reservation is starting soon!\n\n- Court {$reservation->court_id}\n- Date: {$date}\n- Time: {$start} - {$end}\n\nPlease arrive on time. See you!";
 
                 // Send SMS via iProgSMS
                 $phone = $user->contact ?? $user->phone_number;
