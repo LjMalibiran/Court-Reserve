@@ -339,5 +339,47 @@
     </script>
     
     @yield('scripts')
+
+<!-- Global SweetAlert Override for User Views -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    window.originalAlert = window.alert;
+    window.alert = function(message) {
+        Swal.fire({
+            text: message,
+            icon: 'info',
+            confirmButtonColor: '#1557c0',
+            confirmButtonText: 'OK',
+            customClass: { popup: 'swal-custom-popup' }
+        });
+    };
+</script>
+
+@if(session('success'))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            title: 'Success!',
+            text: "{!! addslashes(session('success')) !!}",
+            icon: 'success',
+            confirmButtonColor: '#1557c0'
+        });
+    });
+</script>
+@endif
+
+@if(session('error') || $errors->any())
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            title: 'Error!',
+            text: "{!! addslashes(session('error') ?? $errors->first()) !!}",
+            icon: 'error',
+            confirmButtonColor: '#dc2626'
+        });
+    });
+</script>
+@endif
+
 </body>
 </html>
