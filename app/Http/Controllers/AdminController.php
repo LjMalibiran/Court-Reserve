@@ -128,11 +128,12 @@ class AdminController extends Controller
                 ]);
 
                 // Send SMS via iProgSMS
-                if (!empty($reservation->user->contact)) {
+                $phone = $reservation->user->contact ?? $reservation->user->phone_number;
+                if (!empty($phone)) {
                     $date = \Carbon\Carbon::parse($reservation->start_time)->format('F j, Y');
                     $start = \Carbon\Carbon::parse($reservation->start_time)->format('g:i A');
                     $smsMsg = "Good day! Your reservation for Court {$reservation->court_id} on {$date} at {$start} has been officially CONFIRMED. Thank you!";
-                    \App\Services\SmsService::send($reservation->user->contact, $smsMsg);
+                    \App\Services\SmsService::send($phone, $smsMsg);
                 }
             }
 
@@ -170,10 +171,11 @@ class AdminController extends Controller
                 ]);
 
                 // Send SMS via iProgSMS
-                if (!empty($reservation->user->contact)) {
+                $phone = $reservation->user->contact ?? $reservation->user->phone_number;
+                if (!empty($phone)) {
                     $date = \Carbon\Carbon::parse($reservation->start_time)->format('F j, Y');
                     $smsMsg = "Notice: Your reservation for Court {$reservation->court_id} on {$date} has been CANCELLED. If you paid online, please expect a refund.";
-                    \App\Services\SmsService::send($reservation->user->contact, $smsMsg);
+                    \App\Services\SmsService::send($phone, $smsMsg);
                 }
             }
 

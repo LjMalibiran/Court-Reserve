@@ -53,12 +53,13 @@ class SendReservationReminders extends Command
                 $message = "Hello {$user->name},\n\nThis is an automated reminder for your {$sport} reservation at Batangas Badminton Center.\n\nDate: {$date}\nTime: {$start} - {$end}\nCourt: Court {$reservation->court_id}\n\nPlease arrive on time. We look forward to seeing you!";
 
                 // Send SMS via iProgSMS
-                if (!empty($user->contact)) {
-                    $success = \App\Services\SmsService::send($user->contact, $message);
+                $phone = $user->contact ?? $user->phone_number;
+                if (!empty($phone)) {
+                    $success = \App\Services\SmsService::send($phone, $message);
                     if ($success) {
-                        error_log("[Reminder] SMS sent to {$user->contact}");
+                        error_log("[Reminder] SMS sent to {$phone}");
                     } else {
-                        error_log("[Reminder] SMS failed for {$user->contact}");
+                        error_log("[Reminder] SMS failed for {$phone}");
                     }
                 }
 
