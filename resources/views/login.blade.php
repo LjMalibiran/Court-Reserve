@@ -329,6 +329,8 @@
             title: 'Success!',
             text: "{!! addslashes(session('success')) !!}",
             icon: 'success',
+            heightAuto: false,
+            scrollbarPadding: false,
             confirmButtonColor: '#1557c0'
         });
     });
@@ -342,6 +344,8 @@
             title: 'Error!',
             text: "{!! addslashes(session('error') ?? $errors->first()) !!}",
             icon: 'error',
+            heightAuto: false,
+            scrollbarPadding: false,
             confirmButtonColor: '#dc2626'
         });
     });
