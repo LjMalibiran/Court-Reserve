@@ -209,6 +209,7 @@
         Swal.fire({
             text: message,
             icon: 'info',
+            heightAuto: false,
             confirmButtonColor: '#1557c0',
             confirmButtonText: 'OK',
             customClass: {
@@ -225,6 +226,7 @@
             title: 'Success!',
             text: "{!! addslashes(session('success')) !!}",
             icon: 'success',
+            heightAuto: false,
             confirmButtonColor: '#1557c0',
             customClass: { popup: 'swal-custom-popup' }
         });
@@ -239,6 +241,7 @@
             title: 'Error!',
             text: "{!! addslashes(session('error')) !!}",
             icon: 'error',
+            heightAuto: false,
             confirmButtonColor: '#dc2626',
             customClass: { popup: 'swal-custom-popup' }
         });
