@@ -188,5 +188,6 @@
         pwInput.addEventListener('input', checkPassword);
         checkPassword();
     </script>
+@include('partials.password-toggle')
 </body>
 </html>

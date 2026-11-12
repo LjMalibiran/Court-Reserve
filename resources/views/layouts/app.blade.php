@@ -384,5 +384,6 @@
 </script>
 @endif
 
+@include('partials.password-toggle')
 </body>
 </html>

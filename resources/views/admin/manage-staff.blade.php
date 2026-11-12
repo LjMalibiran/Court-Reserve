@@ -346,5 +346,6 @@
     }
 </script>
 @include('partials.notif-script')
+@include('partials.password-toggle')
 </body>
 </html>
