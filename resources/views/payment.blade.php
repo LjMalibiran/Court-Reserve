@@ -193,15 +193,20 @@
                         }
 
                         if (isIOS) {
-                            // Try the GCash app; if the page is still visible after 1.5s, open the App Store.
+                            // Try the GCash app; if we are still on this page after 2s, open the App Store.
                             var left = false;
-                            var onHide = function () { if (document.hidden) left = true; };
-                            document.addEventListener('visibilitychange', onHide);
+                            var markLeft = function () { left = true; };
+                            var onVis = function () { if (document.hidden) left = true; };
+                            document.addEventListener('visibilitychange', onVis);
+                            window.addEventListener('pagehide', markLeft);
+                            window.addEventListener('blur', markLeft);
                             window.location.href = 'gcash://';
                             setTimeout(function () {
-                                document.removeEventListener('visibilitychange', onHide);
+                                document.removeEventListener('visibilitychange', onVis);
+                                window.removeEventListener('pagehide', markLeft);
+                                window.removeEventListener('blur', markLeft);
                                 if (!left) window.location.href = APP_STORE;
-                            }, 1500);
+                            }, 2000);
                             return false;
                         }
 
