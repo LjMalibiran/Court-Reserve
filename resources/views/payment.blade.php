@@ -175,7 +175,68 @@
                     </div>
                 </div>
                 
-                <a href="https://m.gcash.com/" target="_blank" style="display: block; width: 100%; background: #007bff; color: white; text-align: center; padding: 12px; border-radius: 8px; font-weight: 600; text-decoration: none; margin-top: 20px; font-size: 15px; box-sizing: border-box;"><i class="fa-solid fa-mobile-screen"></i> Open GCash App</a>
+                <a href="https://play.google.com/store/apps/details?id=com.globe.gcash.android" id="openGcashBtn" onclick="return handleOpenGcash(event)" style="display: block; width: 100%; background: #007bff; color: white; text-align: center; padding: 12px; border-radius: 8px; font-weight: 600; text-decoration: none; margin-top: 20px; font-size: 15px; box-sizing: border-box;"><i class="fa-solid fa-mobile-screen"></i> Open GCash App</a>
+                <script>
+                    function handleOpenGcash(e) {
+                        e.preventDefault();
+                        var ua = navigator.userAgent;
+                        var isAndroid = /Android/i.test(ua);
+                        var isIOS = /iPhone|iPad|iPod/i.test(ua);
+                        var PLAY_STORE = 'https://play.google.com/store/apps/details?id=com.globe.gcash.android';
+                        var APP_STORE = 'https://apps.apple.com/ph/app/gcash/id520020791';
+
+                        if (isAndroid) {
+                            // Opens the GCash app; if it is not installed, Chrome goes to the Play Store.
+                            window.location.href = 'intent://#Intent;scheme=gcash;package=com.globe.gcash.android;' +
+                                'S.browser_fallback_url=' + encodeURIComponent(PLAY_STORE) + ';end';
+                            return false;
+                        }
+
+                        if (isIOS) {
+                            // Try the GCash app; if the page is still visible after 1.5s, open the App Store.
+                            var left = false;
+                            var onHide = function () { if (document.hidden) left = true; };
+                            document.addEventListener('visibilitychange', onHide);
+                            window.location.href = 'gcash://';
+                            setTimeout(function () {
+                                document.removeEventListener('visibilitychange', onHide);
+                                if (!left) window.location.href = APP_STORE;
+                            }, 1500);
+                            return false;
+                        }
+
+                        var msg = 'This button is only available for mobile devices with the GCash application installed.';
+                        var numEl = document.querySelector('.gcash-info p');
+                        var gcashNumber = numEl ? numEl.textContent.trim() : '';
+                        var pageQr = 'https://api.qrserver.com/v1/create-qr-code/?size=170x170&data=' + encodeURIComponent(window.location.href);
+
+                        if (window.Swal) {
+                            Swal.fire({
+                                title: 'Mobile Only',
+                                icon: 'info',
+                                heightAuto: false,
+                                scrollbarPadding: false,
+                                confirmButtonColor: '#1557c0',
+                                confirmButtonText: 'OK',
+                                html:
+                                    '<p style="margin:0 0 14px;">' + msg + '</p>' +
+                                    '<div style="border-top:1px solid #e2e8f0;padding-top:14px;font-size:14px;text-align:left;">' +
+                                        '<p style="margin:0 0 8px;"><b>On a computer?</b> You can continue on your phone:</p>' +
+                                        '<ol style="margin:0 0 12px;padding-left:20px;line-height:1.6;">' +
+                                            '<li>Scan this QR code with your phone camera to open this page.</li>' +
+                                            '<li>Tap <b>Open GCash App</b> there, or open GCash yourself' +
+                                                (gcashNumber ? ' and send your payment to <b>' + gcashNumber + '</b>' : '') + '.</li>' +
+                                            '<li>Come back and upload your GCash receipt.</li>' +
+                                        '</ol>' +
+                                        '<div style="text-align:center;"><img src="' + pageQr + '" alt="Open this page on your phone" width="170" height="170" style="border:1px solid #e2e8f0;border-radius:8px;padding:6px;"></div>' +
+                                    '</div>'
+                            });
+                        } else {
+                            alert(msg);
+                        }
+                        return false;
+                    }
+                </script>
             </div>
         </div>
 
