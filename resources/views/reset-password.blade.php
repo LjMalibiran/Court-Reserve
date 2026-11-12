@@ -137,14 +137,56 @@
                 <input type="password" id="password" name="password" required placeholder="New Password">
                 <label for="password">New Password</label>
             </div>
+            <ul id="password-reqs" style="font-size: 11px; text-align: left; margin-bottom: 25px; margin-top: -10px; padding-left: 20px; color: #dc3545; display: none;">
+                <li id="req-length">More than 8 characters</li>
+                <li id="req-letter">At least one letter</li>
+                <li id="req-number">At least one number</li>
+                <li id="req-symbol">At least one symbol</li>
+            </ul>
 
             <div class="input-group">
                 <input type="password" id="password_confirmation" name="password_confirmation" required placeholder="Confirm New Password">
                 <label for="password_confirmation">Confirm Password</label>
             </div>
             
-            <button type="submit" class="btn-primary">Update Password</button>
+            <button type="submit" class="btn-primary" id="updateBtn" disabled style="opacity: .6; cursor: not-allowed;">Update Password</button>
         </form>
     </div>
+
+    <script>
+        const pwInput = document.getElementById('password');
+        const reqsList = document.getElementById('password-reqs');
+        const updateBtn = document.getElementById('updateBtn');
+
+        function checkPassword() {
+            const password = pwInput.value;
+            let valid = false;
+
+            if (password.length > 0) {
+                reqsList.style.display = 'block';
+
+                const hasLength = password.length > 8;
+                const hasLetter = /[a-zA-Z]/.test(password);
+                const hasNumber = /[0-9]/.test(password);
+                const hasSymbol = /[^a-zA-Z0-9]/.test(password);
+
+                document.getElementById('req-length').style.color = hasLength ? '#28a745' : '#dc3545';
+                document.getElementById('req-letter').style.color = hasLetter ? '#28a745' : '#dc3545';
+                document.getElementById('req-number').style.color = hasNumber ? '#28a745' : '#dc3545';
+                document.getElementById('req-symbol').style.color = hasSymbol ? '#28a745' : '#dc3545';
+
+                valid = hasLength && hasLetter && hasNumber && hasSymbol;
+            } else {
+                reqsList.style.display = 'none';
+            }
+
+            updateBtn.disabled = !valid;
+            updateBtn.style.opacity = valid ? '1' : '.6';
+            updateBtn.style.cursor = valid ? 'pointer' : 'not-allowed';
+        }
+
+        pwInput.addEventListener('input', checkPassword);
+        checkPassword();
+    </script>
 </body>
 </html>
