@@ -293,7 +293,7 @@
                     </div>
                     <div class="contact-item">
                         <i class="fa-solid fa-phone"></i>
-                        <span>09123456789</span>
+                        <span>09387196362</span>
                     </div>
                     <div class="contact-item">
                         <i class="fa-solid fa-location-dot"></i>
