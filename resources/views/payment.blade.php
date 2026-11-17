@@ -166,7 +166,7 @@
                             <div style="background: #007bff; color: white; width: 42px; height: 42px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 22px;">G</div>
                             <div class="gcash-info">
                                 <h3>Gcash</h3>
-                                <p>09123456789</p>
+                                <p>09387196362</p>
                             </div>
                         </div>
                     </div>
