@@ -404,7 +404,16 @@ class AdminController extends Controller
     public function updateSettings(\Illuminate\Http\Request $request)
     {
         $settingsPath = storage_path('app/settings.json');
-        $oldSettings = file_exists($settingsPath) ? json_decode(file_get_contents($settingsPath), true) : [];
+        $defaultSettings = [
+            'price_badminton' => 230,
+            'price_pickleball' => 250,
+            'price_racket' => 50,
+            'price_shuttlecock' => 50,
+            'operating_hours' => [],
+            'blocked_dates' => [],
+        ];
+        $decodedOld = file_exists($settingsPath) ? (json_decode(file_get_contents($settingsPath), true) ?: []) : [];
+        $oldSettings = array_merge($defaultSettings, $decodedOld);
 
         $blockedDates = [];
         if ($request->filled('blocked_dates')) {
