@@ -164,7 +164,7 @@
                             <div style="font-size: 11px; color: #64748b; text-transform: uppercase;">{{ $refund->payment_type }}</div>
                         </td>
                         <td>
-                            <div style="font-weight: 600; text-transform: capitalize; color: {{ $refund->previous_status == 'confirmed' ? '#16a34a' : ($refund->previous_status == 'pending' ? '#d97706' : '#64748b') }};">{{ $refund->previous_status ?? 'Unknown' }}</div>
+                            <div style="font-weight: 600; text-transform: capitalize; color: {{ $refund->previous_status == 'confirmed' ? '#16a34a' : ($refund->previous_status == 'pending' ? '#d97706' : ($refund->previous_status == 'overdue' ? '#dc2626' : '#64748b')) }};">{{ $refund->previous_status ?? 'Unknown' }}</div>
                         </td>
                         <td style="text-align: center;">
                             @if($refund->receipt_path)
