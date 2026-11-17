@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use App\Models\Reservation;
 use App\Models\Notification;
+use App\Services\SmsService;
 
 class AutoUpdateWalkInStatus
 {
@@ -27,7 +28,8 @@ class AutoUpdateWalkInStatus
             ->update(['status' => 'completed']);
 
         // Pending reservations past their start time -> move to refund queue as overdue
-        $overduePending = Reservation::where('status', 'pending')
+        $overduePending = Reservation::with('user')
+            ->where('status', 'pending')
             ->where('start_time', '<=', $now)
             ->get();
 
@@ -54,6 +56,14 @@ class AutoUpdateWalkInStatus
                     'title' => 'Reservation Overdue - Refund Queued',
                     'message' => "Your pending reservation ({$res->reservation_code}) was not confirmed before its start time and has been moved to refunds.",
                 ]);
+
+                $phone = $res->user->contact ?? $res->user->phone_number ?? null;
+                if (!empty($phone)) {
+                    $date = \Carbon\Carbon::parse($res->start_time)->format('F j, Y');
+                    $start = \Carbon\Carbon::parse($res->start_time)->format('g:i A');
+                    $smsMsg = "[Court Reserve]\n\nNotice: Your pending reservation ({$res->reservation_code}) for Court {$res->court_id} on {$date} at {$start} failed to be approved before its scheduled time and has been moved for refund. Please book another reservation.";
+                    SmsService::send($phone, $smsMsg);
+                }
             }
         }
 
