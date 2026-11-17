@@ -541,7 +541,7 @@
     <!-- Invisible Lightbox Modal for Receipts -->
     <div id="receiptModal" class="modal-overlay">
         <div style="position: relative; background: transparent; padding: 0; box-shadow: none; max-width: 80%; text-align: center;">
-            <button onclick="closeReceipt()" style="position: absolute; top: -40px; right: -40px; font-size: 35px; color: white; background: none; border: none; cursor: pointer; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">&times;</button>
+            <button onclick="closeReceipt()" aria-label="Close" style="position: absolute; top: 10px; right: 10px; width: 36px; height: 36px; border-radius: 50%; font-size: 24px; line-height: 1; color: white; background: rgba(0,0,0,0.65); border: 1px solid rgba(255,255,255,0.4); cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.4);">&times;</button>
             <img id="receiptImage" src="" style="max-width: 100%; max-height: 85vh; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
         </div>
     </div>
