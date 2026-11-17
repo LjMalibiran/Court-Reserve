@@ -148,7 +148,13 @@ class AdminController extends Controller
         $reservation = \App\Models\Reservation::find($id);
         
         if($reservation) {
+            $isOverdue = $reservation->status === 'pending' && \Carbon\Carbon::parse($reservation->start_time)->lte(now());
+            $reservation->previous_status = $isOverdue ? 'overdue' : $reservation->status;
             $reservation->status = 'cancelled';
+            $reservation->cancelled_at = now();
+            if (empty($reservation->cancellation_reason)) {
+                $reservation->cancellation_reason = 'Cancelled by admin';
+            }
 
             // Automatically flag for full refund if paid online (Admin/Cashier cancellation)
             if (in_array($reservation->payment_type, ['full', 'half'])) {
