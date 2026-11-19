@@ -239,7 +239,7 @@
                                     </form>
                                     <form action="{{ url(Request::segment(1).'/reservations/'.$res->id.'/cancel') }}" method="POST" style="margin:0;">
                                         @csrf
-                                        <button type="submit" class="btn-outline-cancel" onclick="return confirm('Are you sure you want to cancel this reservation?');">{{ $isPast ? 'Cancel & Refund' : 'Cancel' }}</button>
+                                        <button type="button" class="btn-outline-cancel" onclick="confirmCancelReservation(this, {{ $isPast ? 'true' : 'false' }})">{{ $isPast ? 'Cancel & Refund' : 'Cancel' }}</button>
                                     </form>
                                 </div>
                             </td>
@@ -572,6 +572,30 @@
         function closeReceipt() {
             document.getElementById('receiptModal').style.display = 'none';
             document.getElementById('receiptImage').src = '';
+        }
+
+        function confirmCancelReservation(btn, isOverdue) {
+            const form = btn.closest('form');
+            if (window.Swal) {
+                Swal.fire({
+                    title: isOverdue ? 'Cancel & Refund Reservation?' : 'Cancel Reservation?',
+                    text: 'Are you sure you want to cancel this reservation?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc2626',
+                    cancelButtonColor: '#64748b',
+                    confirmButtonText: isOverdue ? 'Yes, Cancel & Refund' : 'Yes, Cancel',
+                    cancelButtonText: 'Back',
+                    heightAuto: false,
+                    scrollbarPadding: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            } else if (confirm('Are you sure you want to cancel this reservation?')) {
+                form.submit();
+            }
         }
 
         // Function for the Details Modal 
