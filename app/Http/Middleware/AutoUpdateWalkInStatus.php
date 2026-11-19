@@ -70,7 +70,7 @@ class AutoUpdateWalkInStatus
                 if (!empty($phone)) {
                     $date = \Carbon\Carbon::parse($res->start_time)->format('F j, Y');
                     $start = \Carbon\Carbon::parse($res->start_time)->format('g:i A');
-                    $smsMsg = "[Court Reserve]\n\nNotice: Your pending reservation ({$res->reservation_code}) for Court {$res->court_id} on {$date} at {$start} failed to be approved before its scheduled time and has been moved for refund. Please book another reservation.";
+                    $smsMsg = "Notice: Your pending reservation ({$res->reservation_code}) for Court {$res->court_id} on {$date} at {$start} failed to be approved before its scheduled time and has been moved for refund. Please book another reservation.";
                     SmsService::send($phone, $smsMsg);
                 }
             }

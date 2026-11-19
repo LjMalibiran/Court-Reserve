@@ -330,14 +330,24 @@
                     let newNotifications = doc.getElementById('realtime-notifications');
                     let currentNotifications = document.getElementById('realtime-notifications');
                     
-                    if (newNotifications && currentNotifications && currentNotifications.innerHTML !== newNotifications.innerHTML) {
-                        // Keep dropdown open if user is currently looking at it!
-                        let isDropdownOpen = document.getElementById('notif-dropdown').style.display === 'block';
-                        
-                        currentNotifications.innerHTML = newNotifications.innerHTML;
-                        
-                        if (isDropdownOpen) {
-                            document.getElementById('notif-dropdown').style.display = 'block';
+                    if (newNotifications && currentNotifications) {
+                        let oldDropdown = document.getElementById('notif-dropdown');
+                        let isDropdownOpen = oldDropdown && oldDropdown.style.display === 'block';
+                        let savedScroll = oldDropdown ? oldDropdown.scrollTop : 0;
+
+                        let newDropdown = newNotifications.querySelector('#notif-dropdown');
+                        if (isDropdownOpen && newDropdown) newDropdown.style.display = 'block';
+
+                        if (currentNotifications.innerHTML !== newNotifications.innerHTML) {
+                            currentNotifications.innerHTML = newNotifications.innerHTML;
+
+                            if (isDropdownOpen) {
+                                let updatedDropdown = document.getElementById('notif-dropdown');
+                                if (updatedDropdown) {
+                                    updatedDropdown.style.display = 'block';
+                                    updatedDropdown.scrollTop = savedScroll;
+                                }
+                            }
                         }
                     }
                 })
