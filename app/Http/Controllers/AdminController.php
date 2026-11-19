@@ -650,6 +650,32 @@ class AdminController extends Controller
 
         return back()->with('success', 'Announcement deleted successfully!');
     }
+
+    public function toggleUserBan($id)
+    {
+        $user = User::whereNotIn('role', ['admin', 'cashier'])->findOrFail($id);
+        $user->is_active = !$user->is_active;
+        $user->save();
+
+        if (!$user->is_active) {
+            // Free up any pending slots reserved by the banned user
+            Reservation::where('user_id', $user->id)
+                ->where('status', 'pending')
+                ->update([
+                    'previous_status' => 'pending',
+                    'status' => 'cancelled',
+                    'cancelled_at' => now(),
+                    'cancellation_reason' => 'User banned by admin',
+                    'refund_status' => 'rejected',
+                ]);
+        }
+
+        $msg = $user->is_active
+            ? "User {$user->name} has been unbanned."
+            : "User {$user->name} has been banned and their pending reservations were cancelled.";
+
+        return back()->with('success', $msg);
+    }
 }
 
 

@@ -428,6 +428,8 @@
                             <th style="padding: 15px 25px; font-size: 13px; color: #6b7280; border-bottom: 1px solid #eef0f4;">Name</th>
                             <th style="padding: 15px 25px; font-size: 13px; color: #6b7280; border-bottom: 1px solid #eef0f4;">Email / Contact</th>
                             <th style="padding: 15px 25px; font-size: 13px; color: #6b7280; border-bottom: 1px solid #eef0f4;">Joined Date</th>
+                            <th style="padding: 15px 25px; font-size: 13px; color: #6b7280; border-bottom: 1px solid #eef0f4;">Status</th>
+                            <th style="padding: 15px 25px; font-size: 13px; color: #6b7280; border-bottom: 1px solid #eef0f4; text-align: center;">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -443,10 +445,27 @@
                             <td style="padding: 15px 25px; font-size: 13px; color: #6b7280;">
                                 {{ \Carbon\Carbon::parse($user->created_at)->format('M d, Y') }}
                             </td>
+                            <td style="padding: 15px 25px; font-size: 13px;">
+                                @if($user->is_active)
+                                    <span style="background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 12px; font-weight: 600; font-size: 12px;">Active</span>
+                                @else
+                                    <span style="background: #fee2e2; color: #991b1b; padding: 4px 10px; border-radius: 12px; font-weight: 600; font-size: 12px;">Banned</span>
+                                @endif
+                            </td>
+                            <td style="padding: 15px 25px; text-align: center;">
+                                <form action="{{ route('admin.users.toggle-ban', $user->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('{{ $user->is_active ? 'Ban ' . addslashes($user->name) . '? They will be logged out and their pending reservations will be cancelled.' : 'Unban ' . addslashes($user->name) . '?' }}')">
+                                    @csrf
+                                    @if($user->is_active)
+                                        <button type="submit" style="background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">Ban</button>
+                                    @else
+                                        <button type="submit" style="background: #dcfce7; color: #16a34a; border: 1px solid #bbf7d0; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">Unban</button>
+                                    @endif
+                                </form>
+                            </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="3" style="text-align: center; padding: 40px; color: #9ca3af;">No registered users found.</td>
+                            <td colspan="5" style="text-align: center; padding: 40px; color: #9ca3af;">No registered users found.</td>
                         </tr>
                         @endforelse
                     </tbody>

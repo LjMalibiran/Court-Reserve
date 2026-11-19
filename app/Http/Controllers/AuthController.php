@@ -133,7 +133,19 @@ class AuthController extends Controller
             return redirect()->intended('/home');
         }
 
-        // 5. Failure! Send them back with an error attached to the 'login_id' input
+        // 5. Check if the account exists and is banned before returning generic credential error
+        $matchedUser = User::where('contact', $loginId)
+            ->orWhere('name', $loginId)
+            ->orWhere('email', $loginId)
+            ->first();
+
+        if ($matchedUser && !$matchedUser->is_active && Hash::check($request->password, $matchedUser->password)) {
+            return back()->withErrors([
+                'login_id' => 'Your account has been banned. Please contact the administrator.',
+            ])->onlyInput('login_id');
+        }
+
+        // Failure! Send them back with an error attached to the 'login_id' input
         return back()->withErrors([
             'login_id' => 'The provided credentials do not match our records.',
         ])->onlyInput('login_id');

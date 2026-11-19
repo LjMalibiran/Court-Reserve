@@ -151,7 +151,7 @@
     .as-title { color: #0f2b6e; font-size: 20px; font-weight: 600; margin: 0 0 6px 0; line-height: 1.3; }
     .as-content { color: #64748b; font-size: 15px; line-height: 1.5; margin: 0; font-weight: 400; }
 
-    .slider-dots { position: absolute; bottom: 10px; left: 0; width: 100%; display: flex; justify-content: center; gap: 7px; z-index: 2; }
+    .slider-dots { position: absolute; bottom: 10px; left: 145px; width: calc(100% - 145px); display: flex; justify-content: center; gap: 7px; z-index: 2; }
     .slider-dot { width: 9px; height: 9px; border-radius: 50%; background: #cbd5e1; cursor: pointer; transition: 0.25s; border: none; padding: 0; }
     .slider-dot.active { background: #0f2b6e; }
 
@@ -162,6 +162,7 @@
         .as-body-col { padding: 14px 16px 26px 16px; }
         .as-title { font-size: 17px; }
         .as-content { font-size: 13.5px; }
+        .slider-dots { left: 96px; width: calc(100% - 96px); }
     }
 </style>
 

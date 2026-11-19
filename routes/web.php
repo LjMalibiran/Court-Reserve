@@ -267,6 +267,9 @@ Route::middleware([\App\Http\Middleware\AdminMiddleware::class])->group(function
     Route::post('/admin/staff/{id}/update', [\App\Http\Controllers\StaffController::class, 'update'])->name('admin.staff.update');
     Route::post('/admin/staff/{id}/toggle-status', [\App\Http\Controllers\StaffController::class, 'toggleStatus'])->name('admin.staff.toggle-status');
     Route::post('/admin/staff/{id}/delete', [\App\Http\Controllers\StaffController::class, 'destroy'])->name('admin.staff.destroy');
+
+    // Ban / Unban Registered Users
+    Route::post('/admin/users/{id}/toggle-ban', [AdminController::class, 'toggleUserBan'])->name('admin.users.toggle-ban');
 });
 
 
