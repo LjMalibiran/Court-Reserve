@@ -137,28 +137,32 @@
         .form-group-row { flex-direction: column; gap: 12px; }
     }
     /* Announcements Slider */
-    .announcements-slider-wrapper { position: relative; margin-bottom: 20px; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 18px rgba(15, 43, 110, 0.08); background: #284474; color: white; }
-    .announcements-track { display: flex; transition: transform 0.5s ease-in-out; }
-    .announcement-slide { min-width: 100%; display: flex; flex-direction: column; align-items: stretch; }
-    
-    .as-top { padding: 32px 32px 16px 32px; display: flex; flex-direction: column; align-items: center; text-align: center; }
-    .as-badge { background: #ef4444; color: white; font-weight: 800; padding: 6px 16px; display: inline-block; font-size: 14px; letter-spacing: 1px; margin-bottom: 16px; text-transform: uppercase; border-radius: 4px; }
-    .as-title { color: #facc15; font-size: 32px; font-weight: 900; margin: 0 0 12px 0; line-height: 1.2; text-transform: uppercase; letter-spacing: -0.5px; }
-    .as-date { color: #e2e8f0; font-size: 18px; font-weight: 600; margin: 0; }
-    
-    .as-bottom { background: white; margin: 0 24px 32px 24px; border-radius: 10px; padding: 24px 32px; color: #0f2b6e; text-align: center; position: relative; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-    .as-bottom p { margin: 0; font-size: 18px; line-height: 1.6; font-weight: 600; }
-    
-    .slider-dots { position: absolute; bottom: 8px; left: 0; width: 100%; display: flex; justify-content: center; gap: 8px; }
-    .slider-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.3); cursor: pointer; transition: 0.3s; border: none; padding: 0;}
-    .slider-dot.active { background: white; }
+    .announcements-heading { font-size: 16px; font-weight: 700; color: #0f2b6e; margin: 0 0 10px 4px; }
+    .announcements-slider-wrapper { position: relative; margin-bottom: 20px; border-radius: 14px; overflow: hidden; background: #ffffff; border: 1px solid #cbd5e1; box-shadow: 0 2px 10px rgba(15, 43, 110, 0.05); }
+    .announcements-slider-wrapper::after { content: ''; position: absolute; right: 60px; top: -18px; width: 170px; height: 170px; background: url("{{ asset('images/shuttlecock.png') }}") center/contain no-repeat; opacity: 0.06; transform: rotate(-18deg); pointer-events: none; z-index: 0; }
+    .announcements-track { display: flex; transition: transform 0.5s ease-in-out; position: relative; z-index: 1; }
+    .announcement-slide { min-width: 100%; display: flex; flex-direction: row; align-items: stretch; min-height: 112px; }
+
+    .as-date-col { width: 145px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 16px; border-right: 1px solid #cbd5e1; }
+    .as-cal-badge { width: 72px; border-radius: 12px; border: 1px solid #cbd5e1; overflow: hidden; background: #ffffff; text-align: center; box-shadow: 0 1px 3px rgba(15, 43, 110, 0.06); }
+    .as-cal-month { background: #b8d0fc; color: #0f2b6e; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; padding: 5px 0; text-transform: uppercase; }
+    .as-cal-day { color: #0f2b6e; font-size: 24px; font-weight: 700; line-height: 1.1; padding: 8px 0 9px; }
+
+    .as-body-col { flex: 1; padding: 20px 32px 26px 28px; display: flex; flex-direction: column; justify-content: center; text-align: left; }
+    .as-title { color: #0f2b6e; font-size: 20px; font-weight: 600; margin: 0 0 6px 0; line-height: 1.3; }
+    .as-content { color: #64748b; font-size: 15px; line-height: 1.5; margin: 0; font-weight: 400; }
+
+    .slider-dots { position: absolute; bottom: 12px; right: 20px; display: flex; justify-content: flex-end; gap: 7px; z-index: 2; }
+    .slider-dot { width: 9px; height: 9px; border-radius: 50%; background: #cbd5e1; cursor: pointer; transition: 0.25s; border: none; padding: 0; }
+    .slider-dot.active { background: #0f2b6e; }
 
     @media (max-width: 768px) {
-        .as-top { padding: 24px 20px 16px 20px; }
-        .as-bottom { margin: 0 16px 28px 16px; padding: 16px; }
-        .as-title { font-size: 24px; }
-        .as-date { font-size: 15px; }
-        .as-bottom p { font-size: 15px; }
+        .as-date-col { width: 96px; padding: 12px; }
+        .as-cal-badge { width: 60px; }
+        .as-cal-day { font-size: 20px; padding: 6px 0 7px; }
+        .as-body-col { padding: 14px 16px 26px 16px; }
+        .as-title { font-size: 17px; }
+        .as-content { font-size: 13.5px; }
     }
 </style>
 
@@ -204,17 +208,21 @@
 
 <!-- Announcements Slider -->
 @if(isset($announcements) && $announcements->count() > 0)
+<h3 class="announcements-heading">Announcements</h3>
 <div class="announcements-slider-wrapper" id="announcementsSlider">
     <div class="announcements-track" id="sliderTrack">
         @foreach($announcements->take(5) as $index => $announcement)
+            @php $annDate = \Carbon\Carbon::parse($announcement->created_at); @endphp
             <div class="announcement-slide">
-                <div class="as-top">
-                    <div class="as-badge">ANNOUNCEMENT</div>
-                    <h3 class="as-title">{{ $announcement->title }}</h3>
-                    <p class="as-date">{{ \Carbon\Carbon::parse($announcement->created_at)->format('F j, Y') }}</p>
+                <div class="as-date-col">
+                    <div class="as-cal-badge">
+                        <div class="as-cal-month">{{ strtoupper($annDate->format('M')) }}</div>
+                        <div class="as-cal-day">{{ $annDate->format('j') }}</div>
+                    </div>
                 </div>
-                <div class="as-bottom">
-                    <p>{!! nl2br(e($announcement->content)) !!}</p>
+                <div class="as-body-col">
+                    <h3 class="as-title">{{ $announcement->title }}</h3>
+                    <p class="as-content">{!! nl2br(e($announcement->content)) !!}</p>
                 </div>
             </div>
         @endforeach
