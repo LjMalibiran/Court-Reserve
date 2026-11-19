@@ -139,7 +139,6 @@
     /* Announcements Slider */
     .announcements-heading { font-size: 16px; font-weight: 700; color: #0f2b6e; margin: 0 0 10px 4px; }
     .announcements-slider-wrapper { position: relative; margin-bottom: 20px; border-radius: 14px; overflow: hidden; background: #ffffff; border: 1px solid #cbd5e1; box-shadow: 0 2px 10px rgba(15, 43, 110, 0.05); }
-    .announcements-slider-wrapper::after { content: ''; position: absolute; right: 60px; top: -18px; width: 170px; height: 170px; background: url("{{ asset('images/shuttlecock.png') }}") center/contain no-repeat; opacity: 0.06; transform: rotate(-18deg); pointer-events: none; z-index: 0; }
     .announcements-track { display: flex; transition: transform 0.5s ease-in-out; position: relative; z-index: 1; }
     .announcement-slide { min-width: 100%; display: flex; flex-direction: row; align-items: stretch; min-height: 112px; }
 
