@@ -315,8 +315,15 @@
             currentUrl.searchParams.set('noti_check', new Date().getTime()); // Cache buster
             
             fetch(currentUrl.toString(), { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-                .then(response => response.text())
+                .then(response => {
+                    if (response.redirected && response.url.indexOf('/login') !== -1) {
+                        window.location.href = response.url;
+                        return null;
+                    }
+                    return response.text();
+                })
                 .then(html => {
+                    if (!html) return;
                     let parser = new DOMParser();
                     let doc = parser.parseFromString(html, 'text/html');
                     

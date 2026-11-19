@@ -15,8 +15,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(append: [
             \App\Http\Middleware\TrackOnlineStatus::class,
+            \App\Http\Middleware\AutoUpdateWalkInStatus::class,
         ]);
-        $middleware->append(\App\Http\Middleware\AutoUpdateWalkInStatus::class);
         $middleware->alias([
             'verified.phone' => EnsureUserIsVerified::class,
             'role' => RoleMiddleware::class, // Added the role alias here
