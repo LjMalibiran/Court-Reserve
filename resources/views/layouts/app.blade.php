@@ -52,7 +52,7 @@
         }
         
         /* Header */
-        .top-header { display: flex; justify-content: space-between; align-items: center; padding: 30px 45px 15px 45px; background-color: transparent; position: relative; z-index: 1; }
+        .top-header { display: flex; justify-content: space-between; align-items: center; padding: 30px 45px 15px 45px; background-color: transparent; position: relative; z-index: 50; }
         .top-header h1 { margin: 0; font-size: 32px; color: #0f2b6e; font-weight: 700; }
         .bell-icon { font-size: 22px; color: #0f2b6e; cursor: pointer; transition: 0.2s; position: relative; }
         .bell-icon:hover { color: #0033cc; }
