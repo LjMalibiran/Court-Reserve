@@ -211,7 +211,7 @@
 <h3 class="announcements-heading">Announcements</h3>
 <div class="announcements-slider-wrapper" id="announcementsSlider">
     <div class="announcements-track" id="sliderTrack">
-        @foreach($announcements->take(5) as $index => $announcement)
+        @foreach($announcements->take(6) as $index => $announcement)
             @php $annDate = \Carbon\Carbon::parse($announcement->created_at); @endphp
             <div class="announcement-slide">
                 <div class="as-date-col">
@@ -230,7 +230,7 @@
     
     @if($announcements->count() > 1)
         <div class="slider-dots" id="sliderDots">
-            @for($i = 0; $i < min(5, $announcements->count()); $i++)
+            @for($i = 0; $i < min(6, $announcements->count()); $i++)
                 <button class="slider-dot {{ $i == 0 ? 'active' : '' }}" onclick="goToSlide({{ $i }})"></button>
             @endfor
         </div>
@@ -239,7 +239,7 @@
 
 <script>
     let currentSlide = 0;
-    const totalSlides = {{ min(5, $announcements->count()) }};
+    const totalSlides = {{ min(6, $announcements->count()) }};
     const track = document.getElementById('sliderTrack');
     const dots = document.querySelectorAll('.slider-dot');
     const wrapper = document.getElementById('announcementsSlider');

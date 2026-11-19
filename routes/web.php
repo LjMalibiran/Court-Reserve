@@ -167,7 +167,7 @@ Route::middleware(['auth', 'verified.phone'])->group(function () {
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $announcements = \App\Models\Announcement::orderBy('created_at', 'desc')->get();
+        $announcements = \App\Models\Announcement::orderBy('created_at', 'desc')->orderBy('id', 'desc')->get();
 
         return view('home', compact('todayReservations', 'upcomingReservations', 'announcements')); 
     })->name('home');
