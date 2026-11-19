@@ -297,6 +297,9 @@ class CashierController extends Controller
         $reservation = \App\Models\Reservation::find($id);
 
         if ($reservation) {
+            if (strtolower($reservation->status) !== 'confirmed') {
+                return back()->with('error', 'Only confirmed reservations can be verified.');
+            }
             $reservation->status = 'in-play';
             if ($reservation->amount_paid < $reservation->total_price) {
                 $reservation->amount_paid = $reservation->total_price;

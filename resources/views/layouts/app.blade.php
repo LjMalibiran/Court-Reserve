@@ -356,7 +356,7 @@
     };
 </script>
 
-@if(session('success'))
+@if(session('success') && !session('reservation_code'))
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         Swal.fire({

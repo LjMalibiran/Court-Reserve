@@ -320,6 +320,8 @@
 
                             @php
                                 $isPassed = \Carbon\Carbon::parse($res->end_time)->isPast();
+                                $isConfirmed = strtolower($res->status) === 'confirmed';
+                                $canVerify = $isConfirmed && !$isPassed;
                             @endphp
 
                             @if($isPassed)
@@ -327,10 +329,15 @@
                                     <i class="fa-solid fa-triangle-exclamation"></i> Warning: This reservation has already passed.
                                 </div>
                             @endif
+                            @if(!$isPassed && !$isConfirmed)
+                                <div style="background-color: #fef3c7; color: #b45309; padding: 12px; border-radius: 6px; text-align: center; margin-bottom: 20px; font-weight: bold; font-size: 14px; border: 1px solid #fcd34d;">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> Only confirmed reservations can be verified (Status: {{ ucfirst($res->status) }}).
+                                </div>
+                            @endif
 
                             <form action="{{ url('/cashier/qr-verification/verify/' . $res->id) }}" method="POST" class="verify-container">
                                 @csrf
-                                <button type="submit" class="btn-verify" {!! $isPassed ? 'disabled style="background: #e5e7eb; color: #9ca3af; cursor: not-allowed; box-shadow: none;"' : '' !!}>
+                                <button type="submit" class="btn-verify" {!! !$canVerify ? 'disabled style="background: #e5e7eb; color: #9ca3af; cursor: not-allowed; box-shadow: none;"' : '' !!}>
                                     Verify
                                 </button>
                             </form>

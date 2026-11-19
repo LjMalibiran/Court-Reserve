@@ -92,6 +92,10 @@ class AdminController extends Controller
     public function qrVerify($id)
     {
         $reservation = \App\Models\Reservation::findOrFail($id);
+
+        if (strtolower($reservation->status) !== 'confirmed') {
+            return back()->with('error', 'Only confirmed reservations can be verified.');
+        }
         
         // Update the reservation status to activate the court
         $reservation->status = 'in-play';
