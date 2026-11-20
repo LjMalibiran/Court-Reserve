@@ -176,8 +176,8 @@
                         </td>
                         <td style="text-align: center;">
                             @if($tab == 'pending')
-                                <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
-                                    <button class="btn-dev" style="background: var(--primary-blue); color: white; border: none; padding: 6px 12px; border-radius: 6px;" onclick="document.getElementById('refundModal_{{ $refund->id }}').style.display='flex'">Proceed to Refund</button>
+                                <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: nowrap; white-space: nowrap;">
+                                    <button class="btn-dev" style="background: var(--primary-blue); color: white; border: none; padding: 6px 12px; border-radius: 6px;" onclick="document.getElementById('refundModal_{{ $refund->id }}').style.display='flex'">Refund</button>
                                     <form action="{{ url('/cashier/sales/refunds/'.$refund->id.'/reject') }}" method="POST" style="margin: 0;">
                                         @csrf
                                         <button type="button" class="btn-dev" style="background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; padding: 6px 12px; border-radius: 6px;" onclick="confirmIgnoreRefund(this)">Cancel</button>
