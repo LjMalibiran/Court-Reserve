@@ -107,6 +107,7 @@
             <div class="filter-tabs">
                 <button class="tab-btn {{ $tab == 'pending' ? 'active' : '' }}" onclick="window.location.href='?tab=pending'">Pending <span>{{ $pendingCount }}</span></button>
                 <button class="tab-btn {{ $tab == 'completed' ? 'active' : '' }}" onclick="window.location.href='?tab=completed'">Completed <span>{{ $completedCount }}</span></button>
+                <button class="tab-btn {{ $tab == 'cancelled' ? 'active' : '' }}" onclick="window.location.href='?tab=cancelled'">Cancelled <span>{{ $cancelledCount ?? 0 }}</span></button>
             </div>
             
             <div class="search-box">
@@ -175,7 +176,13 @@
                         </td>
                         <td style="text-align: center;">
                             @if($tab == 'pending')
-                                <button class="btn-dev" style="background: var(--primary-blue); color: white; border: none; padding: 6px 12px; border-radius: 6px;" onclick="document.getElementById('refundModal_{{ $refund->id }}').style.display='flex'">Proceed to Refund</button>
+                                <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
+                                    <button class="btn-dev" style="background: var(--primary-blue); color: white; border: none; padding: 6px 12px; border-radius: 6px;" onclick="document.getElementById('refundModal_{{ $refund->id }}').style.display='flex'">Proceed to Refund</button>
+                                    <form action="{{ url('/cashier/sales/refunds/'.$refund->id.'/reject') }}" method="POST" style="margin: 0;">
+                                        @csrf
+                                        <button type="button" class="btn-dev" style="background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; padding: 6px 12px; border-radius: 6px;" onclick="confirmIgnoreRefund(this)">Cancel</button>
+                                    </form>
+                                </div>
                                 
                                 <!-- REFUND MODAL FOR THIS ROW -->
                                 <div class="modal-overlay" id="refundModal_{{ $refund->id }}" style="text-align: left;">
@@ -271,7 +278,7 @@
                                     </div>
                                 </div>
                             @else
-                                <span style="color: {{ $refund->refund_status == 'refunded' ? '#16a34a' : '#dc2626' }}; font-weight: 600; text-transform: capitalize;">{{ $refund->refund_status }}</span>
+                                <span style="color: {{ $refund->refund_status == 'refunded' ? '#16a34a' : '#dc2626' }}; font-weight: 600; text-transform: capitalize;">{{ $refund->refund_status == 'rejected' ? 'Cancelled' : $refund->refund_status }}</span>
                             @endif
                         </td>
                     </tr>
@@ -348,6 +355,30 @@
 
         function closeReceiptModal() {
             document.getElementById('receiptModal').style.display = 'none';
+        }
+
+        function confirmIgnoreRefund(btn) {
+            const form = btn.closest('form');
+            if (window.Swal) {
+                Swal.fire({
+                    title: 'Cancel Refund Request?',
+                    text: 'Are you sure you want to cancel/ignore this refund request?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc2626',
+                    cancelButtonColor: '#64748b',
+                    confirmButtonText: 'Yes, Cancel it',
+                    cancelButtonText: 'Back',
+                    heightAuto: false,
+                    scrollbarPadding: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            } else if (confirm('Are you sure you want to cancel/ignore this refund request?')) {
+                form.submit();
+            }
         }
 
         // Close when clicking outside the modal

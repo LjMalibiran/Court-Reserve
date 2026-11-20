@@ -333,7 +333,7 @@ class AdminController extends Controller
         $search = $request->get('search', '');
         $refund_status = 'pending';
         if ($tab == 'completed') $refund_status = 'refunded';
-        // Note: Rejected tab is removed, so we only handle pending and completed
+        elseif ($tab == 'cancelled') $refund_status = 'rejected';
 
         $query = \App\Models\Reservation::where('status', 'cancelled')
                     ->where('refund_status', $refund_status)
@@ -353,8 +353,9 @@ class AdminController extends Controller
                     
         $pendingCount = \App\Models\Reservation::where('status', 'cancelled')->where('refund_status', 'pending')->count();
         $completedCount = \App\Models\Reservation::where('status', 'cancelled')->where('refund_status', 'refunded')->count();
+        $cancelledCount = \App\Models\Reservation::where('status', 'cancelled')->where('refund_status', 'rejected')->count();
 
-        return view('admin.sales-refunds', compact('refunds', 'pendingCount', 'completedCount', 'tab', 'search'));
+        return view('admin.sales-refunds', compact('refunds', 'pendingCount', 'completedCount', 'cancelledCount', 'tab', 'search'));
     }
 
     public function approveRefund($id)
