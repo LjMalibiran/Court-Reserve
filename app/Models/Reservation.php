@@ -24,6 +24,8 @@ class Reservation extends Model
         'cancelled_at',
         'refund_status',     // pending, refunded, rejected
         'refund_amount',
+        'refund_gcash_name',
+        'refund_gcash_number',
     ];
 
     // Casts the database timestamps into Carbon date objects for easy math

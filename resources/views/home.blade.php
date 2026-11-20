@@ -558,12 +558,18 @@
         <form id="cancelForm" method="POST" action="">
             @csrf
             <label class="section-label" style="color: #64748b; font-weight: 500;">Please select a reason for cancellation</label>
-            <select name="reason" id="cancel-reason" class="form-control" style="margin-bottom: 24px;">
+            <select name="reason" id="cancel-reason" class="form-control" style="margin-bottom: 16px;">
                 <option>Schedule Conflict</option>
                 <option>Weather Conditions</option>
                 <option>Personal Emergency</option>
                 <option>Other</option>
             </select>
+
+            <label class="section-label" style="color: #64748b; font-weight: 500;">GCash Account Name (for Refund)</label>
+            <input type="text" name="refund_gcash_name" id="cancel-gcash-name" class="form-control" placeholder="e.g. Juan Dela Cruz" style="margin-bottom: 14px;" required>
+
+            <label class="section-label" style="color: #64748b; font-weight: 500;">GCash Number (for Refund)</label>
+            <input type="text" name="refund_gcash_number" id="cancel-gcash-number" class="form-control" maxlength="11" placeholder="e.g. 09123456789" oninput="this.value = this.value.replace(/[^0-9]/g, '')" style="margin-bottom: 20px;" required>
 
             <div class="refund-policy-box">
                 <h4>Refund Policy</h4>
@@ -897,10 +903,26 @@
         const diffHours = (resStart - new Date()) / 3600000;
         cancelIsEligibleForRefund = (diffHours >= 5);
 
+        document.getElementById('cancel-gcash-name').value = '';
+        document.getElementById('cancel-gcash-number').value = '';
         document.getElementById('cancelModal').style.display = 'flex';
     }
 
     function submitCancel() {
+        const gcashName = document.getElementById('cancel-gcash-name').value.trim();
+        const gcashNumber = document.getElementById('cancel-gcash-number').value.trim();
+
+        if (!gcashName) {
+            alert('Please enter your GCash account name.');
+            document.getElementById('cancel-gcash-name').focus();
+            return;
+        }
+        if (!/^\d{11}$/.test(gcashNumber)) {
+            alert('Please enter a valid 11-digit GCash number.');
+            document.getElementById('cancel-gcash-number').focus();
+            return;
+        }
+
         if (!cancelIsEligibleForRefund) {
             document.getElementById('cancelModal').style.display = 'none';
             document.getElementById('warningCancelModal').style.display = 'flex';

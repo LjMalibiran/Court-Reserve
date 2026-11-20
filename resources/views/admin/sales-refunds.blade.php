@@ -245,6 +245,14 @@
                                                         <label>Refund Reason</label>
                                                         <input type="text" class="form-control" value="{{ $refund->cancellation_reason ?? 'Customer Cancelled' }}" readonly>
                                                     </div>
+                                                    <div class="form-group">
+                                                        <label>GCash Name</label>
+                                                        <input type="text" class="form-control" value="{{ $refund->refund_gcash_name ?? 'N/A' }}" readonly>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>GCash Number</label>
+                                                        <input type="text" class="form-control" value="{{ $refund->refund_gcash_number ?? 'N/A' }}" readonly>
+                                                    </div>
                                                     <div class="upload-section">
                                                         <label>Gcash Receipt</label>
                                                         <label class="file-upload-wrapper" for="receiptUpload_{{ $refund->id }}">

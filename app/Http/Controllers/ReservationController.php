@@ -252,6 +252,8 @@ class ReservationController extends Controller
         $reservation->status = 'cancelled';
         $reservation->cancellation_reason = $reason;
         $reservation->cancelled_at = now();
+        $reservation->refund_gcash_name = $request->input('refund_gcash_name');
+        $reservation->refund_gcash_number = $request->input('refund_gcash_number');
 
         // Determine refund eligibility: only if reservation was confirmed and had payment
         $paid = floatval($reservation->amount_paid);
