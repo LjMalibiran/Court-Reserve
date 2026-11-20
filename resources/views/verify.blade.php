@@ -7,7 +7,9 @@
     <style>
         body { 
             margin: 0; 
-            height: 100vh; 
+            min-height: 100vh; 
+            padding: 20px; 
+            box-sizing: border-box; 
             display: flex; 
             justify-content: center; 
             align-items: center; 
@@ -22,10 +24,10 @@
         /* The Main Card */
         .auth-form-container { 
             background: white; 
-            padding: 50px 40px; 
+            padding: 44px 36px; 
             border-radius: 20px; 
             width: 100%; 
-            max-width: 420px; 
+            max-width: 400px; 
             border: 1.5px solid #2b308b; 
             box-sizing: border-box;
             text-align: center;
@@ -89,6 +91,14 @@
         }
         .btn-primary:hover { background-color: #0033cc; }
 
+        @media (max-width: 480px) {
+            .auth-form-container { padding: 32px 20px; }
+            h2 { font-size: 26px; margin-bottom: 16px; }
+            p.instruction { font-size: 14px; margin-bottom: 24px; padding: 0; }
+            .otp-container { gap: 10px; margin-bottom: 28px; }
+            .otp-input { width: 48px; height: 56px; font-size: 24px; }
+            .btn-primary { width: 100%; }
+        }
     </style>
 </head>
 <body>
