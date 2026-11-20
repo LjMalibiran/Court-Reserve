@@ -360,38 +360,54 @@ class AdminController extends Controller
 
     public function approveRefund($id)
     {
-        $reservation = \App\Models\Reservation::findOrFail($id);
+        $reservation = \App\Models\Reservation::with('user')->findOrFail($id);
         if ($reservation->refund_status === 'pending') {
             $reservation->refund_status = 'refunded';
             $reservation->save();
 
-            // Notify user
-            \App\Models\Notification::create([
-                'user_id' => $reservation->user_id,
-                'reservation_id' => $reservation->id,
-                'title' => 'Refund Approved',
-                'message' => "Your refund of ₱" . number_format($reservation->refund_amount, 2) . " for booking {$reservation->reservation_code} has been approved and processed.",
-            ]);
+            $amountFmt = number_format($reservation->refund_amount ?? 0, 2);
+
+            if ($reservation->user_id) {
+                \App\Models\Notification::create([
+                    'user_id' => $reservation->user_id,
+                    'reservation_id' => $reservation->id,
+                    'title' => 'Refund Approved',
+                    'message' => "Your refund of ₱{$amountFmt} for booking {$reservation->reservation_code} has been approved and processed.",
+                ]);
+            }
+
+            $phone = $reservation->user->contact ?? $reservation->user->phone_number ?? $reservation->refund_gcash_number ?? null;
+            if (!empty($phone)) {
+                $smsMsg = "Good day! Your refund of P{$amountFmt} for Reservation ID {$reservation->reservation_code} has been APPROVED and processed.";
+                \App\Services\SmsService::send($phone, $smsMsg);
+            }
         }
         return back()->with('success', 'Refund approved successfully.');
     }
 
     public function rejectRefund($id)
     {
-        $reservation = \App\Models\Reservation::findOrFail($id);
+        $reservation = \App\Models\Reservation::with('user')->findOrFail($id);
         if ($reservation->refund_status === 'pending') {
             $reservation->refund_status = 'rejected';
             $reservation->save();
 
-            // Notify user
-            \App\Models\Notification::create([
-                'user_id' => $reservation->user_id,
-                'reservation_id' => $reservation->id,
-                'title' => 'Refund Rejected',
-                'message' => "Your refund request for booking {$reservation->reservation_code} was rejected by the admin.",
-            ]);
+            if ($reservation->user_id) {
+                \App\Models\Notification::create([
+                    'user_id' => $reservation->user_id,
+                    'reservation_id' => $reservation->id,
+                    'title' => 'Refund Cancelled',
+                    'message' => "Your refund request for booking {$reservation->reservation_code} was cancelled by the admin.",
+                ]);
+            }
+
+            $phone = $reservation->user->contact ?? $reservation->user->phone_number ?? $reservation->refund_gcash_number ?? null;
+            if (!empty($phone)) {
+                $smsMsg = "Notice: Your refund request for Reservation ID {$reservation->reservation_code} has been CANCELLED by the admin.";
+                \App\Services\SmsService::send($phone, $smsMsg);
+            }
         }
-        return back()->with('success', 'Refund rejected successfully.');
+        return back()->with('success', 'Refund cancelled successfully.');
     }
 
     public function settingsIndex()
