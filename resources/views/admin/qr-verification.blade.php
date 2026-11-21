@@ -435,7 +435,24 @@
 
             // Camera Scanner logic
             const startCameraBtn = document.getElementById('start-camera-btn');
-            const html5QrCode = new Html5Qrcode("reader");
+            const html5QrCode = new Html5Qrcode("reader", {
+                experimentalFeatures: { useBarCodeDetectorIfSupported: true }
+            });
+
+            function enableContinuousAutofocus() {
+                try {
+                    const video = document.querySelector('#reader video');
+                    if (!video || !video.srcObject) return;
+                    const track = video.srcObject.getVideoTracks()[0];
+                    if (!track || !track.getCapabilities) return;
+                    const caps = track.getCapabilities();
+                    if (caps.focusMode && caps.focusMode.includes('continuous')) {
+                        track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }).catch(() => {});
+                    }
+                } catch (e) {}
+            }
+
+            document.getElementById('reader').addEventListener('click', enableContinuousAutofocus);
 
             startCameraBtn.addEventListener('click', function() {
                 startCameraBtn.style.display = 'none';
@@ -447,8 +464,14 @@
                         // Use the last camera (often the back camera on mobile) or the only camera available
                         let cameraId = devices.length > 1 ? devices[devices.length - 1].id : devices[0].id;
                         // Dynamically size the scan box to 70% of the camera feed (great for laptops)
-                        let config = { 
-                            fps: 15, 
+                                                let config = { 
+                            fps: 15,
+                            videoConstraints: {
+                                deviceId: { exact: cameraId },
+                                width: { ideal: 1280 },
+                                height: { ideal: 720 },
+                                advanced: [{ focusMode: 'continuous' }]
+                            },
                             qrbox: function(viewfinderWidth, viewfinderHeight) {
                                 let minEdge = Math.min(viewfinderWidth, viewfinderHeight);
                                 let qrboxSize = Math.floor(minEdge * 0.70);
@@ -468,6 +491,7 @@
                             (errorMessage) => {
                                 // ignore background scanning errors
                             })
+                        .then(() => { enableContinuousAutofocus(); })
                         .catch((err) => {
                             console.log("Error starting scanner", err);
                             alert("Could not start camera. Please ensure camera permissions are granted in your browser.");
