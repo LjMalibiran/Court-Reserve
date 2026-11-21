@@ -432,7 +432,7 @@ class CashierController extends Controller
                 ]);
             }
 
-            $phone = $reservation->user->contact ?? $reservation->user->phone_number ?? $reservation->refund_gcash_number ?? null;
+            $phone = trim((string) ($reservation->user?->contact ?: ($reservation->user?->phone_number ?: $reservation->refund_gcash_number)));
             if (!empty($phone)) {
                 $smsMsg = "Good day! Your refund of P{$amountFmt} for Reservation ID {$reservation->reservation_code} has been APPROVED and processed.";
                 \App\Services\SmsService::send($phone, $smsMsg);
@@ -441,25 +441,28 @@ class CashierController extends Controller
         return back()->with('success', 'Refund approved successfully.');
     }
 
-    public function rejectRefund($id)
+    public function rejectRefund(\Illuminate\Http\Request $request, $id)
     {
         $reservation = \App\Models\Reservation::with('user')->findOrFail($id);
         if ($reservation->refund_status === 'pending') {
             $reservation->refund_status = 'rejected';
             $reservation->save();
 
+            $reason = trim((string) $request->input('reason', ''));
+            $reasonText = $reason !== '' ? " Reason: {$reason}" : '';
+
             if ($reservation->user_id) {
                 \App\Models\Notification::create([
                     'user_id' => $reservation->user_id,
                     'reservation_id' => $reservation->id,
                     'title' => 'Refund Cancelled',
-                    'message' => "Your refund request for booking {$reservation->reservation_code} was cancelled by the cashier.",
+                    'message' => "Your refund request for booking {$reservation->reservation_code} was cancelled by the cashier.{$reasonText}",
                 ]);
             }
 
-            $phone = $reservation->user->contact ?? $reservation->user->phone_number ?? $reservation->refund_gcash_number ?? null;
+            $phone = trim((string) ($reservation->user?->contact ?: ($reservation->user?->phone_number ?: $reservation->refund_gcash_number)));
             if (!empty($phone)) {
-                $smsMsg = "Notice: Your refund request for Reservation ID {$reservation->reservation_code} has been CANCELLED by the cashier.";
+                $smsMsg = "Notice: Your refund request for Reservation ID {$reservation->reservation_code} has been CANCELLED by the cashier.{$reasonText}";
                 \App\Services\SmsService::send($phone, $smsMsg);
             }
         }

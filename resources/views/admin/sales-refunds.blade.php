@@ -362,8 +362,34 @@
             if (window.Swal) {
                 Swal.fire({
                     title: 'Cancel Refund Request?',
-                    text: 'Are you sure you want to cancel/ignore this refund request?',
                     icon: 'warning',
+                    html:
+                        '<p style="margin:0 0 12px;font-size:14px;color:#475569;">Please select a reason for cancelling this refund request:</p>' +
+                        '<select id="swal-refund-reason" style="width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;margin-bottom:10px;">' +
+                            '<option value="Invalid / Fake Receipt">Invalid / Fake Receipt</option>' +
+                            '<option value="Incorrect GCash Details">Incorrect GCash Details</option>' +
+                            '<option value="Duplicate Request">Duplicate Request</option>' +
+                            '<option value="Not Eligible for Refund">Not Eligible for Refund</option>' +
+                            '<option value="Other">Other</option>' +
+                        '</select>' +
+                        '<input id="swal-refund-other" type="text" placeholder="Specify reason..." style="display:none;width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;">',
+                    didOpen: () => {
+                        const sel = document.getElementById('swal-refund-reason');
+                        const other = document.getElementById('swal-refund-other');
+                        sel.addEventListener('change', () => {
+                            other.style.display = sel.value === 'Other' ? 'block' : 'none';
+                            if (sel.value === 'Other') other.focus();
+                        });
+                    },
+                    preConfirm: () => {
+                        const sel = document.getElementById('swal-refund-reason').value;
+                        const other = document.getElementById('swal-refund-other').value.trim();
+                        if (sel === 'Other' && !other) {
+                            Swal.showValidationMessage('Please specify the reason for cancellation.');
+                            return false;
+                        }
+                        return sel === 'Other' ? other : sel;
+                    },
                     showCancelButton: true,
                     confirmButtonColor: '#dc2626',
                     cancelButtonColor: '#64748b',
@@ -373,11 +399,30 @@
                     scrollbarPadding: false
                 }).then((result) => {
                     if (result.isConfirmed) {
+                        let input = form.querySelector('input[name="reason"]');
+                        if (!input) {
+                            input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = 'reason';
+                            form.appendChild(input);
+                        }
+                        input.value = result.value;
                         form.submit();
                     }
                 });
-            } else if (confirm('Are you sure you want to cancel/ignore this refund request?')) {
-                form.submit();
+            } else {
+                const reason = prompt('Reason for cancelling this refund request:', 'Invalid / Fake Receipt');
+                if (reason !== null && reason.trim() !== '') {
+                    let input = form.querySelector('input[name="reason"]');
+                    if (!input) {
+                        input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'reason';
+                        form.appendChild(input);
+                    }
+                    input.value = reason.trim();
+                    form.submit();
+                }
             }
         }
 
