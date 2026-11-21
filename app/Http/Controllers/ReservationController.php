@@ -264,7 +264,7 @@ class ReservationController extends Controller
         if ($paid > 0) {
             $reservation->refund_amount = min($paid, floatval($reservation->total_price));
             $hoursBefore = now()->diffInHours(\Carbon\Carbon::parse($reservation->start_time), false);
-            if ($hoursBefore >= 5) {
+            if ($hoursBefore >= 5 || $reservation->previous_status === 'overdue') {
                 $reservation->refund_status = 'pending';
             } else {
                 $reservation->refund_status = 'not_eligible';

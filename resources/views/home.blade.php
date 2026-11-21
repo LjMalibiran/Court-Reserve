@@ -286,7 +286,7 @@
         <div class="scrollable-list">
             @forelse($todayReservations as $res)
                 @php
-                    $badgeClass = in_array($res->status, ['confirmed', 'completed', 'in-play']) ? 'badge-confirmed' : ($res->status == 'cancelled' ? 'badge-cancelled' : 'badge-pending');
+                    $badgeClass = in_array($res->status, ['confirmed', 'completed', 'in-play']) ? 'badge-confirmed' : (in_array($res->status, ['cancelled', 'overdue']) ? 'badge-cancelled' : 'badge-pending');
                 @endphp
                 <div class="compact-res-card" data-id="{{ $res->id }}" onclick="openResDetailsModal({{ $res->id }}, '{{ $res->sport ?? 'Badminton' }}', '{{ $res->court_id }}', '{{ $res->start_time }}', '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }}', '{{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}', '{{ $res->reservation_code }}', '{{ $res->status }}')">
                     <div class="crc-left">
@@ -346,7 +346,7 @@
         <div class="scrollable-list">
             @forelse($upcomingReservations as $res)
                 @php
-                    $badgeClass = in_array($res->status, ['confirmed', 'completed', 'in-play']) ? 'badge-confirmed' : ($res->status == 'cancelled' ? 'badge-cancelled' : 'badge-pending');
+                    $badgeClass = in_array($res->status, ['confirmed', 'completed', 'in-play']) ? 'badge-confirmed' : (in_array($res->status, ['cancelled', 'overdue']) ? 'badge-cancelled' : 'badge-pending');
                 @endphp
                 <div class="compact-res-card" data-id="{{ $res->id }}" onclick="openResDetailsModal({{ $res->id }}, '{{ $res->sport ?? 'Badminton' }}', '{{ $res->court_id }}', '{{ $res->start_time }}', '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }}', '{{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}', '{{ $res->reservation_code }}', '{{ $res->status }}')">
                     <div class="crc-left">
@@ -559,10 +559,11 @@
             @csrf
             <label class="section-label" style="color: #64748b; font-weight: 500;">Please select a reason for cancellation</label>
             <select name="reason" id="cancel-reason" class="form-control" style="margin-bottom: 16px;">
-                <option>Schedule Conflict</option>
-                <option>Weather Conditions</option>
-                <option>Personal Emergency</option>
-                <option>Other</option>
+                <option value="Schedule Conflict">Schedule Conflict</option>
+                <option value="Weather Conditions">Weather Conditions</option>
+                <option value="Personal Emergency">Personal Emergency</option>
+                <option value="Other">Other</option>
+                <option value="Overdue" id="cancel-reason-overdue" style="display: none;">Overdue</option>
             </select>
 
             <label class="section-label" style="color: #64748b; font-weight: 500;">GCash Account Name (for Refund)</label>
@@ -653,7 +654,7 @@
         badge.innerText = status.charAt(0).toUpperCase() + status.slice(1);
         badge.className = '';
         if (status === 'confirmed' || status === 'completed' || status === 'in-play') badge.className = 'badge-confirmed';
-        else if (status === 'cancelled') badge.className = 'badge-cancelled';
+        else if (status === 'cancelled' || status === 'overdue') badge.className = 'badge-cancelled';
         else badge.className = 'badge-pending';
 
         const actionsDiv = document.getElementById('detail-actions');
@@ -664,6 +665,8 @@
             actionsDiv.innerHTML += `<button class="btn-solid-red" onclick="closeGlobalModal('resDetailsModal'); openCancelModal(${id}, '${code}', '${sport}', '${courtId}', '${date}', '${startTime}', '${endTime}', '${status}')">Cancel Reservation</button>`;
         } else if (status === 'pending') {
             actionsDiv.innerHTML += `<button class="btn-solid-blue" onclick="closeGlobalModal('resDetailsModal'); openEditModal(${id}, '${sport}', '${courtId}', '${date}', '${startTime}', '${endTime}', '${status}')">Edit Reservation</button>`;
+            actionsDiv.innerHTML += `<button class="btn-solid-red" onclick="closeGlobalModal('resDetailsModal'); openCancelModal(${id}, '${code}', '${sport}', '${courtId}', '${date}', '${startTime}', '${endTime}', '${status}')">Cancel Reservation</button>`;
+        } else if (status === 'overdue') {
             actionsDiv.innerHTML += `<button class="btn-solid-red" onclick="closeGlobalModal('resDetailsModal'); openCancelModal(${id}, '${code}', '${sport}', '${courtId}', '${date}', '${startTime}', '${endTime}', '${status}')">Cancel Reservation</button>`;
         }
 
@@ -884,7 +887,7 @@
         badge.innerText = status ? (status.charAt(0).toUpperCase() + status.slice(1)) : 'Confirmed';
         badge.className = '';
         if (status === 'confirmed' || status === 'completed' || status === 'in-play') badge.className = 'badge-confirmed';
-        else if (status === 'cancelled') badge.className = 'badge-cancelled';
+        else if (status === 'cancelled' || status === 'overdue') badge.className = 'badge-cancelled';
         else badge.className = 'badge-pending';
         
         const d = new Date(date);
@@ -901,7 +904,22 @@
         const dateParts = date.split(/[- :]/);
         const resStart = new Date(dateParts[0], dateParts[1] - 1, dateParts[2], dateParts[3], dateParts[4], dateParts[5] || 0);
         const diffHours = (resStart - new Date()) / 3600000;
-        cancelIsEligibleForRefund = (diffHours >= 5);
+        const isOverdue = (status && status.toLowerCase() === 'overdue');
+        cancelIsEligibleForRefund = isOverdue || (diffHours >= 5);
+
+        const reasonSelect = document.getElementById('cancel-reason');
+        const overdueOpt = document.getElementById('cancel-reason-overdue');
+        if (isOverdue) {
+            overdueOpt.style.display = 'block';
+            reasonSelect.value = 'Overdue';
+            reasonSelect.style.pointerEvents = 'none';
+            reasonSelect.style.backgroundColor = '#f1f5f9';
+        } else {
+            overdueOpt.style.display = 'none';
+            reasonSelect.value = 'Schedule Conflict';
+            reasonSelect.style.pointerEvents = '';
+            reasonSelect.style.backgroundColor = '';
+        }
 
         document.getElementById('cancel-gcash-name').value = '';
         document.getElementById('cancel-gcash-number').value = '';

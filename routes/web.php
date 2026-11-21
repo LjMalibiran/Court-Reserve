@@ -156,7 +156,10 @@ Route::middleware(['auth', 'verified.phone'])->group(function () {
     // Dashboard
     Route::get('/home', function () {
         $todayReservations = \App\Models\Reservation::where('user_id', Auth::id())
-            ->whereDate('start_time', \Carbon\Carbon::today())
+            ->where(function ($q) {
+                $q->whereDate('start_time', \Carbon\Carbon::today())
+                  ->orWhere('status', 'overdue');
+            })
             ->whereNotIn('status', ['cancelled', 'completed'])
             ->orderBy('created_at', 'desc')
             ->get();
