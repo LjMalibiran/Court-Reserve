@@ -222,9 +222,8 @@ class CashierController extends Controller
             $reservation->previous_status = $isOverdue ? 'overdue' : $reservation->status;
             $reservation->status = 'cancelled';
             $reservation->cancelled_at = now();
-            if (empty($reservation->cancellation_reason)) {
-                $reservation->cancellation_reason = 'Cancelled by cashier';
-            }
+            $reason = trim((string) $request->input('reason', ''));
+            $reservation->cancellation_reason = $reason !== '' ? $reason : 'Cancelled by cashier';
 
             // Automatically flag for full refund if paid online (Admin/Cashier cancellation)
             if (in_array($reservation->payment_type, ['full', 'half'])) {
@@ -243,14 +242,14 @@ class CashierController extends Controller
                     'user_id' => $reservation->user_id,
                     'reservation_id' => $reservation->id,
                     'title' => 'Reservation Cancelled',
-                    'message' => 'Your reservation for Court ' . $reservation->court_id . ' has been cancelled by the cashier.'
+                    'message' => "Your reservation ({$reservation->reservation_code}) for Court {$reservation->court_id} has been cancelled by the cashier. Reason: {$reservation->cancellation_reason}"
                 ]);
 
                 // Send SMS via iProgSMS
                 $phone = $reservation->user->contact ?? $reservation->user->phone_number;
                 if (!empty($phone)) {
                     $date = \Carbon\Carbon::parse($reservation->start_time)->format('F j, Y');
-                    $smsMsg = "Notice: Your reservation ({$reservation->reservation_code}) for Court {$reservation->court_id} on {$date} has been CANCELLED.\n\nIf you paid online, please expect a refund soon.";
+                    $smsMsg = "Notice: Your reservation ({$reservation->reservation_code}) for Court {$reservation->court_id} on {$date} has been CANCELLED.\nReason: {$reservation->cancellation_reason}\n\nIf you paid online, please expect a refund soon.";
                     \App\Services\SmsService::send($phone, $smsMsg);
                 }
             }

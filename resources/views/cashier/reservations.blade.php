@@ -579,8 +579,33 @@
             if (window.Swal) {
                 Swal.fire({
                     title: isOverdue ? 'Cancel & Refund Reservation?' : 'Cancel Reservation?',
-                    text: 'Are you sure you want to cancel this reservation?',
                     icon: 'warning',
+                    html:
+                        '<p style="margin:0 0 12px;font-size:14px;color:#475569;">Please select a reason for cancelling this reservation:</p>' +
+                        '<select id="swal-cancel-reason" style="width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;margin-bottom:10px;">' +
+                            '<option value="Invalid Receipt">Invalid Receipt</option>' +
+                            '<option value="Emergency">Emergency</option>' +
+                            '<option value="Schedule Conflict / Maintenance">Schedule Conflict / Maintenance</option>' +
+                            '<option value="Other">Other</option>' +
+                        '</select>' +
+                        '<input id="swal-cancel-other" type="text" placeholder="Specify reason..." style="display:none;width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;">',
+                    didOpen: () => {
+                        const sel = document.getElementById('swal-cancel-reason');
+                        const other = document.getElementById('swal-cancel-other');
+                        sel.addEventListener('change', () => {
+                            other.style.display = sel.value === 'Other' ? 'block' : 'none';
+                            if (sel.value === 'Other') other.focus();
+                        });
+                    },
+                    preConfirm: () => {
+                        const sel = document.getElementById('swal-cancel-reason').value;
+                        const other = document.getElementById('swal-cancel-other').value.trim();
+                        if (sel === 'Other' && !other) {
+                            Swal.showValidationMessage('Please specify the reason for cancellation.');
+                            return false;
+                        }
+                        return sel === 'Other' ? other : sel;
+                    },
                     showCancelButton: true,
                     confirmButtonColor: '#dc2626',
                     cancelButtonColor: '#64748b',
@@ -590,11 +615,30 @@
                     scrollbarPadding: false
                 }).then((result) => {
                     if (result.isConfirmed) {
+                        let input = form.querySelector('input[name="reason"]');
+                        if (!input) {
+                            input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = 'reason';
+                            form.appendChild(input);
+                        }
+                        input.value = result.value;
                         form.submit();
                     }
                 });
-            } else if (confirm('Are you sure you want to cancel this reservation?')) {
-                form.submit();
+            } else {
+                const reason = prompt('Reason for cancellation (e.g. Invalid Receipt, Emergency):', 'Invalid Receipt');
+                if (reason !== null && reason.trim() !== '') {
+                    let input = form.querySelector('input[name="reason"]');
+                    if (!input) {
+                        input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'reason';
+                        form.appendChild(input);
+                    }
+                    input.value = reason.trim();
+                    form.submit();
+                }
             }
         }
 

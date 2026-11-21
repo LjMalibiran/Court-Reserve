@@ -65,7 +65,7 @@
             }
             $displayRefundAmt = (float)$res->refund_amount > 0 ? (float)$res->refund_amount : $paid;
         @endphp
-        <div class="history-card" data-search="{{ strtolower($res->sport . ' ' . $res->court_id . ' ' . $res->reservation_code . ' ' . \Carbon\Carbon::parse($res->start_time)->format('F j, Y M j, Y Y-m-d')) }}" onclick="openHistoryDetails('{{ $res->id }}', '{{ $res->sport ?? 'Badminton' }} Court {{ $res->court_id }}', '{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}', '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}', '{{ $res->reservation_code }}', '{{ ucfirst($res->status) }}', '{{ $res->refund_status }}', '{{ $displayRefundAmt }}')">
+        <div class="history-card" data-search="{{ strtolower($res->sport . ' ' . $res->court_id . ' ' . $res->reservation_code . ' ' . \Carbon\Carbon::parse($res->start_time)->format('F j, Y M j, Y Y-m-d')) }}" onclick="openHistoryDetails('{{ $res->id }}', '{{ $res->sport ?? 'Badminton' }} Court {{ $res->court_id }}', '{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}', '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}', '{{ $res->reservation_code }}', '{{ ucfirst($res->status) }}', '{{ $res->refund_status }}', '{{ $displayRefundAmt }}', {{ Js::from($res->cancellation_reason ?? '') }})">
             <div class="res-info">
                 <div class="crc-icon {{ strtolower($res->sport ?? 'badminton') }}">
                     @if(($res->sport ?? 'Badminton') == 'Pickleball')
@@ -117,6 +117,12 @@
                 <i class="fa-regular fa-clock" style="width: 20px; text-align: center;"></i>
                 <span id="hd-time"></span>
             </div>
+        </div>
+
+        <!-- Cancellation Reason Section -->
+        <div id="hd-reason-section" style="display: none; background: #fef2f2; border: 1px solid #fecaca; padding: 12px 15px; border-radius: 8px; margin-bottom: 16px; text-align: left; font-size: 13px;">
+            <span style="color: #991b1b; font-weight: 600;">Cancellation Reason:</span>
+            <span id="hd-reason-text" style="color: #7f1d1d;"></span>
         </div>
 
         <!-- Refund Section -->
@@ -184,11 +190,19 @@
         });
     });
 
-    function openHistoryDetails(id, title, date, time, code, status, refundStatus, refundAmount) {
+    function openHistoryDetails(id, title, date, time, code, status, refundStatus, refundAmount, cancelReason) {
         document.getElementById('hd-title').innerText = title;
         document.getElementById('hd-date').innerText = date;
         document.getElementById('hd-time').innerText = time;
         document.getElementById('hd-code').innerText = code;
+
+        const reasonSection = document.getElementById('hd-reason-section');
+        if (status === 'Cancelled' && cancelReason) {
+            reasonSection.style.display = 'block';
+            document.getElementById('hd-reason-text').innerText = cancelReason;
+        } else {
+            reasonSection.style.display = 'none';
+        }
         
         const badge = document.getElementById('hd-badge');
         badge.innerText = status;
