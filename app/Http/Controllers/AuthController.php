@@ -29,7 +29,7 @@ class AuthController extends Controller
 
         $request->validate([
             'name' => 'required|unique:users,name',
-            'email' => 'required|email|unique:users,email|ends_with:@gmail.com',
+            'email' => ['required', 'string', 'email:rfc,dns', 'unique:users,email', 'regex:/^[a-zA-Z0-9._%+-]+@gmail\.com$/i'],
             'contact' => 'required|digits:11',
             'password' => [
                 'required',
@@ -40,6 +40,8 @@ class AuthController extends Controller
                 'regex:/[^a-zA-Z0-9]/', // at least one symbol
             ],
         ], [
+            'email.email' => 'Please enter a valid, active Gmail address.',
+            'email.regex' => 'Only valid @gmail.com addresses are allowed.',
             'password.regex' => 'The password must contain at least one letter, one number, and one symbol.',
             'password.min' => 'The password must be more than 8 characters.',
         ]);
@@ -57,13 +59,16 @@ class AuthController extends Controller
             'verification_code_expires_at' => now()->addMinutes(3),
         ]);
 
-        // 3. SEND VERIFICATION CODE VIA EMAIL (temporary while Semaphore sender name is pending)
+        // 3. SEND VERIFICATION CODE VIA EMAIL
         try {
             Mail::to($user->email)->send(new \App\Mail\VerificationCodeMail($verificationCode));
             Log::info("EMAIL SENT TO {$user->email}: {$verificationCode}");
         } catch (\Throwable $e) {
-            // If email fails (e.g. SMTP blocked), still proceed — code is saved in DB
             Log::error("Failed to send email to {$user->email}: " . $e->getMessage() . " | Code: {$verificationCode}");
+            $user->delete();
+            return back()->withInput($request->except('password'))->withErrors([
+                'email' => 'Could not send verification code to this Gmail address. Please use an active Gmail account.',
+            ]);
         }
 
         Auth::login($user);

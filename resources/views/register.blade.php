@@ -348,8 +348,8 @@
             let emailValid = false;
             const emailError = document.getElementById('email-error');
             if (email.length > 0) {
-                if (!email.endsWith('@gmail.com')) {
-                    emailError.textContent = "Must be a valid Gmail address (@gmail.com)";
+                if (!/^[a-zA-Z0-9._%+-]+@gmail\.com$/i.test(email.trim())) {
+                    emailError.textContent = "Must be a valid active Gmail address (@gmail.com)";
                     emailError.style.display = "block";
                     emailInput.classList.add('is-invalid');
                 } else {
