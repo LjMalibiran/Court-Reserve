@@ -127,6 +127,7 @@
     }
 
     let notifAudioCtx = null;
+    let pendingNotifSound = false;
 
     function unlockNotifAudio() {
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -135,34 +136,58 @@
             notifAudioCtx = new AudioCtx();
         }
         if (notifAudioCtx.state === 'suspended') {
-            notifAudioCtx.resume().catch(() => {});
+            notifAudioCtx.resume().then(() => {
+                if (pendingNotifSound) {
+                    pendingNotifSound = false;
+                    triggerChime();
+                }
+            }).catch(() => {});
+        } else if (pendingNotifSound && notifAudioCtx.state === 'running') {
+            pendingNotifSound = false;
+            triggerChime();
         }
     }
 
-    ['click', 'keydown', 'touchstart'].forEach(evt => {
+    ['click', 'keydown', 'touchstart', 'mousedown'].forEach(evt => {
         document.addEventListener(evt, unlockNotifAudio, { passive: true });
     });
 
+    function triggerChime() {
+        if (!notifAudioCtx || notifAudioCtx.state !== 'running') return;
+        const now = notifAudioCtx.currentTime;
+        const tones = [880, 1174.66, 1318.51]; // A5 -> D6 -> E6 chime
+        tones.forEach((freq, idx) => {
+            const osc = notifAudioCtx.createOscillator();
+            const gain = notifAudioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.13);
+            gain.gain.setValueAtTime(0.001, now + idx * 0.13);
+            gain.gain.exponentialRampToValueAtTime(0.45, now + idx * 0.13 + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.13 + 0.42);
+            osc.connect(gain);
+            gain.connect(notifAudioCtx.destination);
+            osc.start(now + idx * 0.13);
+            osc.stop(now + idx * 0.13 + 0.45);
+        });
+    }
+
     function playNotifSound() {
         try {
-            unlockNotifAudio();
-            if (!notifAudioCtx || notifAudioCtx.state !== 'running') return;
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (!AudioCtx) return;
+            if (!notifAudioCtx) notifAudioCtx = new AudioCtx();
 
-            const now = notifAudioCtx.currentTime;
-            const tones = [880, 1174.66]; // A5 -> D6 chime
-            tones.forEach((freq, idx) => {
-                const osc = notifAudioCtx.createOscillator();
-                const gain = notifAudioCtx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(freq, now + idx * 0.14);
-                gain.gain.setValueAtTime(0.001, now + idx * 0.14);
-                gain.gain.exponentialRampToValueAtTime(0.25, now + idx * 0.14 + 0.02);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.14 + 0.35);
-                osc.connect(gain);
-                gain.connect(notifAudioCtx.destination);
-                osc.start(now + idx * 0.14);
-                osc.stop(now + idx * 0.14 + 0.36);
-            });
+            if (notifAudioCtx.state === 'running') {
+                triggerChime();
+            } else {
+                pendingNotifSound = true;
+                notifAudioCtx.resume().then(() => {
+                    if (notifAudioCtx.state === 'running') {
+                        pendingNotifSound = false;
+                        triggerChime();
+                    }
+                }).catch(() => {});
+            }
         } catch (e) {
             console.warn('Notification sound skipped:', e);
         }
@@ -180,7 +205,7 @@
                     badge.style.display = 'none';
                 }
 
-                // Play sound when a newer unread notification arrives
+                // Play sound & show toast when a newer unread notification arrives
                 const latestUnread = (data.notifications || []).find(n => !n.is_read);
                 const latestId = latestUnread ? Number(latestUnread.id) : 0;
                 const storedId = sessionStorage.getItem('lastSeenNotifId');
@@ -189,6 +214,18 @@
                 } else if (latestId > Number(storedId)) {
                     sessionStorage.setItem('lastSeenNotifId', String(latestId));
                     playNotifSound();
+                    if (window.Swal && latestUnread) {
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'info',
+                            title: latestUnread.title || 'New Notification',
+                            text: latestUnread.message || '',
+                            showConfirmButton: false,
+                            timer: 5000,
+                            timerProgressBar: true
+                        });
+                    }
                 }
 
                 let html = '';
