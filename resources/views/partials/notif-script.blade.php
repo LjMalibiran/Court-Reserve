@@ -126,6 +126,48 @@
         });
     }
 
+    let notifAudioCtx = null;
+
+    function unlockNotifAudio() {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        if (!notifAudioCtx) {
+            notifAudioCtx = new AudioCtx();
+        }
+        if (notifAudioCtx.state === 'suspended') {
+            notifAudioCtx.resume().catch(() => {});
+        }
+    }
+
+    ['click', 'keydown', 'touchstart'].forEach(evt => {
+        document.addEventListener(evt, unlockNotifAudio, { passive: true });
+    });
+
+    function playNotifSound() {
+        try {
+            unlockNotifAudio();
+            if (!notifAudioCtx || notifAudioCtx.state !== 'running') return;
+
+            const now = notifAudioCtx.currentTime;
+            const tones = [880, 1174.66]; // A5 -> D6 chime
+            tones.forEach((freq, idx) => {
+                const osc = notifAudioCtx.createOscillator();
+                const gain = notifAudioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, now + idx * 0.14);
+                gain.gain.setValueAtTime(0.001, now + idx * 0.14);
+                gain.gain.exponentialRampToValueAtTime(0.25, now + idx * 0.14 + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.14 + 0.35);
+                osc.connect(gain);
+                gain.connect(notifAudioCtx.destination);
+                osc.start(now + idx * 0.14);
+                osc.stop(now + idx * 0.14 + 0.36);
+            });
+        } catch (e) {
+            console.warn('Notification sound skipped:', e);
+        }
+    }
+
     function fetchNotifications() {
         fetch('/notifications/unread')
             .then(res => res.json())
@@ -136,6 +178,17 @@
                     badge.innerHTML = data.count;
                 } else {
                     badge.style.display = 'none';
+                }
+
+                // Play sound when a newer unread notification arrives
+                const latestUnread = (data.notifications || []).find(n => !n.is_read);
+                const latestId = latestUnread ? Number(latestUnread.id) : 0;
+                const storedId = sessionStorage.getItem('lastSeenNotifId');
+                if (storedId === null) {
+                    sessionStorage.setItem('lastSeenNotifId', String(latestId));
+                } else if (latestId > Number(storedId)) {
+                    sessionStorage.setItem('lastSeenNotifId', String(latestId));
+                    playNotifSound();
                 }
 
                 let html = '';
@@ -185,10 +238,10 @@
         });
     }
 
-    // Auto-fetch badge count on load and every 30s
+    // Auto-fetch badge count on load and every 5s
     document.addEventListener('DOMContentLoaded', function() {
         fetchNotifications();
-        setInterval(fetchNotifications, 30000);
+        setInterval(fetchNotifications, 5000);
     });
 </script>
 
