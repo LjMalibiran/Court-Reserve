@@ -118,6 +118,7 @@
                 <button class="tab-btn" onclick="switchTab('in-play', this)">In Play <span>{{ $reservations->where('status', 'in-play')->count() }}</span></button>
                 <button class="tab-btn" onclick="switchTab('completed', this)">Completed <span>{{ $reservations->where('status', 'completed')->count() }}</span></button>
                 <button class="tab-btn" onclick="switchTab('cancelled', this)">Cancelled <span>{{ $reservations->where('status', 'cancelled')->count() }}</span></button>
+                <button class="tab-btn" onclick="switchTab('overdue', this)">Overdue <span>{{ $reservations->where('status', 'overdue')->count() }}</span></button>
             </div>
             
             <hr style="border: none; border-top: 1.5px solid #e2e8f0; margin: 5px 0 20px 0; width: 100%;">
@@ -475,7 +476,63 @@
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="8" class="empty-state">No cancelled reservations.</td></tr>
+                        <tr><td colspan="9" class="empty-state">No cancelled reservations.</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+
+            <!-- TABLE 6: OVERDUE -->
+            <table id="table-overdue" class="data-table" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>ID</th><th>Name</th><th>Sport & Court</th><th>Date & Time</th><th>Amount Paid</th><th>Total Amount</th><th style="text-align: center;">Receipt</th><th style="text-align: center;">Status</th><th style="text-align: center;">View</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($reservations->where('status', 'overdue') as $res)
+                        <tr>
+                            <td style="color: var(--primary-blue); font-weight: 600;">{{ $res->reservation_code }}</td>
+                            <td>{{ $res->user->name ?? 'User '.$res->user_id }}</td>
+                            <td>{{ $res->sport ?? 'Badminton' }} - Court {{ $res->court_id }}</td>
+                            <td>
+                                <div>{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}</div>
+                                <div style="font-size: 12px; color: #777;">{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}</div>
+                            </td>
+                            <td>₱{{ number_format($res->total_price, 2) }}</td>
+                            <td style="color: #16a34a; font-weight: 600;">
+                                @php
+                                    $actual_paid = $res->amount_paid;
+                                    if ($actual_paid == 0) {
+                                        if (strtolower($res->payment_type) == 'full') $actual_paid = $res->total_price;
+                                        elseif (strtolower($res->payment_type) == 'half') $actual_paid = $res->total_price / 2;
+                                    }
+                                @endphp
+                                ₱{{ number_format($actual_paid, 2) }}
+                            </td>
+                            <td style="text-align: center;">
+                                @if($res->receipt_path)
+                                    <button type="button" class="btn-receipt" onclick="viewReceipt('{{ asset('storage/' . $res->receipt_path) }}')"><i class="fa-regular fa-image"></i></button>
+                                @else
+                                    <span style="color: #999; font-size: 12px;">N/A</span>
+                                @endif
+                            </td>
+                            <td style="text-align: center;"><span class="badge badge-cancelled">Overdue</span></td>
+                            <td style="text-align: center;">
+                                <button type="button" class="btn-receipt" onclick="viewAdminReservationDetails(
+                                    '{{ $res->reservation_code }}', 
+                                    '{{ addslashes($res->user->name ?? 'User '.$res->user_id) }}', 
+                                    '{{ $res->sport ?? 'Badminton' }}', 
+                                    '{{ $res->court_id }}', 
+                                    '{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}', 
+                                    '{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}', 
+                                    '₱{{ number_format($res->total_price, 2) }}', 
+                                    '{{ ucfirst($res->status) }}', 
+                                    ''
+                                )"><i class="fa-regular fa-eye"></i></button>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="9" class="empty-state">No overdue reservations.</td></tr>
                     @endforelse
                 </tbody>
             </table>
@@ -682,7 +739,7 @@
                 let parser = new DOMParser();
                 let doc = parser.parseFromString(html, 'text/html');
                 
-                const tableIds = ['table-all', 'table-pending', 'table-confirmed', 'table-in-play', 'table-completed', 'table-cancelled'];
+                const tableIds = ['table-all', 'table-pending', 'table-confirmed', 'table-in-play', 'table-completed', 'table-cancelled', 'table-overdue'];
                 
                 tableIds.forEach(id => {
                     let newTbody = doc.querySelector(`#${id} tbody`);

@@ -661,13 +661,19 @@
         actionsDiv.innerHTML = '';
 
         if (status === 'confirmed') {
+            actionsDiv.style.display = 'grid';
+            actionsDiv.style.justifyContent = '';
             actionsDiv.innerHTML += `<button class="btn-solid-blue" onclick="closeGlobalModal('resDetailsModal'); openEditModal(${id}, '${sport}', '${courtId}', '${date}', '${startTime}', '${endTime}', '${status}')">Edit Reservation</button>`;
             actionsDiv.innerHTML += `<button class="btn-solid-red" onclick="closeGlobalModal('resDetailsModal'); openCancelModal(${id}, '${code}', '${sport}', '${courtId}', '${date}', '${startTime}', '${endTime}', '${status}')">Cancel Reservation</button>`;
         } else if (status === 'pending') {
+            actionsDiv.style.display = 'grid';
+            actionsDiv.style.justifyContent = '';
             actionsDiv.innerHTML += `<button class="btn-solid-blue" onclick="closeGlobalModal('resDetailsModal'); openEditModal(${id}, '${sport}', '${courtId}', '${date}', '${startTime}', '${endTime}', '${status}')">Edit Reservation</button>`;
             actionsDiv.innerHTML += `<button class="btn-solid-red" onclick="closeGlobalModal('resDetailsModal'); openCancelModal(${id}, '${code}', '${sport}', '${courtId}', '${date}', '${startTime}', '${endTime}', '${status}')">Cancel Reservation</button>`;
         } else if (status === 'overdue') {
-            actionsDiv.innerHTML += `<button class="btn-solid-red" onclick="closeGlobalModal('resDetailsModal'); openCancelModal(${id}, '${code}', '${sport}', '${courtId}', '${date}', '${startTime}', '${endTime}', '${status}')">Cancel Reservation</button>`;
+            actionsDiv.style.display = 'flex';
+            actionsDiv.style.justifyContent = 'center';
+            actionsDiv.innerHTML += `<button class="btn-solid-red" style="min-width: 200px;" onclick="closeGlobalModal('resDetailsModal'); openCancelModal(${id}, '${code}', '${sport}', '${courtId}', '${date}', '${startTime}', '${endTime}', '${status}')">Cancel Reservation</button>`;
         }
 
         document.getElementById('resDetailsModal').style.display = 'flex';
