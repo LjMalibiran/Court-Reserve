@@ -150,17 +150,23 @@
                                 <div>{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}</div>
                                 <div style="font-size: 12px; color: #777;">{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}</div>
                             </td>
-                            <td>₱{{ number_format($res->total_price, 2) }}</td>
                             <td style="color: #16a34a; font-weight: 600;">
                                 @php
                                     $actual_paid = $res->amount_paid;
+                                    $change = 0;
                                     if ($actual_paid == 0) {
                                         if (strtolower($res->payment_type) == 'full') $actual_paid = $res->total_price;
                                         elseif (strtolower($res->payment_type) == 'half') $actual_paid = $res->total_price / 2;
+                                    } elseif ($actual_paid > $res->total_price) {
+                                        $change = $actual_paid - $res->total_price;
                                     }
                                 @endphp
                                 ₱{{ number_format($actual_paid, 2) }}
+                                @if($change > 0)
+                                    <div style="font-size: 12px; color: #dc2626; margin-top: 2px;">Change: ₱{{ number_format($change, 2) }}</div>
+                                @endif
                             </td>
+                            <td>₱{{ number_format($res->total_price, 2) }}</td>
                             <td style="text-align: center;">
                                 @if($res->receipt_path)
                                     <button type="button" class="btn-receipt" onclick="viewReceipt('{{ asset('storage/' . $res->receipt_path) }}')"><i class="fa-regular fa-image"></i></button>
@@ -214,17 +220,23 @@
                                 <div>{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}</div>
                                 <div style="font-size: 12px; color: #777;">{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}</div>
                             </td>
-                            <td>₱{{ number_format($res->total_price, 2) }}</td>
                             <td style="color: #16a34a; font-weight: 600;">
                                 @php
                                     $actual_paid = $res->amount_paid;
+                                    $change = 0;
                                     if ($actual_paid == 0) {
                                         if (strtolower($res->payment_type) == 'full') $actual_paid = $res->total_price;
                                         elseif (strtolower($res->payment_type) == 'half') $actual_paid = $res->total_price / 2;
+                                    } elseif ($actual_paid > $res->total_price) {
+                                        $change = $actual_paid - $res->total_price;
                                     }
                                 @endphp
                                 ₱{{ number_format($actual_paid, 2) }}
+                                @if($change > 0)
+                                    <div style="font-size: 12px; color: #dc2626; margin-top: 2px;">Change: ₱{{ number_format($change, 2) }}</div>
+                                @endif
                             </td>
+                            <td>₱{{ number_format($res->total_price, 2) }}</td>
                             <td style="text-align: center;">
                                 @if($res->receipt_path)
                                     <button type="button" class="btn-receipt" onclick="viewReceipt('{{ asset('storage/' . $res->receipt_path) }}')"><i class="fa-regular fa-image"></i></button>
@@ -268,17 +280,23 @@
                                 <div>{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}</div>
                                 <div style="font-size: 12px; color: #777;">{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}</div>
                             </td>
-                            <td>₱{{ number_format($res->total_price, 2) }}</td>
                             <td style="color: #16a34a; font-weight: 600;">
                                 @php
                                     $actual_paid = $res->amount_paid;
+                                    $change = 0;
                                     if ($actual_paid == 0) {
                                         if (strtolower($res->payment_type) == 'full') $actual_paid = $res->total_price;
                                         elseif (strtolower($res->payment_type) == 'half') $actual_paid = $res->total_price / 2;
+                                    } elseif ($actual_paid > $res->total_price) {
+                                        $change = $actual_paid - $res->total_price;
                                     }
                                 @endphp
                                 ₱{{ number_format($actual_paid, 2) }}
+                                @if($change > 0)
+                                    <div style="font-size: 12px; color: #dc2626; margin-top: 2px;">Change: ₱{{ number_format($change, 2) }}</div>
+                                @endif
                             </td>
+                            <td>₱{{ number_format($res->total_price, 2) }}</td>
                             <td style="text-align: center;">
                                 @if($res->receipt_path)
                                     <button type="button" class="btn-receipt" onclick="viewReceipt('{{ asset('storage/' . $res->receipt_path) }}')"><i class="fa-regular fa-image"></i></button>
@@ -386,17 +404,23 @@
                                 <div>{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}</div>
                                 <div style="font-size: 12px; color: #777;">{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}</div>
                             </td>
-                            <td>₱{{ number_format($res->total_price, 2) }}</td>
                             <td style="color: #16a34a; font-weight: 600;">
                                 @php
                                     $actual_paid = $res->amount_paid;
+                                    $change = 0;
                                     if ($actual_paid == 0) {
                                         if (strtolower($res->payment_type) == 'full') $actual_paid = $res->total_price;
                                         elseif (strtolower($res->payment_type) == 'half') $actual_paid = $res->total_price / 2;
+                                    } elseif ($actual_paid > $res->total_price) {
+                                        $change = $actual_paid - $res->total_price;
                                     }
                                 @endphp
                                 ₱{{ number_format($actual_paid, 2) }}
+                                @if($change > 0)
+                                    <div style="font-size: 12px; color: #dc2626; margin-top: 2px;">Change: ₱{{ number_format($change, 2) }}</div>
+                                @endif
                             </td>
+                            <td>₱{{ number_format($res->total_price, 2) }}</td>
                             <td style="text-align: center;">
                                 @if($res->receipt_path)
                                     <button type="button" class="btn-receipt" onclick="viewReceipt('{{ asset('storage/' . $res->receipt_path) }}')"><i class="fa-regular fa-image"></i></button>
@@ -442,17 +466,23 @@
                                 <div>{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}</div>
                                 <div style="font-size: 12px; color: #777;">{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}</div>
                             </td>
-                            <td>₱{{ number_format($res->total_price, 2) }}</td>
                             <td style="color: #16a34a; font-weight: 600;">
                                 @php
                                     $actual_paid = $res->amount_paid;
+                                    $change = 0;
                                     if ($actual_paid == 0) {
                                         if (strtolower($res->payment_type) == 'full') $actual_paid = $res->total_price;
                                         elseif (strtolower($res->payment_type) == 'half') $actual_paid = $res->total_price / 2;
+                                    } elseif ($actual_paid > $res->total_price) {
+                                        $change = $actual_paid - $res->total_price;
                                     }
                                 @endphp
                                 ₱{{ number_format($actual_paid, 2) }}
+                                @if($change > 0)
+                                    <div style="font-size: 12px; color: #dc2626; margin-top: 2px;">Change: ₱{{ number_format($change, 2) }}</div>
+                                @endif
                             </td>
+                            <td>₱{{ number_format($res->total_price, 2) }}</td>
                             <td style="text-align: center;">
                                 @if($res->receipt_path)
                                     <button type="button" class="btn-receipt" onclick="viewReceipt('{{ asset('storage/' . $res->receipt_path) }}')"><i class="fa-regular fa-image"></i></button>
@@ -498,17 +528,23 @@
                                 <div>{{ \Carbon\Carbon::parse($res->start_time)->format('M j, Y') }}</div>
                                 <div style="font-size: 12px; color: #777;">{{ \Carbon\Carbon::parse($res->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('g:i A') }}</div>
                             </td>
-                            <td>₱{{ number_format($res->total_price, 2) }}</td>
                             <td style="color: #16a34a; font-weight: 600;">
                                 @php
                                     $actual_paid = $res->amount_paid;
+                                    $change = 0;
                                     if ($actual_paid == 0) {
                                         if (strtolower($res->payment_type) == 'full') $actual_paid = $res->total_price;
                                         elseif (strtolower($res->payment_type) == 'half') $actual_paid = $res->total_price / 2;
+                                    } elseif ($actual_paid > $res->total_price) {
+                                        $change = $actual_paid - $res->total_price;
                                     }
                                 @endphp
                                 ₱{{ number_format($actual_paid, 2) }}
+                                @if($change > 0)
+                                    <div style="font-size: 12px; color: #dc2626; margin-top: 2px;">Change: ₱{{ number_format($change, 2) }}</div>
+                                @endif
                             </td>
+                            <td>₱{{ number_format($res->total_price, 2) }}</td>
                             <td style="text-align: center;">
                                 @if($res->receipt_path)
                                     <button type="button" class="btn-receipt" onclick="viewReceipt('{{ asset('storage/' . $res->receipt_path) }}')"><i class="fa-regular fa-image"></i></button>
