@@ -129,7 +129,7 @@
                         <div class="stat-icon icon-teal"><i class="fa-solid fa-shoe-prints"></i></div>
                         <div class="stat-details">
                             <h3>Total Walk - In</h3>
-                            <p class="number">0</p>
+                            <p class="number" id="realtime-walkin">{{ $totalWalkIn ?? 0 }}</p>
                         </div>
                     </div>
                     <div class="stat-card" onclick="document.getElementById('usersModal').style.display='flex'" style="cursor: pointer; transition: 0.2s;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 15px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='none'; this.style.boxShadow='none';">
@@ -217,7 +217,7 @@
                 let doc = parser.parseFromString(html, 'text/html');
                 
                 // The exact IDs we assigned to the numbers
-                const metrics = ['realtime-reserved', 'realtime-users', 'realtime-pending'];
+                const metrics = ['realtime-reserved', 'realtime-walkin', 'realtime-users', 'realtime-pending'];
                 
                 metrics.forEach(id => {
                     let newElement = doc.getElementById(id);

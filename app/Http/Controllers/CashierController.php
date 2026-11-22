@@ -14,6 +14,7 @@ class CashierController extends Controller
     public function dashboard()
     {
         $totalReserved = Reservation::where('status', '!=', 'cancelled')->count();
+        $totalWalkIn = Reservation::where('reservation_code', 'LIKE', 'W-%')->where('status', '!=', 'cancelled')->count();
         $pendingReservations = Reservation::where('status', 'pending')->count();
         $registeredUsers = User::whereNotIn('role', ['admin', 'cashier'])
             ->where('email', 'NOT LIKE', 'walkin_%')
@@ -27,7 +28,7 @@ class CashierController extends Controller
             ->orderBy('start_time', 'asc')
             ->get();
 
-        return view('cashier.dashboard', compact('totalReserved', 'pendingReservations', 'totalUsers', 'registeredUsers', 'todayReservations'));
+        return view('cashier.dashboard', compact('totalReserved', 'totalWalkIn', 'pendingReservations', 'totalUsers', 'registeredUsers', 'todayReservations'));
     }
     public function filterSales(Request $request)
     {

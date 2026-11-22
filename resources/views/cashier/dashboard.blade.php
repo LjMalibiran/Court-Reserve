@@ -126,7 +126,7 @@
                     <i class="fa-solid fa-shoe-prints kpi-icon" style="color: #67e8f9;"></i>
                     <div class="kpi-data">
                         <div class="kpi-label">Total Walk - In</div>
-                        <div class="kpi-value">0</div>
+                        <div class="kpi-value" id="realtime-walkin">{{ $totalWalkIn ?? 0 }}</div>
                     </div>
                 </div>
                 <div class="card kpi-card" onclick="document.getElementById('usersModal').style.display='flex'" style="cursor: pointer; transition: 0.2s;" onmouseover="this.style.transform='translateY(-3px)';" onmouseout="this.style.transform='none';">
@@ -227,7 +227,7 @@
                 let doc = parser.parseFromString(html, 'text/html');
                 
                 // The exact IDs we assigned to the numbers
-                const metrics = ['realtime-reserved', 'realtime-users', 'realtime-pending'];
+                const metrics = ['realtime-reserved', 'realtime-walkin', 'realtime-users', 'realtime-pending'];
                 
                 metrics.forEach(id => {
                     let newElement = doc.getElementById(id);

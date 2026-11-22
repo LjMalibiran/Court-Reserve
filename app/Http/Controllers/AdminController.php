@@ -16,6 +16,7 @@ class AdminController extends Controller
     {
         // 1. Exact same calculation as Cashier
         $totalReserved = Reservation::where('status', '!=', 'cancelled')->count();
+        $totalWalkIn = Reservation::where('reservation_code', 'LIKE', 'W-%')->where('status', '!=', 'cancelled')->count();
         $pendingReservations = Reservation::where('status', 'pending')->count();
         // This counts everyone EXCEPT the admin, cashier, walk-in users, and unverified users
         $registeredUsers = User::whereNotIn('role', ['admin', 'cashier'])
@@ -25,7 +26,7 @@ class AdminController extends Controller
             
         $totalUsers = $registeredUsers->count();
 
-        return view('admin.dashboard', compact('totalReserved', 'pendingReservations', 'totalUsers', 'registeredUsers'));
+        return view('admin.dashboard', compact('totalReserved', 'totalWalkIn', 'pendingReservations', 'totalUsers', 'registeredUsers'));
     }
 
     public function filterSales(Request $request)
