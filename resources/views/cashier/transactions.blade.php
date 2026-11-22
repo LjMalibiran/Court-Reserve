@@ -156,7 +156,7 @@
                                 <tbody>
                     @forelse ($reservations as $res)
                     <tr>
-                        <td>{{ $res->id }}</td>
+                        <td>{{ $reservations->count() - $loop->index }}</td>
                         <td>{{ $res->user ? $res->user->name : ($res->walk_in_name ?: 'Walk-In') }}</td>
                         <td>Court {{ $res->court_id }}</td>
                         <td>{{ \Carbon\Carbon::parse($res->start_time)->format('g:ia') }}-{{ \Carbon\Carbon::parse($res->end_time)->format('g:ia') }}</td>

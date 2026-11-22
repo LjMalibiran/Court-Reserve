@@ -69,7 +69,7 @@
                     $date = \Carbon\Carbon::parse($res->start_time)->format('m/d/y');
                 @endphp
                 <tr>
-                    <td>{{ $res->id }}</td>
+                    <td>{{ $reservations->count() - $loop->index }}</td>
                     <td>{{ $name }}</td>
                     <td>Court {{ $res->court_id }}</td>
                     <td>{{ $time }}</td>

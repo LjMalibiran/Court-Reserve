@@ -165,7 +165,7 @@
                                 @foreach($todayReservations as $res)
                                 <tr>
                                     <td style="font-weight: 500; color: var(--dark-blue);">{{ $res->walk_in_name ?? ($res->user ? $res->user->name : 'Walk-In') }}</td>
-                                    <td style="text-align: center;"><span style="background: var(--primary-blue); color: #ffffff; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; white-space: nowrap; display: inline-block;">Court {{ $res->court_id }}</span></td>
+                                    <td style="padding: 12px 5px; font-size: 12px; text-align: center; border-bottom: 1px solid #f0f0f0;"><span style="background: var(--primary-blue); color: #ffffff; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; white-space: nowrap; display: inline-block;">Court {{ $res->court_id }}</span></td>
                                     <td style="text-align: right;">{{ \Carbon\Carbon::parse($res->start_time)->format('h:i A') }} - {{ \Carbon\Carbon::parse($res->end_time)->format('h:i A') }}</td>
                                 </tr>
                                 @endforeach
@@ -201,7 +201,6 @@
                                 <th style="text-align: center; padding: 10px 5px; font-size: 11px; color: var(--dark-blue); text-transform: capitalize; font-weight: 500; border-bottom: 2px solid #f0f0f0;">Court</th>
                                 <th style="text-align: center; padding: 10px 5px; font-size: 11px; color: var(--dark-blue); text-transform: capitalize; font-weight: 500; border-bottom: 2px solid #f0f0f0;">Time</th>
                                 <th style="text-align: right; padding: 10px 5px; font-size: 11px; color: var(--dark-blue); text-transform: capitalize; font-weight: 500; border-bottom: 2px solid #f0f0f0;">Date</th>
-                                <th style="text-align: right; width: 40px; border-bottom: 2px solid #f0f0f0;"></th>
                             </tr>
                         </thead>
                         <tbody id="upcomingTableBody">
@@ -343,10 +342,10 @@
                 data.forEach(res => {
                     html += `
                         <tr>
-                            <td style="font-weight: 500; color: var(--dark-blue);">${res.name}</td>
-                            <td style="text-align: center;"><span style="background: var(--primary-blue); color: #ffffff; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; white-space: nowrap; display: inline-block;">${res.court}</span></td>
-                            <td style="text-align: center;">${res.time}</td>
-                            <td style="text-align: right;">${res.date}</td>
+                            <td style="padding: 12px 5px; font-size: 12px; font-weight: 500; color: var(--dark-blue); border-bottom: 1px solid #f0f0f0;">${res.name}</td>
+                            <td style="padding: 12px 5px; font-size: 12px; text-align: center; border-bottom: 1px solid #f0f0f0;"><span style="background: var(--primary-blue); color: #ffffff; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; white-space: nowrap; display: inline-block;">${res.court}</span></td>
+                            <td style="padding: 12px 5px; font-size: 12px; text-align: center; white-space: nowrap; border-bottom: 1px solid #f0f0f0;">${res.time}</td>
+                            <td style="padding: 12px 5px; font-size: 12px; text-align: right; white-space: nowrap; border-bottom: 1px solid #f0f0f0;">${res.date}</td>
                         </tr>
                     `;
                 });
