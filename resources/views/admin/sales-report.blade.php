@@ -207,6 +207,7 @@
                                     if ($paid == 0 && in_array($res->payment_type, ['full', 'half'])) {
                                         $paid = $res->payment_type == 'half' ? $res->total_price / 2 : $res->total_price;
                                     }
+                                    if (in_array(strtolower($res->status), ['in-play', 'completed']) && $paid < $res->total_price) { $paid = $res->total_price; }
                                     $effectivePaid = min($paid, $res->total_price);
                                 @endphp
                                 &#8369; {{ number_format($effectivePaid, 2) }}

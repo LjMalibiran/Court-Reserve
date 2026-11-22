@@ -119,6 +119,9 @@ class CashierController extends Controller
                 if ($paid == 0 && in_array($r->payment_type, ['full', 'half'])) {
                     $paid = ($r->payment_type == 'half') ? ($r->total_price / 2) : $r->total_price;
                 }
+                if (in_array(strtolower($r->status), ['in-play', 'completed']) && $paid < $r->total_price) {
+                    $paid = (float)$r->total_price;
+                }
                 $effectivePaid = min($paid, $r->total_price);
                 $unpaid = $r->total_price - $effectivePaid;
                 
@@ -152,6 +155,9 @@ class CashierController extends Controller
             $paid = (float)$r->amount_paid;
             if ($paid == 0 && in_array($r->payment_type, ['full', 'half'])) {
                 $paid = ($r->payment_type == 'half') ? ($r->total_price / 2) : $r->total_price;
+            }
+            if (in_array(strtolower($r->status), ['in-play', 'completed']) && $paid < $r->total_price) {
+                $paid = (float)$r->total_price;
             }
             $effectivePaid = min($paid, $r->total_price);
             $unpaid = $r->total_price - $effectivePaid;
@@ -347,6 +353,9 @@ class CashierController extends Controller
             $paid = (float)$r->amount_paid;
             if ($paid == 0 && in_array($r->payment_type, ['full', 'half'])) {
                 $paid = ($r->payment_type == 'half') ? ($r->total_price / 2) : $r->total_price;
+            }
+            if (in_array(strtolower($r->status), ['in-play', 'completed']) && $paid < $r->total_price) {
+                $paid = (float)$r->total_price;
             }
             
             // Cap effective paid to avoid counting physical change/sukli as revenue
