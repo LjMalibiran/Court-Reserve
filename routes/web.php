@@ -191,7 +191,7 @@ Route::middleware(['auth', 'verified.phone'])->group(function () {
     // History Route
     Route::get('/history', function () {
         $historyReservations = \App\Models\Reservation::where('user_id', Auth::id())
-            ->whereIn('status', ['completed', 'cancelled'])
+            ->whereIn('status', ['confirmed', 'completed', 'cancelled'])
             ->orderBy('updated_at', 'desc')
             ->get();
         return view('history', compact('historyReservations')); 

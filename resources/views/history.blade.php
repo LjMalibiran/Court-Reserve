@@ -26,6 +26,7 @@
     .crc-icon.badminton { color: var(--primary-blue); }
 
     .badge { padding: 6px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+    .badge-confirmed { background: #e0f2fe; color: #0284c7; }
     .badge-completed { background: #d1fae5; color: #059669; }
     .badge-cancelled { background: #fee2e2; color: #dc2626; }
     
@@ -45,6 +46,7 @@
 @section('content')
 <div class="tabs">
     <a class="tab-link active">All</a>
+    <a class="tab-link">Confirmed</a>
     <a class="tab-link">Completed</a>
     <a class="tab-link">Cancelled</a>
 </div>
@@ -81,7 +83,7 @@
                 </div>
             </div>
             <div>
-                <span class="badge {{ $res->status == 'completed' ? 'badge-completed' : 'badge-cancelled' }}">
+                <span class="badge {{ $res->status == 'completed' ? 'badge-completed' : ($res->status == 'confirmed' ? 'badge-confirmed' : 'badge-cancelled') }}">
                     {{ ucfirst($res->status) }}
                 </span>
                 <i class="fa-solid fa-chevron-right" style="margin-left: 15px; color: #ccc;"></i>
@@ -91,7 +93,7 @@
         <div class="empty-state">
             <i class="fa-solid fa-inbox"></i>
             <h4>No history found</h4>
-            <p>You don't have any completed or cancelled reservations yet.</p>
+            <p>You don't have any confirmed, completed, or cancelled reservations yet.</p>
         </div>
     @endforelse
 </div>
@@ -208,6 +210,8 @@
         badge.innerText = status;
         if(status === 'Completed') {
             badge.style.backgroundColor = '#e0e7ff'; badge.style.color = '#4338ca';
+        } else if(status === 'Confirmed') {
+            badge.style.backgroundColor = '#e0f2fe'; badge.style.color = '#0284c7';
         } else if(status === 'Cancelled') {
             badge.style.backgroundColor = '#fee2e2'; badge.style.color = '#dc2626';
         }
