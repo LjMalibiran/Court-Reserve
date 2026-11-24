@@ -232,11 +232,11 @@
                 </div>
                 <div class="summary-row">
                     <span>Duration</span>
-                    <span id="summaryDuration">1 Hour</span>
+                    <span id="summaryDuration">1 Hour - &#8369;{{ number_format($settings['price_badminton'] ?? 230, 2) }}</span>
                 </div>
                 <div class="summary-row">
                     <span>Rental</span>
-                    <span id="summaryRental">None</span>
+                    <span id="summaryRental" style="text-align: right; line-height: 1.5;">None</span>
                 </div>
 
                 <div class="summary-total">
@@ -427,23 +427,27 @@
         let durationHours = parseInt(durationStr) || 1;
         
         let courtPrice = currentSport === 'Pickleball' ? {{ $settings['price_pickleball'] ?? 250 }} : {{ $settings['price_badminton'] ?? 230 }};
-       
-        let total = durationHours * courtPrice;
+        let durationTotal = durationHours * courtPrice;
+        let total = durationTotal;
 
         if (currentSport === 'Badminton') {
             let rackets = parseInt(document.getElementById('racketCount').value);
             let shuttles = parseInt(document.getElementById('shuttlecockCount').value);
-            total += (rackets * {{ $settings['price_racket'] ?? 50 }}) + (shuttles * {{ $settings['price_shuttlecock'] ?? 50 }});
+            let racketPrice = {{ $settings['price_racket'] ?? 50 }};
+            let shuttlePrice = {{ $settings['price_shuttlecock'] ?? 50 }};
+            let racketTotal = rackets * racketPrice;
+            let shuttleTotal = shuttles * shuttlePrice;
+            total += racketTotal + shuttleTotal;
 
-            let rentalText = [];
-            if (rackets > 0) rentalText.push(rackets + 'x Racket');
-            if (shuttles > 0) rentalText.push(shuttles + 'x Shuttlecock');
-            document.getElementById('summaryRental').innerText = rentalText.length > 0 ? rentalText.join(', ') : 'None';
+            let rentalLines = [];
+            if (rackets > 0) rentalLines.push(`${rackets}x Racket - &#8369;${racketTotal.toFixed(2)}`);
+            if (shuttles > 0) rentalLines.push(`${shuttles}x Shuttlecock - &#8369;${shuttleTotal.toFixed(2)}`);
+            document.getElementById('summaryRental').innerHTML = rentalLines.length > 0 ? rentalLines.join('<br>') : 'None';
         } else {
             document.getElementById('summaryRental').innerText = 'None';
         }
 
-        document.getElementById('summaryDuration').innerText = durationHours + (durationHours > 1 ? ' Hours' : ' Hour');
+        document.getElementById('summaryDuration').innerHTML = durationHours + (durationHours > 1 ? ' Hours' : ' Hour') + ' - &#8369;' + durationTotal.toFixed(2);
         document.getElementById('summaryTotal').innerHTML = '&#8369; ' + total.toFixed(2);
     }
 
